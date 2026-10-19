@@ -35,9 +35,8 @@ docker compose up -d
   newest event is a minute old. `docker compose logs loader` shows what it sent.
 
 Then open <http://localhost:18000> and sign in as `admin` with the
-`SPLUNK_PASSWORD` value from `.env`. The app opens on **Support overview**.
-The samples cover about two minutes, so set the time picker to *Last 15
-minutes* to spread them out.
+`SPLUNK_PASSWORD` value from `.env`. The app opens on **Support overview**
+with the last 4 hours.
 
 When you've finished, `docker compose down -v` removes the stack and its
 data. Everything listens on 127.0.0.1 only, on ports 18000 (web), 18088
@@ -48,10 +47,21 @@ and 8088 alone.
 
 **Support overview**
 - Failures, users affected, and the first and latest failure.
-- Failures over time, stacked by likely cause.
+- Failures over time, stacked by likely cause. The bucket size follows the
+  data, not the time picker (the `support_chart` macro). A two-minute
+  incident shows as a dozen 10-second columns, not one sliver in a 4-hour
+  chart.
 - *When did it start?* One row per cause with first and last seen, count,
-  users and apps. Select a row to open its runbook.
-- *Who is affected?* Users and apps, each with their causes.
+  who is affected and apps. Select a row to open its runbook. *affected*
+  shows one of three things:
+  - a number of end users, where the logs name them;
+  - the service account, for a directory bind such as
+    `service account (keycloak-svc)`;
+  - *not in log*, where a failure happens before the user is known, such as
+    a SAML response the SP rejects.
+- *Who is affected?* End users and service accounts, each with their apps
+  and causes. A failed bind as `uid=...` counts as that user's own password
+  being rejected, not as an outage.
 - *RADIUS: Access-Reject versus no reply.* A reject means the server
   answered no. No reply means it dropped or ignored the request (a shared
   secret mismatch, or an unknown NAS), which users see as a timeout.
@@ -70,7 +80,7 @@ and 8088 alone.
 |---|---|---|
 | SSO failure rate jumped | 5 or more failed SSO logins in 10 minutes, and over 3 times the previous hour's rate | 01 to 04 |
 | RADIUS server not responding | any request dropped or ignored in the last 5 minutes | 05 |
-| LDAP bind failing (result 49) | the directory or the IdP's LDAP federation reports 49 in the last 15 minutes | 04 |
+| LDAP bind failing (result 49) | a service account's bind, or the IdP's LDAP federation, fails with 49 in the last 15 minutes (one user's wrong password does not count) | 04 |
 | SAML certificate or clock problem | the SP refuses logins for a certificate or clock reason in the last 15 minutes | 01, 02 |
 | rate-limit-probe found a problem | a report in the last hour has a FAIL | (the report's own next step) |
 
@@ -155,6 +165,11 @@ python3 sender/hec_send.py replay samples --shift-to-now
   `props.conf` breaks lines and reads times exactly as it would for a file.
   Reports go to the event endpoint with their own time.
 - **Checking first:** `--dry-run` reads and counts without sending.
+- **Directory noise:** the directory's routine search lines are dropped by
+  default. That means each `SRCH` request and its successful
+  `SEARCH RESULT`. Binds, failed results and connections are always sent,
+  and the summary line says how many lines were skipped.
+  `--keep-ldap-searches` sends everything.
 
 TLS is always verified. For Splunk's default self-signed certificate, trust
 the CA that signed it and name the certificate:
