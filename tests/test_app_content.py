@@ -35,7 +35,7 @@ def test_dashboard_studio_definition_is_consistent(view):
         else:
             assert source["type"] == "ds.search"
             # every base search reads the app's index through its macros
-            assert source["options"]["query"].startswith(("`support_index`", "`support_failures`")), name
+            assert source["options"]["query"].lstrip("(").startswith(("`support_index`", "`support_failures`")), name
     placed = [item["item"] for item in d["layout"]["structure"]]
     assert sorted(placed) == sorted(vizzes)
     assert d["layout"]["globalInputs"] == list(d["inputs"])
@@ -78,3 +78,18 @@ def test_text_is_uk_english_without_em_dashes():
             text = path.read_text(encoding="utf-8")
             assert "—" not in text, path
             assert not re.search(r"\b(?:analyz|organiz|initializ|color\b(?!=))", text), path
+
+
+@pytest.mark.parametrize("view", VIEWS, ids=lambda p: p.stem)
+def test_default_time_range_is_last_4_hours(view):
+    _, d = definition(view)
+    assert d["inputs"]["input_time"]["options"]["defaultValue"] == "-4h,now"
+
+
+def test_overview_charts_use_the_adaptive_bucket_macro():
+    _, d = definition(APP / "default/data/ui/views/support_overview.xml")
+    queries = {name: s["options"]["query"] for name, s in d["dataSources"].items()}
+    assert "`support_chart(cause)`" in queries["ds_over_time"]
+    assert "`support_chart(outcome)`" in queries["ds_radius"]
+    assert not any("timechart" in q for q in queries.values())
+    assert "support_chart(1)" in read_conf("macros.conf")

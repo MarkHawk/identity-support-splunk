@@ -4,6 +4,7 @@ saml_signature_invalid,SAML signature does not match the certificate the SP trus
 saml_clock_skew,Clock skew between IdP and SP: assertion not yet valid or already expired,02-clock-skew,https://github.com/MarkHawk/identity-lab/blob/main/runbooks/02-clock-skew.md
 kc_invalid_redirect_uri,Redirect URI not registered for the client in the IdP,03-redirect-uri-mismatch,https://github.com/MarkHawk/identity-lab/blob/main/runbooks/03-redirect-uri-mismatch.md
 ldap_bind_49,LDAP bind rejected with result 49 (invalid credentials): check the IdP's service account bind credential,04-ldap-bind-failure,https://github.com/MarkHawk/identity-lab/blob/main/runbooks/04-ldap-bind-failure.md
+ldap_user_bind_49,"Directory rejected a user's own password (result 49): usually a wrong password, not an outage",04-ldap-bind-failure,https://github.com/MarkHawk/identity-lab/blob/main/runbooks/04-ldap-bind-failure.md
 kc_user_not_found,"Unknown user at the IdP; for directory users, check the IdP's LDAP bind first",04-ldap-bind-failure,https://github.com/MarkHawk/identity-lab/blob/main/runbooks/04-ldap-bind-failure.md
 kc_invalid_user_credentials,"Wrong password at the IdP; if many directory users fail at once, check the LDAP bind",04-ldap-bind-failure,https://github.com/MarkHawk/identity-lab/blob/main/runbooks/04-ldap-bind-failure.md
 radius_bad_shared_secret,RADIUS shared secret mismatch between the NAS and the server: packets dropped without a reply,05-radius-shared-secret-mismatch,https://github.com/MarkHawk/identity-lab/blob/main/runbooks/05-radius-shared-secret-mismatch.md

@@ -35,7 +35,7 @@ pytestmark = pytest.mark.skipif(not all(os.environ.get(n) for n in NEEDED),
                                 reason="no local test Splunk (set " + ", ".join(NEEDED) + ")")
 
 # Events the fixtures should produce once indexed: the healthz line is dropped.
-EXPECTED = {"idlab:keycloak": 5, "idlab:sp": 9, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 4,
+EXPECTED = {"idlab:keycloak": 5, "idlab:sp": 9, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
             "token_inspector:report": 1, "rate_limit_probe:report": 1}
 
 
@@ -79,7 +79,7 @@ def one(host, spl):
 
 
 def test_time_is_dockers_timestamp(host):
-    row = one(host, 'sourcetype=idlab:slapd "RESULT tag=97" | eval t=strftime(_time, "%Y-%m-%dT%H:%M:%S.%6N")')
+    row = one(host, 'sourcetype=idlab:slapd conn=1027 "RESULT tag=97" | eval t=strftime(_time, "%Y-%m-%dT%H:%M:%S.%6N")')
     assert row["t"] == "2026-10-19T18:30:00.000200"
 
 
@@ -141,8 +141,8 @@ def test_radius_dropped_packets_point_at_the_shared_secret(host):
 
 
 def test_ldap_result_49_is_an_authentication_failure(host):
-    row = one(host, "tag=authentication sourcetype=idlab:slapd")
-    assert (row["action"], row["err"], row["signature"]) == ("failure", "49", "ldap_bind_49")
+    rows = search(f"`support_index` host={host} tag=authentication sourcetype=idlab:slapd | table action err signature")
+    assert [(r["action"], r["err"], r["signature"]) for r in rows] == [("failure", "49", "ldap_bind_49")] * 2
 
 
 def test_failures_macro(host):
@@ -163,3 +163,39 @@ def test_token_inspector_report_fields(host):
 def test_rate_limit_probe_report_fields(host):
     row = one(host, "eventtype=idlab_rate_limit_probe")
     assert (row["status_429"], row["likely_cause"]) == ("2", "requests during the wait restart it")
+
+
+def overview_query(host, name):
+    """A Support overview data source as the dashboard runs it, limited to this run's host."""
+    import xml.etree.ElementTree as ET
+    view = ROOT / "identity_support/default/data/ui/views/support_overview.xml"
+    sources = json.loads(ET.parse(view).getroot().findtext("definition"))["dataSources"]
+
+    def full(n):
+        s = sources[n]
+        return full(s["options"]["extend"]) + " " + s["options"]["query"] if s["type"] == "ds.chain" else s["options"]["query"]
+    q = full(name)
+    q = q.replace("(`support_failures`)", f"(`support_failures` host={host})", 1)
+    return q.replace("(`support_index` sourcetype=idlab:slapd", f"(`support_index` host={host} sourcetype=idlab:slapd", 1)
+
+
+def test_overview_names_who_is_affected(host):
+    rows = search(overview_query(host, "ds_by_cause"))
+
+    def affected(cause_start):
+        [row] = [r for r in rows if r["cause"].startswith(cause_start)]
+        return row["affected"]
+    assert affected("LDAP bind rejected with result 49") == "service account (keycloak-svc)"
+    assert affected("Directory rejected a user's own password") == "1 user"
+    assert affected("Clock skew between IdP and SP") == "not in log"
+    assert affected("Unknown user at the IdP") == "1 user"
+    who = {(r["who"], r["app"]) for r in search(overview_query(host, "ds_who"))}
+    assert ("service account (keycloak-svc)", "ldap") in who and ("dave", "ldap") in who
+    assert not any(w.startswith("service account (dave") for w, _ in who)
+
+
+def test_overview_chart_buckets_follow_the_data(host):
+    rows = search(overview_query(host, "ds_over_time"))
+    # the fixtures span 18:05-18:50, so 1-minute buckets, filled continuously
+    assert len(rows) == 46
+    assert not any("gap" in key for r in rows for key in r)

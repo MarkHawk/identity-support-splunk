@@ -138,8 +138,8 @@ def test_nas_lines():
 
 
 def test_slapd_bind_and_result_join_on_conn_and_op():
-    bind = fields("ldap", "BIND dn=")
-    result = fields("ldap", "RESULT tag=97")
+    bind = fields("ldap", 'BIND dn="cn=keycloak-svc')
+    result = fields("ldap", "conn=1027 op=0 RESULT tag=97")
     assert bind["bind_dn"] == "cn=keycloak-svc,ou=services,dc=idlab,dc=example"
     assert (bind["conn"], bind["op"], bind["ldap_op"]) == (result["conn"], result["op"], "BIND")
     assert (result["ldap_tag"], result["err"], result["ldap_op"]) == ("97", "49", "RESULT")
@@ -154,7 +154,8 @@ def eval_signatures():
     found = set()
     for sourcetype in LOG_SOURCETYPES:
         expr = props[sourcetype].get("EVAL-signature", "")
-        found |= set(re.findall(r'(?<![=!]=)"([a-z]+_[a-z0-9_]+)"', expr))
+        # a literal ending in "_" is a prefix (such as "ldap_bind_" . err), not a signature
+        found |= {s for s in re.findall(r'(?<![=!]=)"([a-z]+_[a-z0-9_]+)"', expr) if not s.endswith("_")}
     return found
 
 

@@ -2,3 +2,5 @@
 2026-10-19T18:30:00.000100000Z 6ad6543e.2bec0b61 0x72cbddffe6c0 conn=1027 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
 2026-10-19T18:30:00.000200000Z 6ad6543e.2bec0b62 0x72cbddffe6c0 conn=1027 op=0 RESULT tag=97 err=49 qtime=0.000027 etime=0.000161 text=
 2026-10-19T18:30:00.000300000Z 6ad6543e.2bec0b63 0x72cbddffe6c0 conn=1027 fd=12 closed (connection lost)
+2026-10-19T18:40:10.000000000Z 6ad6543f.00000001 0x72cbddffe6c0 conn=1030 op=0 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" method=128
+2026-10-19T18:40:10.000100000Z 6ad6543f.00000002 0x72cbddffe6c0 conn=1030 op=0 RESULT tag=97 err=49 qtime=0.000020 etime=0.000140 text=

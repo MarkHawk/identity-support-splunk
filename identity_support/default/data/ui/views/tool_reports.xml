@@ -9,7 +9,7 @@
     "input_time": {
       "type": "input.timerange",
       "title": "Time range",
-      "options": {"token": "time", "defaultValue": "-24h@h,now"}
+      "options": {"token": "time", "defaultValue": "-4h,now"}
     }
   },
   "defaults": {
