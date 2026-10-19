@@ -1,0 +1,95 @@
+name: CI
+
+# Tests on every push and pull request. They reach nothing but loopback: a
+# fixture in tests/conftest.py fails any test that resolves a name or
+# connects anywhere else. The live Splunk tests skip here (no Splunk). Then
+# the app is packaged and checked with Splunk AppInspect, and the reviewer
+# compose file is validated.
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13", "3.14"]
+    steps:
+      # Actions are pinned to commit SHAs (not tags) so a moved tag cannot
+      # change what runs here. The comment records the human-readable version.
+      - name: Check out the repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Set up Python ${{ matrix.python-version }}
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install test dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements-dev.txt
+
+      - name: Run the tests
+        run: pytest
+
+  appinspect:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      # AppInspect pins an lxml with wheels only up to Python 3.13.
+      - name: Set up Python 3.13
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
+        with:
+          python-version: "3.13"
+
+      - name: Install Splunk AppInspect
+        run: |
+          sudo apt-get install -y --no-install-recommends libmagic1
+          python -m pip install --upgrade pip
+          pip install -r requirements-appinspect.txt
+
+      - name: Package the app
+        run: python scripts/package_app.py dist/identity_support.tgz
+
+      - name: Inspect the package (default and cloud checks)
+        run: |
+          for tags in "" "--included-tags cloud"; do
+            splunk-appinspect inspect dist/identity_support.tgz $tags \
+              --output-file appinspect.json --data-format json
+            python - <<'PY'
+          import json, sys
+          report = json.load(open("appinspect.json"))
+          summary = report["summary"]
+          print(summary)
+          for group in report["reports"][0]["groups"]:
+              for check in group["checks"]:
+                  if check["result"] in ("failure", "error", "warning", "future_failure"):
+                      print(check["result"].upper(), check["name"])
+                      for m in check["messages"]:
+                          print("   ", m["message"])
+          sys.exit(1 if summary["failure"] or summary["error"] else 0)
+          PY
+          done
+
+  compose:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out the repository
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
+
+      - name: Validate the reviewer compose file
+        env:
+          SPLUNK_PASSWORD: placeholder-for-validation
+          DEMO_HEC_TOKEN: 00000000-0000-0000-0000-000000000000
+        run: docker compose config --quiet
