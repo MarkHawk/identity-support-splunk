@@ -16,8 +16,12 @@ output, errors or --dry-run.
 
 TLS is verified. For Splunk's self-signed certificate, prefer --cacert with
 the CA that signed it (and --tls-server-name if the certificate does not name
-the host you connect to). --insecure turns verification off and is accepted
-only when HEC_URL's host is localhost or 127.0.0.1.
+the host you connect to). Splunk's default certificates lack extensions that
+Python 3.13+ demands in its strict mode, so with --cacert (and only then)
+the strict flag is cleared; chain and hostname checks stay on. In
+production, give HEC a properly issued certificate. --insecure turns
+verification off and is accepted only when HEC_URL's host is localhost or
+127.0.0.1.
 
 Standard library only.
 """
@@ -148,9 +152,17 @@ class Config:
             ctx.verify_mode = ssl.CERT_NONE
             return ctx
         try:
-            return ssl.create_default_context(cafile=self.cacert)
+            ctx = ssl.create_default_context(cafile=self.cacert)
         except (OSError, ssl.SSLError) as exc:
             raise SenderError(f"cannot load --cacert {self.cacert}: {exc}") from None
+        if self.cacert:
+            # Splunk's default self-signed certificates lack extensions (such
+            # as the Authority Key Identifier) that Python 3.13+ requires in its
+            # default strict mode. Only for a CA named explicitly with --cacert,
+            # clear that one flag: the chain is still verified against that CA
+            # and the hostname (or --tls-server-name) is still checked.
+            ctx.verify_flags &= ~ssl.VERIFY_X509_STRICT
+        return ctx
 
 
 class _HTTPSConnection(http.client.HTTPSConnection):
@@ -404,7 +416,9 @@ def build_parser():
         description="Ship identity-lab logs and token-inspector / rate-limit-probe reports to Splunk HEC.",
     )
     parser.add_argument("--env-file", default=str(DEFAULT_ENV_FILE), help="settings file (default: .env)")
-    parser.add_argument("--cacert", metavar="FILE", help="trust this PEM CA for HEC's certificate (preferred)")
+    parser.add_argument("--cacert", metavar="FILE",
+                        help="trust this PEM CA for HEC's certificate (preferred); also accepts Splunk's "
+                             "default certificates, which fail Python 3.13+ strict mode")
     parser.add_argument("--tls-server-name", metavar="NAME", help="name the certificate is checked against")
     parser.add_argument("--insecure", action="store_true",
                         help="skip TLS verification; only for localhost or 127.0.0.1")

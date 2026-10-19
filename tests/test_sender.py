@@ -1,6 +1,7 @@
 import datetime as dt
 import io
 import json
+import socket
 import ssl
 import subprocess
 import threading
@@ -351,3 +352,73 @@ def test_docker_command_names_missing_services(tmp_path, capfd, monkeypatch):
     monkeypatch.setattr(hec_send, "run", fake_docker([]))
     code, text = send(["--dry-run", "docker", "--service", "radius"], {}, tmp_path, capfd)
     assert code == 1 and "no running identity-lab container for: radius" in text
+
+
+# --- Splunk's default certificate and Python's strict mode -------------------
+
+STRICT_BY_DEFAULT = bool(ssl.create_default_context().verify_flags & ssl.VERIFY_X509_STRICT)
+
+
+@pytest.fixture
+def no_aki_hec(tmp_path, fake_hec):
+    """A HEC whose certificate, like Splunk's older default ones, has no
+    Authority Key Identifier and names no host we connect to."""
+    paths = make_ca_and_server(tmp_path, names=("SplunkServerDefaultCert",), ips=(), authority_key_id=False)
+    return fake_hec(tls=server_context(paths)), paths
+
+
+@pytest.mark.skipif(not STRICT_BY_DEFAULT, reason="this Python does not verify strictly by default")
+def test_strict_mode_really_rejects_a_certificate_without_aki(no_aki_hec):
+    """Proves the fixture reproduces the problem: Python's own default
+    context, given the right CA and name, still refuses this certificate."""
+    hec, paths = no_aki_hec
+    ctx = ssl.create_default_context(cafile=str(paths["ca"]))
+    with socket.create_connection(("127.0.0.1", hec.port)) as sock:
+        with pytest.raises(ssl.SSLCertVerificationError, match="Authority Key Identifier"):
+            ctx.wrap_socket(sock, server_hostname="SplunkServerDefaultCert")
+
+
+def test_certificate_without_aki_fails_without_cacert(no_aki_hec, tmp_path, capfd):
+    hec, _ = no_aki_hec
+    write_samples(tmp_path / "s")
+    code, text = send(["--tls-server-name", "SplunkServerDefaultCert", "replay", str(tmp_path / "s")],
+                      env(f"https://127.0.0.1:{hec.port}"), tmp_path, capfd)
+    assert code == 1 and "not trusted" in text and not hec.requests
+
+
+def test_certificate_without_aki_passes_with_cacert(no_aki_hec, tmp_path, capfd):
+    hec, paths = no_aki_hec
+    write_samples(tmp_path / "s")
+    code, _ = send(["--cacert", str(paths["ca"]), "--tls-server-name", "SplunkServerDefaultCert",
+                    "replay", str(tmp_path / "s")], env(f"https://127.0.0.1:{hec.port}"), tmp_path, capfd)
+    assert code == 0 and len(hec.requests) == 2
+
+
+def test_hostname_is_still_checked_with_cacert(no_aki_hec, tmp_path, capfd):
+    hec, paths = no_aki_hec
+    write_samples(tmp_path / "s")
+    for name in ([], ["--tls-server-name", "wrong.example.net"]):
+        code, text = send(["--cacert", str(paths["ca"]), *name, "replay", str(tmp_path / "s")],
+                          env(f"https://127.0.0.1:{hec.port}"), tmp_path, capfd)
+        assert code == 1 and "not trusted" in text and "mismatch" in text
+    assert not hec.requests
+
+
+def test_chain_is_still_verified_with_cacert(no_aki_hec, tmp_path, capfd):
+    hec, _ = no_aki_hec
+    (tmp_path / "other").mkdir()
+    other = make_ca_and_server(tmp_path / "other")
+    write_samples(tmp_path / "s")
+    code, text = send(["--cacert", str(other["ca"]), "--tls-server-name", "SplunkServerDefaultCert",
+                       "replay", str(tmp_path / "s")], env(f"https://127.0.0.1:{hec.port}"), tmp_path, capfd)
+    assert code == 1 and "not trusted" in text and not hec.requests
+
+
+def test_only_the_strict_flag_is_cleared_and_only_with_cacert(tmp_path):
+    default = ssl.create_default_context()
+    plain = hec_send.Config("https://127.0.0.1:8088", hec_send.Secret(TOKEN), "i").ssl_context()
+    assert plain.verify_flags == default.verify_flags          # untouched without --cacert
+    paths = make_ca_and_server(tmp_path)
+    ctx = hec_send.Config("https://127.0.0.1:8088", hec_send.Secret(TOKEN), "i", cacert=str(paths["ca"])).ssl_context()
+    assert ctx.verify_flags == default.verify_flags & ~ssl.VERIFY_X509_STRICT
+    assert ctx.check_hostname and ctx.verify_mode == ssl.CERT_REQUIRED

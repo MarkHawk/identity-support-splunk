@@ -164,6 +164,18 @@ docker cp <container>:/opt/splunk/etc/auth/cacert.pem splunk-ca.pem
 python3 sender/hec_send.py --cacert splunk-ca.pem --tls-server-name SplunkServerDefaultCert docker --since 30m
 ```
 
+Splunk's default certificate also trips Python's strict certificate mode,
+which is on by default from Python 3.13. Older Splunk images in
+particular issue certificates without an Authority Key Identifier, which
+strict mode refuses. So when you pass `--cacert`, and only then, the sender
+clears that one strict-mode flag. Everything else is still checked: the
+certificate must chain to the CA you named, and its name must match the
+host or `--tls-server-name`. Without `--cacert` nothing is relaxed.
+
+Splunk's default certificate is fine for a lab. In production, give HEC a
+certificate issued properly for its host name by your own CA, and pass
+that CA with `--cacert`.
+
 `--insecure` also works, but only when `HEC_URL` points at `localhost` or
 `127.0.0.1`. For any other host it is refused.
 

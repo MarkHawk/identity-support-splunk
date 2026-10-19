@@ -15,8 +15,12 @@ def _name(cn):
     return x509.Name([x509.NameAttribute(NameOID.COMMON_NAME, cn)])
 
 
-def make_ca_and_server(folder, names=("localhost",), ips=("127.0.0.1",)):
-    """Write ca.pem, server.pem and server-key.pem; return their paths."""
+def make_ca_and_server(folder, names=("localhost",), ips=("127.0.0.1",), authority_key_id=True):
+    """Write ca.pem, server.pem and server-key.pem; return their paths.
+
+    authority_key_id=False leaves the Authority Key Identifier out of the
+    server certificate, as in Splunk's older default certificates; Python
+    3.13+ refuses that in its default strict (VERIFY_X509_STRICT) mode."""
     now = dt.datetime.now(dt.UTC)
     ca_key = ec.generate_private_key(ec.SECP256R1())
     ca = (
@@ -32,15 +36,17 @@ def make_ca_and_server(folder, names=("localhost",), ips=("127.0.0.1",)):
     )
     key = ec.generate_private_key(ec.SECP256R1())
     sans = [x509.DNSName(n) for n in names] + [x509.IPAddress(ipaddress.ip_address(i)) for i in ips]
-    cert = (
+    builder = (
         x509.CertificateBuilder().subject_name(_name(names[0] if names else "server")).issuer_name(ca.subject)
         .public_key(key.public_key()).serial_number(x509.random_serial_number())
         .not_valid_before(now - dt.timedelta(minutes=5)).not_valid_after(now + dt.timedelta(hours=1))
         .add_extension(x509.SubjectAlternativeName(sans), critical=False)
         .add_extension(x509.ExtendedKeyUsage([x509.oid.ExtendedKeyUsageOID.SERVER_AUTH]), critical=False)
-        .add_extension(x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()), critical=False)
-        .sign(ca_key, hashes.SHA256())
     )
+    if authority_key_id:
+        builder = builder.add_extension(
+            x509.AuthorityKeyIdentifier.from_issuer_public_key(ca_key.public_key()), critical=False)
+    cert = builder.sign(ca_key, hashes.SHA256())
     paths = {"ca": folder / "ca.pem", "cert": folder / "server.pem", "key": folder / "server-key.pem"}
     paths["ca"].write_bytes(ca.public_bytes(serialization.Encoding.PEM))
     paths["cert"].write_bytes(cert.public_bytes(serialization.Encoding.PEM))
