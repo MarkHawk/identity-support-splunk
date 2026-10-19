@@ -192,7 +192,7 @@ class HEC:
             text = response.read().decode("utf-8", errors="replace")
         except ssl.SSLCertVerificationError as exc:
             raise SenderError(
-                f"TLS certificate not trusted for {c.host}: {exc.verify_message}. "
+                f"TLS certificate not trusted for {c.host}: {exc.verify_message.rstrip('.')}. "
                 "Pass --cacert with the CA that signed it (and --tls-server-name if it names another host)."
             ) from None
         except (OSError, http.client.HTTPException) as exc:
