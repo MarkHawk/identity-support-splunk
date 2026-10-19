@@ -1,0 +1,86 @@
+# Reviewer stack: a pinned Splunk with the identity_support app installed and
+# the captured samples loaded, so the app can be tried without identity-lab.
+#
+#   python3 scripts/init_env.py      # once: random admin password and HEC token in .env
+#   docker compose up -d
+#   docker compose logs -f loader    # "sent ..." lines, then it exits
+#   open http://localhost:18000      # user admin, password SPLUNK_PASSWORD from .env
+#
+# Everything listens on 127.0.0.1 only, on ports that leave a Splunk you may
+# already run on 8000/8088 alone. `docker compose down` removes the stack and
+# its data.
+
+name: identity-support
+
+x-python: &python
+  # Python 3.13.9 slim, pinned by digest. Used read-only, to package the app and to replay samples.
+  image: python:3.13.9-slim@sha256:326df678c20c78d465db501563f3492d17c42a4afe33a1f2bf5406a1d56b0e86
+  read_only: true
+
+services:
+  # Builds dist/identity_support.tgz into a volume. Installing from a package
+  # (SPLUNK_APPS_URL) rather than mounting the app folder matters: the image's
+  # first start changes the owner of everything under /opt/splunk, which fails
+  # on a read-only mount and would hand a writable one to Splunk's user.
+  package:
+    <<: *python
+    network_mode: none
+    volumes:
+      - ./identity_support:/src/identity_support:ro
+      - ./scripts:/src/scripts:ro
+      - app-package:/out
+    command: ["python", "-I", "-B", "/src/scripts/package_app.py", "/out/identity_support.tgz"]
+
+  splunk:
+    # Splunk Enterprise 10.4.4, pinned by digest (amd64). A new start takes a
+    # few minutes; the health check turns healthy when it is ready.
+    image: splunk/splunk:10.4.4@sha256:4f18abfb106b29dc6af68868fb2e5c5ae68aa8e9ac6bfb28b7bec12ede2079aa
+    depends_on:
+      package:
+        condition: service_completed_successfully
+    environment:
+      # Both are required from the 10.x images on, on every container.
+      SPLUNK_START_ARGS: --accept-license
+      SPLUNK_GENERAL_TERMS: --accept-sgt-current-at-splunk-com
+      SPLUNK_PASSWORD: ${SPLUNK_PASSWORD:?run python3 scripts/init_env.py first}
+      SPLUNK_HEC_TOKEN: ${DEMO_HEC_TOKEN:?run python3 scripts/init_env.py first}
+      SPLUNK_APPS_URL: /tmp/apps/identity_support.tgz
+    volumes:
+      - app-package:/tmp/apps:ro
+    ports:
+      - "127.0.0.1:18000:8000"   # web
+      - "127.0.0.1:18088:8088"   # HEC, for scripts/hec_send.py
+      - "127.0.0.1:18089:8089"   # management, for the opt-in live tests
+
+  # Replays samples/ through the sender once, moved so the newest event is a
+  # minute old. It trusts Splunk's own CA (from Splunk's volumes, read-only)
+  # and checks the certificate's name, the same way you would use --cacert.
+  # A marker in Splunk's data volume stops a second `up` loading them twice.
+  loader:
+    <<: *python
+    depends_on:
+      splunk:
+        condition: service_healthy
+    volumes_from:
+      - splunk:ro
+    volumes:
+      - ./sender:/src/sender:ro
+      - ./samples:/src/samples:ro
+      - loader-state:/state
+    environment:
+      HEC_URL: https://splunk:8088
+      HEC_TOKEN: ${DEMO_HEC_TOKEN:?run python3 scripts/init_env.py first}
+    entrypoint: ["sh", "-c"]
+    command:
+      - >-
+        marker="/state/loaded-$$(cat /opt/splunk/etc/instance.cfg | sed -n 's/^guid = //p')";
+        if [ -f "$$marker" ]; then echo "samples already loaded into this Splunk"; exit 0; fi;
+        python -I -B /src/sender/hec_send.py --env-file /dev/null
+        --cacert /opt/splunk/etc/auth/cacert.pem --tls-server-name SplunkServerDefaultCert
+        replay --shift-to-now /src/samples
+        && touch "$$marker"
+    restart: on-failure:3
+
+volumes:
+  app-package:
+  loader-state:
