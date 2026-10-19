@@ -9,6 +9,11 @@ Container logs go to the raw endpoint (/services/collector/raw), so the app's
 props.conf breaks lines and reads timestamps exactly as it would for a
 monitored file. Reports go to the event endpoint with an explicit time.
 
+The directory's routine search lines (each SRCH request and its successful
+SEARCH RESULT) are dropped by default and counted in the output; binds,
+failed results and connections are always sent. --keep-ldap-searches sends
+everything.
+
 Settings come from the environment, or from .env next to the repository root
 (the environment wins): HEC_URL (e.g. https://localhost:8088), HEC_TOKEN and
 HEC_INDEX (default identity_support). The token is never printed: not in
@@ -56,6 +61,9 @@ SERVICES = {
     "ldap": "idlab:slapd",
 }
 TOOLS = {"token-inspector": "token_inspector:report", "rate-limit-probe": "rate_limit_probe:report"}
+# The IdP's routine directory lookups: a search request (SRCH lines) and its
+# successful result. Binds, failed results and connections are always kept.
+ROUTINE_LDAP_SEARCH = re.compile(r" conn=\d+ op=\d+ (?:SRCH |SEARCH RESULT .*\berr=0\b)")
 
 # Every line from `docker logs --timestamps` starts with this.
 DOCKER_TS = r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}\.\d{9}Z "
@@ -235,6 +243,23 @@ def _hec_text(body):
         return ""
 
 
+def drop_routine_searches(lines):
+    """(kept lines, number skipped): slapd lines minus routine searches."""
+    kept = [line for line in lines if not ROUTINE_LDAP_SEARCH.search(line)]
+    return kept, len(lines) - len(kept)
+
+
+def prepare(lines, sourcetype, args):
+    """Group lines into events, first dropping routine LDAP searches unless
+    --keep-ldap-searches. Returns (events, a note for the summary line)."""
+    note = ""
+    if sourcetype == "idlab:slapd" and not args.keep_ldap_searches:
+        lines, skipped = drop_routine_searches(lines)
+        if skipped:
+            note = f" (skipped {skipped} routine LDAP search lines; --keep-ldap-searches keeps them)"
+    return group_events(lines, sourcetype), note
+
+
 def group_events(lines, sourcetype):
     """Join continuation lines onto the line that started their event."""
     start = re.compile(EVENT_START[sourcetype])
@@ -351,10 +376,10 @@ def cmd_docker(args, hec, out):
         raise SenderError(f"no running {args.project} container for: {', '.join(missing)}")
     for service in wanted:
         sourcetype = SERVICES[service]
-        events = group_events(container_lines(containers[service], args.since, args.until), sourcetype)
+        events, note = prepare(container_lines(containers[service], args.since, args.until), sourcetype, args)
         if not args.dry_run:
             hec.send_raw(events, sourcetype, f"docker:{service}", args.host)
-        print(f"{'would send' if args.dry_run else 'sent'} {len(events)} events from {service} as {sourcetype}",
+        print(f"{'would send' if args.dry_run else 'sent'} {len(events)} events from {service} as {sourcetype}{note}",
               file=out)
 
 
@@ -396,10 +421,10 @@ def cmd_replay(args, hec, out):
     for path in logs:
         sourcetype = SERVICES[path.stem]
         lines = [shift_line(line, delta) for line in path.read_text(encoding="utf-8").splitlines() if line]
-        events = group_events(lines, sourcetype)
+        events, note = prepare(lines, sourcetype, args)
         if not args.dry_run:
             hec.send_raw(events, sourcetype, f"docker:{path.stem}", args.host)
-        print(f"{'would send' if args.dry_run else 'sent'} {len(events)} events from {path.name} as {sourcetype}",
+        print(f"{'would send' if args.dry_run else 'sent'} {len(events)} events from {path.name} as {sourcetype}{note}",
               file=out)
     for path in reports:
         report = load_report(path)
@@ -424,6 +449,8 @@ def build_parser():
                         help="skip TLS verification; only for localhost or 127.0.0.1")
     parser.add_argument("--host", default="identity-lab", help="Splunk host field (default: identity-lab)")
     parser.add_argument("--dry-run", action="store_true", help="read and count, send nothing")
+    parser.add_argument("--keep-ldap-searches", action="store_true",
+                        help="also send the directory's routine search lines (dropped by default)")
     sub = parser.add_subparsers(dest="command", required=True)
 
     d = sub.add_parser("docker", help="ship identity-lab container logs")

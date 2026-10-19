@@ -422,3 +422,52 @@ def test_only_the_strict_flag_is_cleared_and_only_with_cacert(tmp_path):
     ctx = hec_send.Config("https://127.0.0.1:8088", hec_send.Secret(TOKEN), "i", cacert=str(paths["ca"])).ssl_context()
     assert ctx.verify_flags == default.verify_flags & ~ssl.VERIFY_X509_STRICT
     assert ctx.check_hostname and ctx.verify_mode == ssl.CERT_REQUIRED
+
+
+# --- routine LDAP searches ---------------------------------------------------
+
+SLAPD = [
+    '2026-10-19T18:27:06.990000000Z a b conn=1007 fd=12 ACCEPT from IP=192.0.2.13:41000 (IP=0.0.0.0:389)',
+    '2026-10-19T18:27:06.990100000Z a b conn=1007 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128',
+    '2026-10-19T18:27:06.990200000Z a b conn=1007 op=0 RESULT tag=97 err=49 qtime=0 etime=0 text=',
+    '2026-10-19T18:27:06.997041782Z a b conn=1007 op=1 SRCH base="ou=people,dc=idlab,dc=example" scope=1 deref=3 filter="(uid=dave)"',
+    '2026-10-19T18:27:06.997072549Z a b conn=1007 op=1 SRCH attr=entryUUID uid mail',
+    '2026-10-19T18:27:06.997502203Z a b conn=1007 op=1 SEARCH RESULT tag=101 err=0 qtime=0 etime=0 nentries=1 text=',
+    '2026-10-19T18:27:07.000000000Z a b conn=1008 op=1 SEARCH RESULT tag=101 err=32 qtime=0 etime=0 nentries=0 text=',
+    '2026-10-19T18:27:07.100000000Z a b conn=1007 op=2 UNBIND',
+]
+
+
+def test_routine_searches_dropped_binds_and_errors_kept():
+    kept, skipped = hec_send.drop_routine_searches(SLAPD)
+    assert skipped == 3
+    assert kept == [SLAPD[0], SLAPD[1], SLAPD[2], SLAPD[6], SLAPD[7]]
+
+
+def write_ldap(folder):
+    (folder / "logs").mkdir(parents=True)
+    (folder / "logs/ldap.log").write_text("\n".join(SLAPD) + "\n")
+
+
+def test_replay_reports_skipped_search_lines(fake_hec, tmp_path, capfd):
+    hec = fake_hec()
+    write_ldap(tmp_path / "s")
+    code, text = send(["replay", str(tmp_path / "s")], env(f"http://127.0.0.1:{hec.port}"), tmp_path, capfd)
+    assert code == 0
+    assert "sent 5 events from ldap.log as idlab:slapd (skipped 3 routine LDAP search lines" in text
+    assert "SRCH" not in hec.requests[0]["body"] and "err=32" in hec.requests[0]["body"]
+
+
+def test_keep_ldap_searches_sends_everything(fake_hec, tmp_path, capfd):
+    hec = fake_hec()
+    write_ldap(tmp_path / "s")
+    code, text = send(["--keep-ldap-searches", "replay", str(tmp_path / "s")],
+                      env(f"http://127.0.0.1:{hec.port}"), tmp_path, capfd)
+    assert code == 0 and "sent 8 events from ldap.log as idlab:slapd\n" in text
+    assert hec.requests[0]["body"] == "\n".join(SLAPD) + "\n"
+
+
+def test_only_the_directory_is_filtered():
+    args = hec_send.build_parser().parse_args(["replay", "x"])
+    srch_like = ["2026-10-19T18:27:07.000000000Z 2026-10-19 18:27:07,000 INFO  [x] (t) conn=1 op=1 SRCH base=x"]
+    assert hec_send.prepare(srch_like, "idlab:keycloak", args) == (srch_like, "")
