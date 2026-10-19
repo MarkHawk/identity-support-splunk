@@ -1,0 +1,91 @@
+<dashboard version="2" theme="light">
+  <label>Tool reports</label>
+  <description>token-inspector verdicts and likely causes, and rate-limit-probe 429 findings.</description>
+  <definition><![CDATA[
+{
+  "title": "Tool reports",
+  "description": "token-inspector verdicts and likely causes, and rate-limit-probe 429 findings.",
+  "inputs": {
+    "input_time": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {"token": "time", "defaultValue": "-24h@h,now"}
+    }
+  },
+  "defaults": {
+    "dataSources": {
+      "ds.search": {
+        "options": {"queryParameters": {"earliest": "$time.earliest$", "latest": "$time.latest$"}}
+      }
+    }
+  },
+  "dataSources": {
+    "ds_ti": {
+      "type": "ds.search",
+      "name": "token-inspector reports",
+      "options": {"query": "`support_index` eventtype=idlab_token_inspector | spath path=input.label output=input | spath path=summary.fail output=fail | eval likely_cause=coalesce(likely_cause, \"(none named)\") | table _time input verdict fail likely_cause runbook_url | sort - _time"}
+    },
+    "ds_ti_fail": {
+      "type": "ds.search",
+      "name": "token-inspector failed checks",
+      "options": {"query": "`support_index` eventtype=idlab_token_inspector | spath path=findings{} output=finding | mvexpand finding | spath input=finding | where status=\"FAIL\" | stats count min(_time) as first_seen max(_time) as last_seen by check_id title runbook | sort - count | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\")"}
+    },
+    "ds_ti_causes": {
+      "type": "ds.search",
+      "name": "token-inspector likely causes",
+      "options": {"query": "`support_index` eventtype=idlab_token_inspector likely_cause=* | stats count by likely_cause"}
+    },
+    "ds_rlp": {
+      "type": "ds.search",
+      "name": "rate-limit-probe reports",
+      "options": {"query": "`support_index` eventtype=idlab_rate_limit_probe | spath path=sent output=sent | table _time target_url sent status_429 verdict likely_cause | sort - _time"}
+    },
+    "ds_rlp_findings": {
+      "type": "ds.search",
+      "name": "rate-limit-probe findings",
+      "options": {"query": "`support_index` eventtype=idlab_rate_limit_probe | spath path=findings{} output=finding | mvexpand finding | spath input=finding | where status=\"FAIL\" OR status=\"WARN\" | stats count by status title | sort status - count"}
+    }
+  },
+  "visualizations": {
+    "viz_ti": {
+      "type": "splunk.table",
+      "title": "token-inspector: verdicts (select a row for its runbook)",
+      "dataSources": {"primary": "ds_ti"},
+      "eventHandlers": [{"type": "drilldown.customUrl", "options": {"url": "$row.runbook_url.value$", "newTab": true}}]
+    },
+    "viz_ti_causes": {
+      "type": "splunk.pie",
+      "title": "token-inspector: likely causes",
+      "dataSources": {"primary": "ds_ti_causes"}
+    },
+    "viz_ti_fail": {
+      "type": "splunk.table",
+      "title": "token-inspector: failed checks",
+      "dataSources": {"primary": "ds_ti_fail"}
+    },
+    "viz_rlp": {
+      "type": "splunk.table",
+      "title": "rate-limit-probe: 429s and verdicts",
+      "dataSources": {"primary": "ds_rlp"}
+    },
+    "viz_rlp_findings": {
+      "type": "splunk.table",
+      "title": "rate-limit-probe: problems found",
+      "dataSources": {"primary": "ds_rlp_findings"}
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "globalInputs": ["input_time"],
+    "options": {"width": 1440, "height": 1200},
+    "structure": [
+      {"item": "viz_ti", "type": "block", "position": {"x": 0, "y": 0, "w": 960, "h": 300}},
+      {"item": "viz_ti_causes", "type": "block", "position": {"x": 960, "y": 0, "w": 480, "h": 300}},
+      {"item": "viz_ti_fail", "type": "block", "position": {"x": 0, "y": 300, "w": 1440, "h": 260}},
+      {"item": "viz_rlp", "type": "block", "position": {"x": 0, "y": 560, "w": 1440, "h": 260}},
+      {"item": "viz_rlp_findings", "type": "block", "position": {"x": 0, "y": 820, "w": 1440, "h": 260}}
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>

@@ -1,0 +1,128 @@
+<dashboard version="2" theme="light">
+  <label>Support overview</label>
+  <description>When did it start, who is affected, and what is the likely cause? Failed logins, dropped RADIUS requests and LDAP bind failures, each with its runbook.</description>
+  <definition><![CDATA[
+{
+  "title": "Support overview",
+  "description": "When did it start, who is affected, and what is the likely cause?",
+  "inputs": {
+    "input_time": {
+      "type": "input.timerange",
+      "title": "Time range",
+      "options": {"token": "time", "defaultValue": "-24h@h,now"}
+    }
+  },
+  "defaults": {
+    "dataSources": {
+      "ds.search": {
+        "options": {"queryParameters": {"earliest": "$time.earliest$", "latest": "$time.latest$"}}
+      }
+    }
+  },
+  "dataSources": {
+    "ds_failures": {
+      "type": "ds.search",
+      "name": "Failures with their likely cause",
+      "options": {"query": "`support_failures` | eval cause=coalesce(cause, \"unknown: \" . signature)"}
+    },
+    "ds_totals": {
+      "type": "ds.chain",
+      "name": "Totals",
+      "options": {"extend": "ds_failures", "query": "| stats count dc(user) as users min(_time) as first max(_time) as last"}
+    },
+    "ds_count": {"type": "ds.chain", "options": {"extend": "ds_totals", "query": "| fields count"}},
+    "ds_users": {"type": "ds.chain", "options": {"extend": "ds_totals", "query": "| fields users"}},
+    "ds_first": {"type": "ds.chain", "options": {"extend": "ds_totals", "query": "| eval first=strftime(first, \"%Y-%m-%d %H:%M:%S\") | fields first"}},
+    "ds_last": {"type": "ds.chain", "options": {"extend": "ds_totals", "query": "| eval last=strftime(last, \"%Y-%m-%d %H:%M:%S\") | fields last"}},
+    "ds_over_time": {
+      "type": "ds.chain",
+      "name": "Failures over time by cause",
+      "options": {"extend": "ds_failures", "query": "| timechart count by cause useother=false limit=10"}
+    },
+    "ds_by_cause": {
+      "type": "ds.chain",
+      "name": "When did it start, by cause",
+      "options": {"extend": "ds_failures", "query": "| stats min(_time) as first_seen max(_time) as last_seen count dc(user) as users values(app) as apps by cause runbook runbook_url | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\") | table first_seen last_seen cause count users apps runbook runbook_url"}
+    },
+    "ds_who": {
+      "type": "ds.chain",
+      "name": "Users and apps affected",
+      "options": {"extend": "ds_failures", "query": "| where isnotnull(user) | stats min(_time) as first_seen max(_time) as last_seen count values(cause) as causes by user app | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\")"}
+    },
+    "ds_radius": {
+      "type": "ds.search",
+      "name": "RADIUS Access-Reject versus no reply",
+      "options": {"query": "`support_index` (sourcetype=idlab:radius OR sourcetype=idlab:nas) radius_outcome=* | eval outcome=radius_outcome . \" (\" . if(sourcetype==\"idlab:nas\", \"NAS\", \"server\") . \")\" | timechart count by outcome"}
+    },
+    "ds_ldap": {
+      "type": "ds.search",
+      "name": "LDAP binds refused (result 49)",
+      "options": {"query": "`support_index` sourcetype=idlab:slapd (ldap_op=BIND OR ldap_tag=97) | stats min(_time) as time values(bind_dn) as bind_dn values(err) as err by host conn op | where err!=\"0\" | stats min(time) as first_seen max(time) as last_seen count by bind_dn err | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\"), meaning=if(err==\"49\", \"invalid credentials\", \"see RFC 4511\")"}
+    },
+    "ds_idp_ldap": {
+      "type": "ds.search",
+      "name": "IdP LDAP errors",
+      "options": {"query": "`support_index` eventtype=idlab_keycloak_ldap_error | stats count"}
+    }
+  },
+  "visualizations": {
+    "viz_count": {"type": "splunk.singlevalue", "title": "Failures", "dataSources": {"primary": "ds_count"}},
+    "viz_users": {"type": "splunk.singlevalue", "title": "Users affected", "dataSources": {"primary": "ds_users"}},
+    "viz_first": {"type": "splunk.singlevalue", "title": "First failure", "dataSources": {"primary": "ds_first"}},
+    "viz_last": {"type": "splunk.singlevalue", "title": "Latest failure", "dataSources": {"primary": "ds_last"}},
+    "viz_over_time": {
+      "type": "splunk.column",
+      "title": "Failures over time by likely cause",
+      "dataSources": {"primary": "ds_over_time"},
+      "options": {"stackMode": "stacked", "legendDisplay": "bottom"}
+    },
+    "viz_by_cause": {
+      "type": "splunk.table",
+      "title": "When did it start? (select a row for its runbook)",
+      "dataSources": {"primary": "ds_by_cause"},
+      "eventHandlers": [{"type": "drilldown.customUrl", "options": {"url": "$row.runbook_url.value$", "newTab": true}}]
+    },
+    "viz_who": {
+      "type": "splunk.table",
+      "title": "Who is affected?",
+      "dataSources": {"primary": "ds_who"}
+    },
+    "viz_radius": {
+      "type": "splunk.column",
+      "title": "RADIUS: Access-Reject versus no reply",
+      "description": "Access-Reject: the server answered no (password, policy). No reply: it dropped or ignored the request (shared secret, unknown NAS), which users see as a timeout.",
+      "dataSources": {"primary": "ds_radius"},
+      "options": {"stackMode": "stacked", "legendDisplay": "bottom"}
+    },
+    "viz_ldap": {
+      "type": "splunk.table",
+      "title": "LDAP binds refused by the directory",
+      "description": "Result 49 for a service account means the IdP's bind credential is wrong, not the users' passwords.",
+      "dataSources": {"primary": "ds_ldap"}
+    },
+    "viz_idp_ldap": {
+      "type": "splunk.singlevalue",
+      "title": "IdP LDAP errors",
+      "dataSources": {"primary": "ds_idp_ldap"}
+    }
+  },
+  "layout": {
+    "type": "grid",
+    "globalInputs": ["input_time"],
+    "options": {"width": 1440, "height": 1640},
+    "structure": [
+      {"item": "viz_count", "type": "block", "position": {"x": 0, "y": 0, "w": 360, "h": 120}},
+      {"item": "viz_users", "type": "block", "position": {"x": 360, "y": 0, "w": 360, "h": 120}},
+      {"item": "viz_first", "type": "block", "position": {"x": 720, "y": 0, "w": 360, "h": 120}},
+      {"item": "viz_last", "type": "block", "position": {"x": 1080, "y": 0, "w": 360, "h": 120}},
+      {"item": "viz_over_time", "type": "block", "position": {"x": 0, "y": 120, "w": 1440, "h": 320}},
+      {"item": "viz_by_cause", "type": "block", "position": {"x": 0, "y": 440, "w": 1440, "h": 300}},
+      {"item": "viz_who", "type": "block", "position": {"x": 0, "y": 740, "w": 1440, "h": 300}},
+      {"item": "viz_radius", "type": "block", "position": {"x": 0, "y": 1040, "w": 720, "h": 320}},
+      {"item": "viz_ldap", "type": "block", "position": {"x": 720, "y": 1040, "w": 720, "h": 200}},
+      {"item": "viz_idp_ldap", "type": "block", "position": {"x": 720, "y": 1240, "w": 720, "h": 120}}
+    ]
+  }
+}
+  ]]></definition>
+</dashboard>
