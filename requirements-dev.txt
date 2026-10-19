@@ -1,0 +1,12 @@
+# Test dependencies, pinned (direct and transitive). The scripts never import these.
+# cryptography builds a throwaway CA for the HTTPS sender tests; nothing it makes is committed.
+# Regenerate in a clean venv: pip install pytest cryptography && pip freeze
+-r requirements.txt
+cffi==2.1.1
+cryptography==50.0.2
+iniconfig==2.3.1
+packaging==26.3
+pluggy==1.7.0
+pycparser==3.11
+Pygments==2.21.0
+pytest==9.1.1

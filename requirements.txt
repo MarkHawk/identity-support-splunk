@@ -1,0 +1,2 @@
+# Runtime dependencies: none. The sender, sanitiser and capture script use the
+# standard library only, so a reviewer needs nothing but Python 3.12 or later.
