@@ -39,7 +39,8 @@ def break_events(stanza, text):
 
 
 def extract(props_stanza, transforms, event):
-    """Fields from every EXTRACT- and REPORT- in a props stanza."""
+    """Fields from every EXTRACT-, REPORT- and FIELDALIAS- in a props stanza,
+    in Splunk's order (extractions, then aliases)."""
     fields = {}
     for key, value in props_stanza.items():
         if key.startswith("EXTRACT-"):
@@ -49,9 +50,19 @@ def extract(props_stanza, transforms, event):
         elif key.startswith("REPORT-"):
             for name in (n.strip() for n in value.split(",")):
                 t = transforms[name]
+                k_format, v_format = t["FORMAT"].split("::")
+                # Splunk takes a field name from $n only when it is the whole
+                # name: kc_$1 gives a field called kc__1, so refuse it here.
+                assert k_format == "$1" or "$" not in k_format, f"{name}: prefixed dynamic field name"
                 for m in pcre(t["REGEX"]).finditer(event):
-                    k, v = t["FORMAT"].split("::")
-                    k = re.sub(r"\$(\d)", lambda g: m.group(int(g.group(1))), k)
-                    v = re.sub(r"\$(\d)", lambda g: m.group(int(g.group(1))), v)
+                    k = re.sub(r"\$(\d)", lambda g: m.group(int(g.group(1))), k_format)
+                    v = re.sub(r"\$(\d)", lambda g: m.group(int(g.group(1))), v_format)
                     fields.setdefault(k, v)
+    for key, value in props_stanza.items():
+        if key.startswith("FIELDALIAS-"):
+            words = value.split()
+            for source, as_, alias in zip(words[::3], words[1::3], words[2::3]):
+                assert as_ == "AS", value
+                if source in fields:
+                    fields[alias] = fields[source]
     return fields

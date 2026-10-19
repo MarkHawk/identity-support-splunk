@@ -72,7 +72,8 @@ def host():
 
 
 def one(host, spl):
-    rows = search(f"`support_index` host={host} {spl}")
+    # An event search over the REST API only returns the fields it names: table them all.
+    rows = search(f"`support_index` host={host} {spl} | table *")
     assert len(rows) == 1, rows
     return rows[0]
 
@@ -120,7 +121,7 @@ def test_sp_failure_without_a_known_cause_keeps_its_reason(host):
 
 
 def test_sp_login_ok_user(host):
-    rows = search(f"`support_index` host={host} tag=authentication action=success sourcetype=idlab:sp | sort user")
+    rows = search(f"`support_index` host={host} tag=authentication action=success sourcetype=idlab:sp | sort user | table app user")
     assert [(r["app"], r["user"]) for r in rows] == [("saml-sp", "alice@idlab.example"), ("oidc-rp", "dave@idlab.example")]
 
 
