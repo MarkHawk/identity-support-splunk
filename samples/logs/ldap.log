@@ -1,0 +1,227 @@
+2026-10-19T18:26:38.006851354Z 6ad660de.00662e6a 0x74c48c74c180 @(#) $OpenLDAP: slapd 2.6.10+dfsg-1 (May 29 2025 23:41:48) $
+2026-10-19T18:26:38.006891923Z 	Debian OpenLDAP Maintainers <user1@example.com>
+2026-10-19T18:26:38.027268837Z 6ad660de.019d42a8 0x74c48c74c180 slapd starting
+2026-10-19T18:26:56.990275590Z 6ad660f0.3b046f41 0x74c4877fe6c0 conn=1003 fd=11 ACCEPT from IP=192.0.2.11:49076 (IP=0.0.0.0:1636)
+2026-10-19T18:26:57.042879405Z 6ad660f1.028a37ac 0x74c4877fe6c0 conn=1003 fd=11 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:26:57.045404485Z 6ad660f1.02b1343a 0x74c486ffd6c0 conn=1003 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:26:57.046121753Z 6ad660f1.02be3b75 0x74c486ffd6c0 conn=1003 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:26:57.046374259Z 6ad660f1.02c30254 0x74c486ffd6c0 conn=1003 op=0 RESULT tag=97 err=0 qtime=0.000021 etime=0.001216 text=
+2026-10-19T18:26:57.054313315Z 6ad660f1.0337fd5b 0x74c4877fe6c0 conn=1003 op=1 BIND anonymous mech=implicit bind_ssf=0 ssf=256
+2026-10-19T18:26:57.054339144Z 6ad660f1.03390f34 0x74c4877fe6c0 conn=1003 op=1 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:26:57.054346084Z 6ad660f1.0339b08d 0x74c4877fe6c0 conn=1003 op=1 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:26:57.054349047Z 6ad660f1.033aef3e 0x74c4877fe6c0 conn=1003 op=1 RESULT tag=97 err=0 qtime=0.000013 etime=0.000208 text=
+2026-10-19T18:26:57.054930315Z 6ad660f1.0342b327 0x74c486ffd6c0 conn=1003 op=2 UNBIND
+2026-10-19T18:26:57.054941116Z 6ad660f1.03450a35 0x74c486ffd6c0 conn=1003 fd=11 closed
+2026-10-19T18:26:58.686463654Z 6ad660f2.28e98ce7 0x74c4877fe6c0 conn=1005 fd=11 ACCEPT from IP=192.0.2.12:33956 (IP=0.0.0.0:1636)
+2026-10-19T18:26:58.692374274Z 6ad660f2.29434577 0x74c4877fe6c0 conn=1005 fd=11 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:26:58.692437622Z 6ad660f2.2945329a 0x74c486ffd6c0 conn=1005 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:26:58.692478648Z 6ad660f2.2945dc8b 0x74c486ffd6c0 conn=1005 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:26:58.692580049Z 6ad660f2.2946e12f 0x74c486ffd6c0 conn=1005 op=0 RESULT tag=97 err=0 qtime=0.000017 etime=0.000142 text=
+2026-10-19T18:26:58.692657294Z 6ad660f2.294853a5 0x74c4877fe6c0 conn=1005 op=1 EXT oid=1.3.6.1.4.1.4203.1.11.3
+2026-10-19T18:26:58.692663373Z 6ad660f2.29489320 0x74c4877fe6c0 conn=1005 op=1 WHOAMI
+2026-10-19T18:26:58.692686428Z 6ad660f2.29491ec0 0x74c4877fe6c0 conn=1005 op=1 RESULT oid= err=0 qtime=0.000012 etime=0.000065 text=
+2026-10-19T18:26:58.692776368Z 6ad660f2.294a5ae5 0x74c486ffd6c0 conn=1005 op=2 UNBIND
+2026-10-19T18:26:58.692901961Z 6ad660f2.294ba911 0x74c486ffd6c0 conn=1005 fd=11 closed
+2026-10-19T18:27:06.948346923Z 6ad660fa.38850642 0x74c4877fe6c0 conn=1007 fd=11 ACCEPT from IP=192.0.2.11:46874 (IP=0.0.0.0:1636)
+2026-10-19T18:27:06.993995566Z 6ad660fa.3b3c4c9f 0x74c486ffd6c0 conn=1007 fd=11 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:06.994221163Z 6ad660fa.3b404af1 0x74c4877fe6c0 conn=1007 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:06.994290401Z 6ad660fa.3b425922 0x74c4877fe6c0 conn=1007 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:27:06.994380875Z 6ad660fa.3b441332 0x74c4877fe6c0 conn=1007 op=0 RESULT tag=97 err=0 qtime=0.000027 etime=0.000296 text=
+2026-10-19T18:27:06.997041782Z 6ad660fa.3b6bb913 0x74c486ffd6c0 conn=1007 op=1 SRCH base="ou=people,dc=idlab,dc=example" scope=1 deref=3 filter="(entryUUID=5e526990-5bf4-1041-849e-5d5ddafdef8b)"
+2026-10-19T18:27:06.997072549Z 6ad660fa.3b6d0e71 0x74c486ffd6c0 conn=1007 op=1 SRCH attr=entryUUID uid mail givenName sn pwdChangedTime objectclass
+2026-10-19T18:27:06.997502203Z 6ad660fa.3b71bde7 0x74c486ffd6c0 conn=1007 op=1 SEARCH RESULT tag=101 err=0 qtime=0.000023 etime=0.000447 nentries=1 text=
+2026-10-19T18:27:07.003647796Z 6ad660fb.00350691 0x74c4877fe6c0 conn=1007 op=2 UNBIND
+2026-10-19T18:27:07.003815316Z 6ad660fb.0037dd98 0x74c4877fe6c0 conn=1007 fd=11 closed
+2026-10-19T18:27:07.003824454Z 6ad660fb.00388984 0x74c486ffd6c0 connection_read(11): no connection!
+2026-10-19T18:27:07.015658090Z 6ad660fb.00eb5a30 0x74c4877fe6c0 conn=1008 fd=11 ACCEPT from IP=192.0.2.11:46886 (IP=0.0.0.0:1636)
+2026-10-19T18:27:07.064015071Z 6ad660fb.03cd88cf 0x74c486ffd6c0 conn=1008 fd=11 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:07.064213959Z 6ad660fb.03d1efc6 0x74c4877fe6c0 conn=1008 op=0 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" method=128
+2026-10-19T18:27:07.064328259Z 6ad660fb.03d31adf 0x74c4877fe6c0 conn=1008 op=0 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:27:07.064344010Z 6ad660fb.03d498ff 0x74c4877fe6c0 conn=1008 op=0 RESULT tag=97 err=0 qtime=0.000027 etime=0.000222 text=
+2026-10-19T18:27:07.065089439Z 6ad660fb.03df1cba 0x74c486ffd6c0 conn=1008 op=1 UNBIND
+2026-10-19T18:27:07.065283545Z 6ad660fb.03e27099 0x74c486ffd6c0 conn=1008 fd=11 closed
+2026-10-19T18:27:07.087732492Z 6ad660fb.0535c3c9 0x74c4877fe6c0 conn=1009 fd=11 ACCEPT from IP=192.0.2.11:46902 (IP=0.0.0.0:1636)
+2026-10-19T18:27:07.135750541Z 6ad660fb.081529b0 0x74c486ffd6c0 conn=1009 fd=11 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:07.136016717Z 6ad660fb.0819b43b 0x74c4877fe6c0 conn=1009 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:07.136029262Z 6ad660fb.081aa504 0x74c4877fe6c0 conn=1009 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:27:07.136108603Z 6ad660fb.081bb525 0x74c4877fe6c0 conn=1009 op=0 RESULT tag=97 err=0 qtime=0.000013 etime=0.000162 text=
+2026-10-19T18:27:07.137099101Z 6ad660fb.08279be4 0x74c486ffd6c0 conn=1009 op=1 SRCH base="ou=groups,dc=idlab,dc=example" scope=1 deref=3 filter="(&(member=uid=dave,ou=people,dc=idlab,dc=example)(objectClass=groupOfNames))"
+2026-10-19T18:27:07.137119460Z 6ad660fb.08284984 0x74c486ffd6c0 conn=1009 op=1 SRCH attr=entryUUID cn objectclass
+2026-10-19T18:27:07.137124335Z 6ad660fb.082a6108 0x74c486ffd6c0 conn=1009 op=1 SEARCH RESULT tag=101 err=0 qtime=0.000016 etime=0.000228 nentries=1 text=
+2026-10-19T18:27:07.138254915Z 6ad660fb.083bcace 0x74c4877fe6c0 conn=1009 op=2 UNBIND
+2026-10-19T18:27:07.138384470Z 6ad660fb.083e512e 0x74c4877fe6c0 conn=1009 fd=11 closed
+2026-10-19T18:27:09.588886559Z 6ad660fd.23185ff9 0x74c486ffd6c0 conn=1011 fd=11 ACCEPT from IP=192.0.2.11:46912 (IP=0.0.0.0:1636)
+2026-10-19T18:27:09.634246142Z 6ad660fd.25cbf122 0x74c4877fe6c0 conn=1011 fd=11 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:09.634439966Z 6ad660fd.25cf190c 0x74c486ffd6c0 conn=1011 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:09.634448679Z 6ad660fd.25cffda7 0x74c486ffd6c0 conn=1011 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:27:09.634457186Z 6ad660fd.25d0b1d5 0x74c486ffd6c0 conn=1011 op=0 RESULT tag=97 err=0 qtime=0.000008 etime=0.000128 text=
+2026-10-19T18:27:09.636226852Z 6ad660fd.25d94693 0x74c4877fe6c0 conn=1011 op=1 SRCH base="ou=people,dc=idlab,dc=example" scope=1 deref=3 filter="(entryUUID=5e526990-5bf4-1041-849e-5d5ddafdef8b)"
+2026-10-19T18:27:09.636247364Z 6ad660fd.25d9b833 0x74c4877fe6c0 conn=1011 op=1 SRCH attr=entryUUID uid mail givenName sn pwdChangedTime objectclass
+2026-10-19T18:27:09.636250480Z 6ad660fd.25dc2cf2 0x74c4877fe6c0 conn=1011 op=1 SEARCH RESULT tag=101 err=0 qtime=0.000018 etime=0.000219 nentries=1 text=
+2026-10-19T18:27:09.637165029Z 6ad660fd.25ed95f0 0x74c486ffd6c0 conn=1011 op=2 UNBIND
+2026-10-19T18:27:09.637175688Z 6ad660fd.25ef34cf 0x74c486ffd6c0 conn=1011 fd=11 closed
+2026-10-19T18:27:09.637185539Z 6ad660fd.25f39f2f 0x74c4877fe6c0 conn=1012 fd=11 ACCEPT from IP=192.0.2.11:46924 (IP=0.0.0.0:1636)
+2026-10-19T18:27:09.680636124Z 6ad660fd.288fb489 0x74c486ffd6c0 conn=1012 fd=11 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:09.680762818Z 6ad660fd.2892887d 0x74c4877fe6c0 conn=1012 op=0 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" method=128
+2026-10-19T18:27:09.680772965Z 6ad660fd.289332ca 0x74c4877fe6c0 conn=1012 op=0 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:27:09.680860113Z 6ad660fd.289495cc 0x74c4877fe6c0 conn=1012 op=0 RESULT tag=97 err=0 qtime=0.000071 etime=0.000221 text=
+2026-10-19T18:27:09.683222235Z 6ad660fd.2898dfb8 0x74c486ffd6c0 conn=1012 op=1 UNBIND
+2026-10-19T18:27:09.683241526Z 6ad660fd.289aac59 0x74c486ffd6c0 conn=1012 fd=11 closed
+2026-10-19T18:27:10.373465184Z 6ad660fe.1640a3d0 0x74c4877fe6c0 conn=1013 fd=11 ACCEPT from IP=192.0.2.13:51684 (IP=0.0.0.0:1636)
+2026-10-19T18:27:10.379167299Z 6ad660fe.1698315b 0x74c486ffd6c0 conn=1013 fd=11 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:10.379808119Z 6ad660fe.16a20a58 0x74c4877fe6c0 conn=1013 op=0 BIND dn="cn=radius-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:10.379920097Z 6ad660fe.16a3144a 0x74c4877fe6c0 conn=1013 op=0 BIND dn="cn=radius-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:27:10.379927932Z 6ad660fe.16a3d982 0x74c4877fe6c0 conn=1013 op=0 RESULT tag=97 err=0 qtime=0.000014 etime=0.000146 text=
+2026-10-19T18:27:10.380023066Z 6ad660fe.16a62a1c 0x74c486ffd6c0 conn=1013 op=1 SRCH base="ou=people,dc=idlab,dc=example" scope=1 deref=0 filter="(uid=dave)"
+2026-10-19T18:27:10.380337027Z 6ad660fe.16a7b580 0x74c486ffd6c0 conn=1013 op=1 SEARCH RESULT tag=101 err=0 qtime=0.000010 etime=0.000123 nentries=1 text=
+2026-10-19T18:27:10.382545438Z 6ad660fe.16b2c39d 0x74c4877fe6c0 conn=1014 fd=12 ACCEPT from IP=192.0.2.13:51688 (IP=0.0.0.0:1636)
+2026-10-19T18:27:10.383207479Z 6ad660fe.16d67b54 0x74c486ffd6c0 conn=1014 fd=12 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:10.383681771Z 6ad660fe.16dd7bde 0x74c4877fe6c0 conn=1014 op=0 BIND dn="cn=radius-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:10.383717930Z 6ad660fe.16de2226 0x74c4877fe6c0 conn=1014 op=0 BIND dn="cn=radius-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:27:10.383826337Z 6ad660fe.16e04927 0x74c4877fe6c0 conn=1014 op=0 RESULT tag=97 err=0 qtime=0.000010 etime=0.000205 text=
+2026-10-19T18:27:10.383875726Z 6ad660fe.16e0fe5b 0x74c486ffd6c0 conn=1013 op=2 BIND anonymous mech=implicit bind_ssf=0 ssf=256
+2026-10-19T18:27:10.383998243Z 6ad660fe.16e16f59 0x74c486ffd6c0 conn=1013 op=2 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" method=128
+2026-10-19T18:27:10.384005830Z 6ad660fe.16e1e0d9 0x74c486ffd6c0 conn=1013 op=2 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:27:10.384009466Z 6ad660fe.16e27d3a 0x74c486ffd6c0 conn=1013 op=2 RESULT tag=97 err=0 qtime=0.000016 etime=0.000114 text=
+2026-10-19T18:27:10.550868724Z 6ad660fe.20d25ef2 0x74c4877fe6c0 conn=1014 op=1 SRCH base="ou=people,dc=idlab,dc=example" scope=1 deref=0 filter="(uid=dave)"
+2026-10-19T18:27:10.551065571Z 6ad660fe.20d4a1b8 0x74c4877fe6c0 conn=1014 op=1 SEARCH RESULT tag=101 err=0 qtime=0.000015 etime=0.000184 nentries=1 text=
+2026-10-19T18:27:10.551073292Z 6ad660fe.20d67413 0x74c486ffd6c0 conn=1013 op=3 BIND anonymous mech=implicit bind_ssf=0 ssf=256
+2026-10-19T18:27:10.551076450Z 6ad660fe.20d6f40b 0x74c486ffd6c0 conn=1013 op=3 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" method=128
+2026-10-19T18:27:10.551079306Z 6ad660fe.20d7ffe5 0x74c486ffd6c0 conn=1013 op=3 RESULT tag=97 err=49 qtime=0.000022 etime=0.000123 text=
+2026-10-19T18:27:49.862261429Z 6ad66125.335cc6b1 0x74c486ffd6c0 conn=1023 fd=13 ACCEPT from IP=192.0.2.11:54044 (IP=0.0.0.0:1636)
+2026-10-19T18:27:49.905602195Z 6ad66125.35f84179 0x74c4877fe6c0 conn=1023 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:49.905894076Z 6ad66125.35fc056a 0x74c486ffd6c0 conn=1023 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:49.905903382Z 6ad66125.35fcef87 0x74c486ffd6c0 conn=1023 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:27:49.905921021Z 6ad66125.35fd99bc 0x74c486ffd6c0 conn=1023 op=0 RESULT tag=97 err=0 qtime=0.000015 etime=0.000133 text=
+2026-10-19T18:27:49.906906285Z 6ad66125.360d9b85 0x74c486ffd6c0 conn=1023 op=1 BIND anonymous mech=implicit bind_ssf=0 ssf=256
+2026-10-19T18:27:49.907094189Z 6ad66125.360f0ad3 0x74c486ffd6c0 conn=1023 op=1 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:49.907151672Z 6ad66125.36100423 0x74c486ffd6c0 conn=1023 op=1 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:27:49.907257682Z 6ad66125.361248ab 0x74c486ffd6c0 conn=1023 op=1 RESULT tag=97 err=0 qtime=0.000015 etime=0.000321 text=
+2026-10-19T18:27:49.907415330Z 6ad66125.36153751 0x74c4877fe6c0 conn=1023 op=2 UNBIND
+2026-10-19T18:27:49.907596424Z 6ad66125.3617ea28 0x74c4877fe6c0 conn=1023 fd=13 closed
+2026-10-19T18:27:50.264494130Z 6ad66126.0fba1081 0x74c486ffd6c0 conn=1024 fd=13 ACCEPT from IP=192.0.2.11:54060 (IP=0.0.0.0:1636)
+2026-10-19T18:27:50.305662075Z 6ad66126.1235e5de 0x74c486ffd6c0 conn=1024 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:50.305747199Z 6ad66126.1238a479 0x74c4877fe6c0 conn=1024 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:50.305898724Z 6ad66126.123a60d8 0x74c4877fe6c0 conn=1024 op=0 RESULT tag=97 err=49 qtime=0.000017 etime=0.000135 text=
+2026-10-19T18:27:50.306300238Z 6ad66126.1240b7d4 0x74c4877fe6c0 conn=1024 fd=13 closed (connection lost)
+2026-10-19T18:27:50.544463175Z 6ad66126.2071cb28 0x74c486ffd6c0 conn=1025 fd=13 ACCEPT from IP=192.0.2.11:54066 (IP=0.0.0.0:1636)
+2026-10-19T18:27:50.587659487Z 6ad66126.2304b98b 0x74c4877fe6c0 conn=1025 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:50.587724910Z 6ad66126.23079039 0x74c486ffd6c0 conn=1025 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:50.587889754Z 6ad66126.2309451c 0x74c486ffd6c0 conn=1025 op=0 RESULT tag=97 err=49 qtime=0.000039 etime=0.000166 text=
+2026-10-19T18:27:50.588367448Z 6ad66126.230f3f93 0x74c486ffd6c0 conn=1025 fd=13 closed (connection lost)
+2026-10-19T18:27:50.823962799Z 6ad66126.311ae97d 0x74c4877fe6c0 conn=1026 fd=13 ACCEPT from IP=192.0.2.11:54072 (IP=0.0.0.0:1636)
+2026-10-19T18:27:50.868681922Z 6ad66126.33c4d959 0x74c486ffd6c0 conn=1026 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:50.868753934Z 6ad66126.33c75475 0x74c4877fe6c0 conn=1026 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:50.868850458Z 6ad66126.33c8e0f8 0x74c4877fe6c0 conn=1026 op=0 RESULT tag=97 err=49 qtime=0.000013 etime=0.000133 text=
+2026-10-19T18:27:50.869273526Z 6ad66126.33cf0377 0x74c4877fe6c0 conn=1026 fd=13 closed (connection lost)
+2026-10-19T18:27:52.560975723Z 6ad66128.216e18c0 0x74c486ffd6c0 conn=1027 fd=13 ACCEPT from IP=192.0.2.11:50386 (IP=0.0.0.0:1636)
+2026-10-19T18:27:52.605965027Z 6ad66128.241b3fca 0x74c4877fe6c0 conn=1027 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:52.606278527Z 6ad66128.24200ccd 0x74c486ffd6c0 conn=1027 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:52.606339371Z 6ad66128.242310b6 0x74c486ffd6c0 conn=1027 op=0 RESULT tag=97 err=49 qtime=0.000013 etime=0.000227 text=
+2026-10-19T18:27:52.607028393Z 6ad66128.242ca312 0x74c4877fe6c0 conn=1027 fd=13 closed (connection lost)
+2026-10-19T18:27:52.616276831Z 6ad66128.24b8e296 0x74c486ffd6c0 conn=1028 fd=13 ACCEPT from IP=192.0.2.11:50396 (IP=0.0.0.0:1636)
+2026-10-19T18:27:52.661936526Z 6ad66128.27701f5e 0x74c4877fe6c0 conn=1028 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:27:52.661978293Z 6ad66128.2772f0b7 0x74c486ffd6c0 conn=1028 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:27:52.662060693Z 6ad66128.2774883e 0x74c486ffd6c0 conn=1028 op=0 RESULT tag=97 err=49 qtime=0.000023 etime=0.000147 text=
+2026-10-19T18:27:52.662711910Z 6ad66128.277e936b 0x74c4877fe6c0 conn=1028 fd=13 closed (connection lost)
+2026-10-19T18:28:16.113771507Z 6ad66140.06c5e11f 0x74c486ffd6c0 conn=1034 fd=13 ACCEPT from IP=192.0.2.11:38380 (IP=0.0.0.0:1636)
+2026-10-19T18:28:16.156883666Z 6ad66140.0956cd70 0x74c4877fe6c0 conn=1034 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:28:16.156983332Z 6ad66140.095a09fa 0x74c486ffd6c0 conn=1034 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:16.157069425Z 6ad66140.095bf43a 0x74c486ffd6c0 conn=1034 op=0 RESULT tag=97 err=49 qtime=0.000019 etime=0.000173 text=
+2026-10-19T18:28:16.157666390Z 6ad66140.0964668e 0x74c4877fe6c0 conn=1034 fd=13 closed (connection lost)
+2026-10-19T18:28:16.496527734Z 6ad66140.1d9632af 0x74c486ffd6c0 conn=1035 fd=13 ACCEPT from IP=192.0.2.11:38394 (IP=0.0.0.0:1636)
+2026-10-19T18:28:16.539721873Z 6ad66140.20295f89 0x74c4877fe6c0 conn=1035 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:28:16.539870043Z 6ad66140.202c7f2f 0x74c486ffd6c0 conn=1035 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:16.540045254Z 6ad66140.202de456 0x74c486ffd6c0 conn=1035 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:16.540063407Z 6ad66140.202f8bb2 0x74c486ffd6c0 conn=1035 op=0 RESULT tag=97 err=0 qtime=0.000033 etime=0.000250 text=
+2026-10-19T18:28:16.540968499Z 6ad66140.2035f416 0x74c4877fe6c0 connection_input: conn=1035 deferring operation: binding
+2026-10-19T18:28:16.540996707Z 6ad66140.2037fbcf 0x74c486ffd6c0 conn=1035 op=1 BIND anonymous mech=implicit bind_ssf=0 ssf=256
+2026-10-19T18:28:16.541001312Z 6ad66140.2038ba67 0x74c486ffd6c0 conn=1035 op=1 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:16.541005072Z 6ad66140.2039639c 0x74c486ffd6c0 conn=1035 op=1 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:16.541008664Z 6ad66140.203a77cc 0x74c486ffd6c0 conn=1035 op=1 RESULT tag=97 err=0 qtime=0.000133 etime=0.000295 text=
+2026-10-19T18:28:16.541527878Z 6ad66140.20426916 0x74c486ffd6c0 conn=1035 op=2 UNBIND
+2026-10-19T18:28:16.541546618Z 6ad66140.20441bce 0x74c486ffd6c0 conn=1035 fd=13 closed
+2026-10-19T18:28:16.791112710Z 6ad66140.2f2590b1 0x74c4877fe6c0 conn=1036 fd=13 ACCEPT from IP=192.0.2.11:38402 (IP=0.0.0.0:1636)
+2026-10-19T18:28:16.834981020Z 6ad66140.31c1a51f 0x74c486ffd6c0 conn=1036 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:28:16.835050259Z 6ad66140.31c4ffca 0x74c4877fe6c0 conn=1036 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:16.835085792Z 6ad66140.31c5ccd8 0x74c4877fe6c0 conn=1036 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:16.835188989Z 6ad66140.31c6cd63 0x74c4877fe6c0 conn=1036 op=0 RESULT tag=97 err=0 qtime=0.000014 etime=0.000155 text=
+2026-10-19T18:28:16.835692437Z 6ad66140.31cd077f 0x74c486ffd6c0 conn=1036 op=1 BIND anonymous mech=implicit bind_ssf=0 ssf=256
+2026-10-19T18:28:16.835711765Z 6ad66140.31ce2926 0x74c486ffd6c0 conn=1036 op=1 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:16.835716999Z 6ad66140.31cefb81 0x74c486ffd6c0 conn=1036 op=1 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:16.835857675Z 6ad66140.31d012f6 0x74c486ffd6c0 conn=1036 op=1 RESULT tag=97 err=0 qtime=0.000021 etime=0.000222 text=
+2026-10-19T18:28:16.836102882Z 6ad66140.31d469df 0x74c4877fe6c0 conn=1036 op=2 UNBIND
+2026-10-19T18:28:16.836261144Z 6ad66140.31d6c3c0 0x74c4877fe6c0 conn=1036 fd=13 closed
+2026-10-19T18:28:17.064225377Z 6ad66141.03cd1f88 0x74c486ffd6c0 conn=1037 fd=13 ACCEPT from IP=192.0.2.11:38412 (IP=0.0.0.0:1636)
+2026-10-19T18:28:17.105676417Z 6ad66141.064a28a7 0x74c4877fe6c0 conn=1037 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:28:17.105869590Z 6ad66141.064d16b7 0x74c486ffd6c0 conn=1037 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:17.105877956Z 6ad66141.064de3c0 0x74c486ffd6c0 conn=1037 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:17.105881430Z 6ad66141.064ea19b 0x74c486ffd6c0 conn=1037 op=0 RESULT tag=97 err=0 qtime=0.000030 etime=0.000147 text=
+2026-10-19T18:28:17.106148205Z 6ad66141.06528d47 0x74c4877fe6c0 conn=1037 op=1 BIND anonymous mech=implicit bind_ssf=0 ssf=256
+2026-10-19T18:28:17.106153875Z 6ad66141.0652fbf4 0x74c4877fe6c0 conn=1037 op=1 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:17.106156858Z 6ad66141.06535a86 0x74c4877fe6c0 conn=1037 op=1 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:17.106226908Z 6ad66141.0653fe1a 0x74c4877fe6c0 conn=1037 op=1 RESULT tag=97 err=0 qtime=0.000007 etime=0.000102 text=
+2026-10-19T18:28:17.106600174Z 6ad66141.06586d79 0x74c486ffd6c0 conn=1037 op=2 UNBIND
+2026-10-19T18:28:17.106614590Z 6ad66141.0659e4f2 0x74c486ffd6c0 conn=1037 fd=13 closed
+2026-10-19T18:28:18.890110571Z 6ad66142.350c70f0 0x74c4877fe6c0 conn=1038 fd=13 ACCEPT from IP=192.0.2.11:38422 (IP=0.0.0.0:1636)
+2026-10-19T18:28:18.933789069Z 6ad66142.37a41117 0x74c486ffd6c0 conn=1038 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:28:18.933810498Z 6ad66142.37a7122b 0x74c4877fe6c0 conn=1038 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:18.933821983Z 6ad66142.37a863e2 0x74c4877fe6c0 conn=1038 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:18.934063706Z 6ad66142.37a9f101 0x74c4877fe6c0 conn=1038 op=0 RESULT tag=97 err=0 qtime=0.000016 etime=0.000228 text=
+2026-10-19T18:28:18.936530230Z 6ad66142.37d10a75 0x74c486ffd6c0 conn=1038 op=1 SRCH base="ou=people,dc=idlab,dc=example" scope=1 deref=3 filter="(entryUUID=5e526990-5bf4-1041-849e-5d5ddafdef8b)"
+2026-10-19T18:28:18.936547197Z 6ad66142.37d1e9e2 0x74c486ffd6c0 conn=1038 op=1 SRCH attr=entryUUID uid mail givenName sn pwdChangedTime objectclass
+2026-10-19T18:28:18.936696774Z 6ad66142.37d42514 0x74c486ffd6c0 conn=1038 op=1 SEARCH RESULT tag=101 err=0 qtime=0.000016 etime=0.000238 nentries=1 text=
+2026-10-19T18:28:18.939557825Z 6ad66142.37fcc390 0x74c4877fe6c0 conn=1038 op=2 UNBIND
+2026-10-19T18:28:18.939583366Z 6ad66142.37feafe0 0x74c4877fe6c0 conn=1038 fd=13 closed
+2026-10-19T18:28:18.940454259Z 6ad66142.380caf9c 0x74c486ffd6c0 conn=1039 fd=13 ACCEPT from IP=192.0.2.11:38428 (IP=0.0.0.0:1636)
+2026-10-19T18:28:18.984739153Z 6ad66142.3aad7278 0x74c4877fe6c0 conn=1039 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:28:18.984761950Z 6ad66142.3aaf4660 0x74c486ffd6c0 conn=1039 op=0 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" method=128
+2026-10-19T18:28:18.984765725Z 6ad66142.3aaff4a8 0x74c486ffd6c0 conn=1039 op=0 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:18.984768611Z 6ad66142.3ab0959f 0x74c486ffd6c0 conn=1039 op=0 RESULT tag=97 err=0 qtime=0.000014 etime=0.000115 text=
+2026-10-19T18:28:18.993458718Z 6ad66142.3b32cc0a 0x74c4877fe6c0 conn=1039 op=1 UNBIND
+2026-10-19T18:28:18.993497378Z 6ad66142.3b34f3de 0x74c4877fe6c0 conn=1039 fd=13 closed
+2026-10-19T18:28:19.027019228Z 6ad66143.019a5b74 0x74c4877fe6c0 conn=1041 fd=13 ACCEPT from IP=192.0.2.11:38438 (IP=0.0.0.0:1636)
+2026-10-19T18:28:19.069658245Z 6ad66143.0424c5b0 0x74c486ffd6c0 conn=1041 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:28:19.069748022Z 6ad66143.04276c17 0x74c4877fe6c0 conn=1041 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:19.069789477Z 6ad66143.04286f3c 0x74c4877fe6c0 conn=1041 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:19.069841087Z 6ad66143.042938df 0x74c4877fe6c0 conn=1041 op=0 RESULT tag=97 err=0 qtime=0.000024 etime=0.000159 text=
+2026-10-19T18:28:19.070297316Z 6ad66143.042f7056 0x74c486ffd6c0 conn=1041 op=1 SRCH base="ou=people,dc=idlab,dc=example" scope=1 deref=3 filter="(entryUUID=5e526990-5bf4-1041-849e-5d5ddafdef8b)"
+2026-10-19T18:28:19.070311515Z 6ad66143.042fc706 0x74c486ffd6c0 conn=1041 op=1 SRCH attr=entryUUID uid mail givenName sn pwdChangedTime objectclass
+2026-10-19T18:28:19.070361817Z 6ad66143.04311de2 0x74c486ffd6c0 conn=1041 op=1 SEARCH RESULT tag=101 err=0 qtime=0.000009 etime=0.000137 nentries=1 text=
+2026-10-19T18:28:19.070800555Z 6ad66143.043723e9 0x74c4877fe6c0 conn=1041 op=2 UNBIND
+2026-10-19T18:28:19.070897945Z 6ad66143.0438e5f9 0x74c4877fe6c0 conn=1041 fd=13 closed
+2026-10-19T18:28:19.074473833Z 6ad66143.046eb51e 0x74c486ffd6c0 conn=1042 fd=13 ACCEPT from IP=192.0.2.11:38444 (IP=0.0.0.0:1636)
+2026-10-19T18:28:19.117641010Z 6ad66143.070124b8 0x74c4877fe6c0 conn=1042 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:28:19.117762425Z 6ad66143.0703f26a 0x74c486ffd6c0 conn=1042 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:19.117800435Z 6ad66143.07050f6d 0x74c486ffd6c0 conn=1042 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:19.117898183Z 6ad66143.07067bea 0x74c486ffd6c0 conn=1042 op=0 RESULT tag=97 err=0 qtime=0.000033 etime=0.000215 text=
+2026-10-19T18:28:19.118320894Z 6ad66143.070bfce7 0x74c4877fe6c0 conn=1042 op=1 SRCH base="ou=groups,dc=idlab,dc=example" scope=1 deref=3 filter="(&(member=uid=dave,ou=people,dc=idlab,dc=example)(objectClass=groupOfNames))"
+2026-10-19T18:28:19.118333178Z 6ad66143.070c5c99 0x74c4877fe6c0 conn=1042 op=1 SRCH attr=entryUUID cn objectclass
+2026-10-19T18:28:19.118362276Z 6ad66143.070dab45 0x74c4877fe6c0 conn=1042 op=1 SEARCH RESULT tag=101 err=0 qtime=0.000008 etime=0.000139 nentries=1 text=
+2026-10-19T18:28:19.118776066Z 6ad66143.0713c7c5 0x74c486ffd6c0 conn=1042 op=2 UNBIND
+2026-10-19T18:28:19.119213471Z 6ad66143.07198e55 0x74c486ffd6c0 conn=1042 fd=13 closed
+2026-10-19T18:28:29.019951774Z 6ad6614d.0126a98e 0x74c4877fe6c0 conn=1044 fd=13 ACCEPT from IP=192.0.2.11:48288 (IP=0.0.0.0:1636)
+2026-10-19T18:28:29.062870152Z 6ad6614d.03bce612 0x74c486ffd6c0 conn=1044 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:28:29.063059859Z 6ad6614d.03c147a8 0x74c4877fe6c0 conn=1044 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" method=128
+2026-10-19T18:28:29.063191221Z 6ad6614d.03c33868 0x74c4877fe6c0 conn=1044 op=0 BIND dn="cn=keycloak-svc,ou=services,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:29.063316806Z 6ad6614d.03c55242 0x74c4877fe6c0 conn=1044 op=0 RESULT tag=97 err=0 qtime=0.000014 etime=0.000299 text=
+2026-10-19T18:28:29.063948606Z 6ad6614d.03cde087 0x74c486ffd6c0 conn=1044 op=1 SRCH base="ou=people,dc=idlab,dc=example" scope=1 deref=3 filter="(entryUUID=5e526990-5bf4-1041-849e-5d5ddafdef8b)"
+2026-10-19T18:28:29.063962728Z 6ad6614d.03ce75cb 0x74c486ffd6c0 conn=1044 op=1 SRCH attr=entryUUID uid mail givenName sn pwdChangedTime objectclass
+2026-10-19T18:28:29.064030823Z 6ad6614d.03d068e3 0x74c486ffd6c0 conn=1044 op=1 SEARCH RESULT tag=101 err=0 qtime=0.000016 etime=0.000205 nentries=1 text=
+2026-10-19T18:28:29.064655595Z 6ad6614d.03d76715 0x74c4877fe6c0 conn=1044 op=2 UNBIND
+2026-10-19T18:28:29.065356405Z 6ad6614d.03df56d6 0x74c4877fe6c0 conn=1044 fd=13 closed
+2026-10-19T18:28:29.065457562Z 6ad6614d.03e501ef 0x74c486ffd6c0 conn=1045 fd=13 ACCEPT from IP=192.0.2.11:48290 (IP=0.0.0.0:1636)
+2026-10-19T18:28:29.108578218Z 6ad6614d.06774fb3 0x74c4877fe6c0 conn=1045 fd=13 TLS established tls_ssf=256 ssf=256 tls_proto=TLSv1.3 tls_cipher=TLS_AES_256_GCM_SHA384
+2026-10-19T18:28:29.108634034Z 6ad6614d.067925a9 0x74c486ffd6c0 conn=1045 op=0 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" method=128
+2026-10-19T18:28:29.108674525Z 6ad6614d.0679e16d 0x74c486ffd6c0 conn=1045 op=0 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:29.108718642Z 6ad6614d.067a912c 0x74c486ffd6c0 conn=1045 op=0 RESULT tag=97 err=0 qtime=0.000007 etime=0.000116 text=
+2026-10-19T18:28:29.109086349Z 6ad6614d.067fded5 0x74c486ffd6c0 conn=1045 op=1 UNBIND
+2026-10-19T18:28:29.109259958Z 6ad6614d.06827e94 0x74c486ffd6c0 conn=1045 fd=13 closed
+2026-10-19T18:28:31.050804295Z 6ad6614f.02ff825e 0x74c4877fe6c0 conn=1014 op=2 SRCH base="ou=people,dc=idlab,dc=example" scope=1 deref=0 filter="(uid=dave)"
+2026-10-19T18:28:31.051053322Z 6ad6614f.0309f383 0x74c486ffd6c0 conn=1014 op=3 BIND anonymous mech=implicit bind_ssf=0 ssf=256
+2026-10-19T18:28:31.051060824Z 6ad6614f.030a8e76 0x74c484ff96c0 conn=1013 op=4 UNBIND
+2026-10-19T18:28:31.051124957Z 6ad6614f.030b5c03 0x74c4877fe6c0 conn=1014 op=2 SEARCH RESULT tag=101 err=0 qtime=0.000020 etime=0.000816 nentries=1 text=
+2026-10-19T18:28:31.051241823Z 6ad6614f.030c8856 0x74c484ff96c0 conn=1013 fd=11 closed
+2026-10-19T18:28:31.051379923Z 6ad6614f.030f6ddc 0x74c486ffd6c0 conn=1014 op=3 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" method=128
+2026-10-19T18:28:31.051482454Z 6ad6614f.0310cf0c 0x74c486ffd6c0 conn=1014 op=3 BIND dn="uid=dave,ou=people,dc=idlab,dc=example" mech=SIMPLE bind_ssf=0 ssf=256
+2026-10-19T18:28:31.051784483Z 6ad6614f.0315a2c3 0x74c486ffd6c0 conn=1014 op=3 RESULT tag=97 err=0 qtime=0.000010 etime=0.000776 text=

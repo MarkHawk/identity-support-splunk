@@ -1,0 +1,246 @@
+{
+  "tool": "rate-limit-probe",
+  "version": "0.1.0",
+  "target": {
+    "url": "http://127.0.0.1:46151/s/block",
+    "local": true,
+    "method": "GET"
+  },
+  "limits": {
+    "max_requests": 100,
+    "rate": 10.0,
+    "max_wait": 60.0
+  },
+  "notes": [
+    "demo window shortened to 2 s"
+  ],
+  "sent": 8,
+  "duration": 2.504,
+  "stop": {
+    "kind": "blocked",
+    "detail": "the server answered 403 instead of 429",
+    "request": 8,
+    "retry_after": null
+  },
+  "timeline": [
+    {
+      "type": "request",
+      "n": 1,
+      "phase": "discover",
+      "at": 0.0,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 2,
+      "phase": "discover",
+      "at": 0.1,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 3,
+      "phase": "discover",
+      "at": 0.2,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 4,
+      "phase": "discover",
+      "at": 0.3,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 5,
+      "phase": "discover",
+      "at": 0.4,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 6,
+      "phase": "discover",
+      "at": 0.501,
+      "status": 429,
+      "rate_headers": [
+        [
+          "Retry-After",
+          "2"
+        ]
+      ],
+      "retry_after": 2.0,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "wait",
+      "at": 0.502,
+      "seconds": 1.0,
+      "source": "early",
+      "purpose": "early"
+    },
+    {
+      "type": "request",
+      "n": 7,
+      "phase": "early",
+      "at": 1.502,
+      "status": 429,
+      "rate_headers": [
+        [
+          "Retry-After",
+          "1"
+        ]
+      ],
+      "retry_after": 1.0,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "wait",
+      "at": 1.503,
+      "seconds": 1.0,
+      "source": "Retry-After",
+      "purpose": "honour"
+    },
+    {
+      "type": "request",
+      "n": 8,
+      "phase": "honour",
+      "at": 2.503,
+      "status": 403,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    }
+  ],
+  "findings": [
+    {
+      "id": "limit.start",
+      "status": "INFO",
+      "title": "When 429s start",
+      "summary": "Request 6, 0.5 s in: 5 requests were accepted first.",
+      "details": {
+        "request": 6,
+        "at": 0.501,
+        "burst": 5
+      }
+    },
+    {
+      "id": "limit.observed",
+      "status": "INFO",
+      "title": "Observed limit",
+      "summary": "5 requests, then refused; the probe did not get back in, so the window is unknown.",
+      "details": {
+        "burst": 5,
+        "policy_limit": null,
+        "policy_window": null
+      }
+    },
+    {
+      "id": "headers.retry_after",
+      "status": "PASS",
+      "title": "Retry-After",
+      "summary": "Sent on every 429, in seconds.",
+      "details": {
+        "with": 2,
+        "of": 2,
+        "form": [
+          "seconds"
+        ]
+      }
+    },
+    {
+      "id": "headers.quota",
+      "status": "INFO",
+      "title": "Quota headers",
+      "summary": "No X-RateLimit or RateLimit headers, so a client cannot see the limit coming.",
+      "details": {
+        "styles": []
+      }
+    },
+    {
+      "id": "behaviour.early_retry",
+      "status": "PASS",
+      "title": "Early retry",
+      "summary": "A request sent 1 s early was refused, and did not extend the wait.",
+      "details": {
+        "delay": 1.001,
+        "expected": 0.999,
+        "new_hint": 1.0,
+        "penalised": false
+      }
+    },
+    {
+      "id": "run.stopped",
+      "status": "FAIL",
+      "title": "Stopped early",
+      "summary": "Request 8 was answered 403 after 2 429s: the server moved from rate limiting to blocking. The probe stopped there.",
+      "details": {
+        "kind": "blocked",
+        "request": 8,
+        "retry_after": null
+      }
+    }
+  ],
+  "likely_cause": {
+    "pattern": "blocked",
+    "label": "the server started blocking",
+    "summary": "After 2 429s the server started answering 403: it blocks clients that keep sending while limited. A client that retries through 429s can lock itself out this way.",
+    "next_step": "Pause the integration and ask the API owner whether the key or address is now blocked and how to lift it. Before resuming, make the client wait for Retry-After so it does not happen again."
+  },
+  "summary": {
+    "pass": 2,
+    "warn": 0,
+    "fail": 1,
+    "info": 3,
+    "verdict": "1 problem to fix (1 FAIL, 0 WARN, 2 PASS, 3 INFO)",
+    "exit_code": 1
+  }
+}

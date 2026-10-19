@@ -1,0 +1,275 @@
+{
+  "tool": "token-inspector",
+  "version": "0.1.0",
+  "input": {
+    "kind": "jwt",
+    "label": "ID token (JWT)",
+    "encoding": "compact JWS",
+    "container": "pasted value",
+    "location": "input",
+    "other_tokens": 0
+  },
+  "checked_at": "2026-10-17T11:29:17Z",
+  "skew_seconds": 60,
+  "redacted": false,
+  "notes": [],
+  "decoded": [
+    {
+      "section": "Token",
+      "fields": [
+        {
+          "name": "Type",
+          "value": "ID token (claim typ is ID)"
+        },
+        {
+          "name": "Signature",
+          "value": "256 bytes"
+        }
+      ]
+    },
+    {
+      "section": "Header",
+      "fields": [
+        {
+          "name": "alg",
+          "value": "RS256"
+        },
+        {
+          "name": "typ",
+          "value": "JWT"
+        },
+        {
+          "name": "kid",
+          "value": "qsYkHdHI8VLrmoilEcADes5CwykgRNyBrqBMQlRWIPw"
+        }
+      ]
+    },
+    {
+      "section": "Claims",
+      "fields": [
+        {
+          "name": "exp",
+          "value": "2026-10-17T11:34:19Z"
+        },
+        {
+          "name": "iat",
+          "value": "2026-10-17T11:29:19Z"
+        },
+        {
+          "name": "auth_time",
+          "value": "2026-10-17T11:29:18Z"
+        },
+        {
+          "name": "jti",
+          "value": "d93e2808-2b64-63e4-5e83-a2b81c37e184"
+        },
+        {
+          "name": "iss",
+          "value": "https://idlab.home:8180/realms/idlab"
+        },
+        {
+          "name": "aud",
+          "value": "oidc-rp"
+        },
+        {
+          "name": "sub",
+          "value": "8f844328-b4c4-451a-a7bb-33841b6f2af2"
+        },
+        {
+          "name": "typ",
+          "value": "ID"
+        },
+        {
+          "name": "azp",
+          "value": "oidc-rp"
+        },
+        {
+          "name": "nonce",
+          "value": "3gRZslQZbnBgV90Qd_XSjg"
+        },
+        {
+          "name": "sid",
+          "value": "a2wITEii2L7_IU9x7DU5cXlj"
+        },
+        {
+          "name": "at_hash",
+          "value": "76LOM7bEhXTZGrH8oDaXRA"
+        },
+        {
+          "name": "acr",
+          "value": "0"
+        },
+        {
+          "name": "realm_roles",
+          "value": "[\"default-roles-idlab\", \"offline_access\", \"uma_authorization\", \"lab-user\", \"lab-admin\"]"
+        },
+        {
+          "name": "email_verified",
+          "value": true
+        },
+        {
+          "name": "name",
+          "value": "Alice Anderson"
+        },
+        {
+          "name": "preferred_username",
+          "value": "alice"
+        },
+        {
+          "name": "given_name",
+          "value": "Alice"
+        },
+        {
+          "name": "family_name",
+          "value": "Anderson"
+        },
+        {
+          "name": "email",
+          "value": "alice@idlab.example"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "jwt.algorithm",
+      "status": "PASS",
+      "title": "Algorithm",
+      "summary": "Uses RS256 (as expected from the keys in JWKS jwks.json).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "alg": "RS256",
+        "expected": [
+          "RS256",
+          "RSA-OAEP"
+        ]
+      }
+    },
+    {
+      "check_id": "jwt.kid",
+      "status": "PASS",
+      "title": "Key ID (kid)",
+      "summary": "kid 'qsYkHdHI8VLrmoilEcADes5CwykgRNyBrqBMQlRWIPw' is in JWKS jwks.json.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "jwt.signature",
+      "status": "PASS",
+      "title": "Signature",
+      "summary": "Valid RS256 signature, verified with key 'qsYkHdHI8VLrmoilEcADes5CwykgRNyBrqBMQlRWIPw' from JWKS jwks.json.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "kid": "qsYkHdHI8VLrmoilEcADes5CwykgRNyBrqBMQlRWIPw"
+      }
+    },
+    {
+      "check_id": "jwt.time.exp",
+      "status": "PASS",
+      "title": "Expiry (exp)",
+      "summary": "Valid for another 5 min (exp 2026-10-17 11:34:19 UTC).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "value": "2026-10-17T11:34:19Z",
+        "seconds_remaining": 302.0,
+        "issued": "2026-10-17T11:29:19Z"
+      }
+    },
+    {
+      "check_id": "jwt.time.nbf",
+      "status": "SKIP",
+      "title": "Not before (nbf)",
+      "summary": "No nbf is set (it is optional).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "jwt.time.iat",
+      "status": "PASS",
+      "title": "Issued at (iat)",
+      "summary": "iat is 2 s ahead of this clock, within the 60 s allowance.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "value": "2026-10-17T11:29:19Z",
+        "seconds_in_future": 2.0
+      }
+    },
+    {
+      "check_id": "jwt.issuer",
+      "status": "PASS",
+      "title": "Issuer (iss)",
+      "summary": "Matches 'https://idlab.home:8180/realms/idlab'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": "https://idlab.home:8180/realms/idlab",
+        "expected": "https://idlab.home:8180/realms/idlab"
+      }
+    },
+    {
+      "check_id": "jwt.audience",
+      "status": "PASS",
+      "title": "Audience (aud)",
+      "summary": "Matches 'oidc-rp' (expected value from --client-id).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": "oidc-rp",
+        "expected": "oidc-rp"
+      }
+    },
+    {
+      "check_id": "oidc.nonce",
+      "status": "PASS",
+      "title": "Nonce",
+      "summary": "Matches the nonce sent in the login request.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "oidc.azp",
+      "status": "PASS",
+      "title": "Authorised party (azp)",
+      "summary": "Matches the client ID 'oidc-rp'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "oidc.required_claims",
+      "status": "PASS",
+      "title": "Required claims",
+      "summary": "All present: iss, sub, aud, exp, iat.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    }
+  ],
+  "likely_cause": null,
+  "summary": {
+    "fail": 0,
+    "warn": 0,
+    "pass": 10,
+    "skip": 1,
+    "verdict": "no problems found (0 FAIL, 0 WARN, 10 PASS, 1 SKIP)",
+    "exit_code": 0
+  }
+}

@@ -1,0 +1,331 @@
+{
+  "tool": "rate-limit-probe",
+  "version": "0.1.0",
+  "target": {
+    "url": "http://127.0.0.1:39075/s/fixed-seconds",
+    "local": true,
+    "method": "GET"
+  },
+  "limits": {
+    "max_requests": 100,
+    "rate": 10.0,
+    "max_wait": 60.0
+  },
+  "notes": [
+    "demo window shortened to 2 s"
+  ],
+  "sent": 13,
+  "duration": 3.004,
+  "stop": null,
+  "timeline": [
+    {
+      "type": "request",
+      "n": 1,
+      "phase": "discover",
+      "at": 0.0,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 2,
+      "phase": "discover",
+      "at": 0.1,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 3,
+      "phase": "discover",
+      "at": 0.2,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 4,
+      "phase": "discover",
+      "at": 0.3,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 5,
+      "phase": "discover",
+      "at": 0.4,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 6,
+      "phase": "discover",
+      "at": 0.5,
+      "status": 429,
+      "rate_headers": [
+        [
+          "Retry-After",
+          "2"
+        ]
+      ],
+      "retry_after": 2.0,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "wait",
+      "at": 0.502,
+      "seconds": 1.0,
+      "source": "early",
+      "purpose": "early"
+    },
+    {
+      "type": "request",
+      "n": 7,
+      "phase": "early",
+      "at": 1.502,
+      "status": 429,
+      "rate_headers": [
+        [
+          "Retry-After",
+          "1"
+        ]
+      ],
+      "retry_after": 1.0,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "wait",
+      "at": 1.502,
+      "seconds": 1.0,
+      "source": "Retry-After",
+      "purpose": "honour"
+    },
+    {
+      "type": "request",
+      "n": 8,
+      "phase": "honour",
+      "at": 2.502,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 9,
+      "phase": "refill",
+      "at": 2.603,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 10,
+      "phase": "refill",
+      "at": 2.703,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 11,
+      "phase": "refill",
+      "at": 2.803,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 12,
+      "phase": "refill",
+      "at": 2.903,
+      "status": 200,
+      "rate_headers": [],
+      "retry_after": null,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 13,
+      "phase": "refill",
+      "at": 3.003,
+      "status": 429,
+      "rate_headers": [
+        [
+          "Retry-After",
+          "1"
+        ]
+      ],
+      "retry_after": 1.0,
+      "limit": null,
+      "remaining": null,
+      "reset": null,
+      "error": null,
+      "error_kind": null
+    }
+  ],
+  "findings": [
+    {
+      "id": "limit.start",
+      "status": "INFO",
+      "title": "When 429s start",
+      "summary": "Request 6, 0.5 s in: 5 requests were accepted first.",
+      "details": {
+        "request": 6,
+        "at": 0.5,
+        "burst": 5
+      }
+    },
+    {
+      "id": "limit.observed",
+      "status": "INFO",
+      "title": "Observed limit",
+      "summary": "5 requests, then refused until 2.5 s after the first request. Consistent with a fixed or sliding window of 5 per 2 s.",
+      "details": {
+        "burst": 5,
+        "policy_limit": null,
+        "policy_window": null,
+        "window": 2.5,
+        "window_nice": 2,
+        "window_source": "Retry-After",
+        "refill_accepted": 5,
+        "shape": "full"
+      }
+    },
+    {
+      "id": "headers.retry_after",
+      "status": "PASS",
+      "title": "Retry-After",
+      "summary": "Sent on every 429, in seconds. Waiting as asked was enough: the next request was accepted.",
+      "details": {
+        "with": 3,
+        "of": 3,
+        "form": [
+          "seconds"
+        ]
+      }
+    },
+    {
+      "id": "headers.quota",
+      "status": "INFO",
+      "title": "Quota headers",
+      "summary": "No X-RateLimit or RateLimit headers, so a client cannot see the limit coming.",
+      "details": {
+        "styles": []
+      }
+    },
+    {
+      "id": "behaviour.early_retry",
+      "status": "PASS",
+      "title": "Early retry",
+      "summary": "A request sent 1 s early was refused, and did not extend the wait.",
+      "details": {
+        "delay": 1.001,
+        "expected": 0.999,
+        "new_hint": 1.0,
+        "penalised": false
+      }
+    },
+    {
+      "id": "behaviour.recovery",
+      "status": "PASS",
+      "title": "Recovery",
+      "summary": "A client that waits as told gets back in: accepted 2 s after the first 429, at the first try.",
+      "details": {
+        "recovered": true,
+        "after": 2.002,
+        "attempts": 1
+      }
+    },
+    {
+      "id": "behaviour.reset",
+      "status": "INFO",
+      "title": "Reset",
+      "summary": "After the wait, the full 5 requests were available again at once.",
+      "details": {
+        "accepted": 5,
+        "burst": 5
+      }
+    }
+  ],
+  "likely_cause": {
+    "pattern": "server-behaves",
+    "label": "the limit works as advertised",
+    "summary": "The server's limit behaves as its headers say, and a client that honours them recovers, so the 429s most likely come from how the integration sends requests.",
+    "next_step": "Check the integration's logs for retries sooner than Retry-After, several workers or instances sharing one key and bursts above 5 per 2 s."
+  },
+  "summary": {
+    "pass": 3,
+    "warn": 0,
+    "fail": 0,
+    "info": 4,
+    "verdict": "no problems found (0 FAIL, 0 WARN, 3 PASS, 4 INFO)",
+    "exit_code": 0
+  }
+}

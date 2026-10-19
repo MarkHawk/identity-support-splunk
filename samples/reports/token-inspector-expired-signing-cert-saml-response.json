@@ -1,0 +1,458 @@
+{
+  "tool": "token-inspector",
+  "version": "0.1.0",
+  "input": {
+    "kind": "saml",
+    "label": "SAML Response",
+    "encoding": "raw XML",
+    "container": "pasted value",
+    "location": "input",
+    "other_tokens": 0
+  },
+  "checked_at": "2026-10-17T13:34:19Z",
+  "skew_seconds": 60,
+  "redacted": false,
+  "notes": [],
+  "decoded": [
+    {
+      "section": "Response",
+      "fields": [
+        {
+          "name": "ID",
+          "value": "ID_3839722f-7176-46a6-a2a4-df98d1845130"
+        },
+        {
+          "name": "Issuer",
+          "value": "https://idlab.home:8180/realms/idlab"
+        },
+        {
+          "name": "IssueInstant",
+          "value": "2026-10-17T13:34:20Z"
+        },
+        {
+          "name": "Destination",
+          "value": "https://idlab.home:8181/saml/acs"
+        },
+        {
+          "name": "InResponseTo",
+          "value": "ONELOGIN_55d0484f0a7a2fbfbc1789acd5925dee473859c5"
+        },
+        {
+          "name": "Status",
+          "value": "Success"
+        },
+        {
+          "name": "Assertions",
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "section": "Assertion",
+      "fields": [
+        {
+          "name": "ID",
+          "value": "ID_bcdfe58e-da53-48d2-be56-dd14abf5b798"
+        },
+        {
+          "name": "Issuer",
+          "value": "https://idlab.home:8180/realms/idlab"
+        },
+        {
+          "name": "IssueInstant",
+          "value": "2026-10-17T13:34:20Z"
+        },
+        {
+          "name": "NameID",
+          "value": "alice@idlab.example"
+        },
+        {
+          "name": "NameID format",
+          "value": "email address"
+        },
+        {
+          "name": "Confirmation",
+          "value": "bearer"
+        },
+        {
+          "name": "Recipient",
+          "value": "https://idlab.home:8181/saml/acs"
+        },
+        {
+          "name": "InResponseTo",
+          "value": "ONELOGIN_55d0484f0a7a2fbfbc1789acd5925dee473859c5"
+        },
+        {
+          "name": "NotOnOrAfter",
+          "value": "2026-10-17T13:39:18Z"
+        },
+        {
+          "name": "NotBefore",
+          "value": "2026-10-17T13:34:18Z"
+        },
+        {
+          "name": "NotOnOrAfter",
+          "value": "2026-10-17T13:35:18Z"
+        },
+        {
+          "name": "Audience",
+          "value": "https://idlab.home:8181/saml/metadata"
+        },
+        {
+          "name": "AuthnInstant",
+          "value": "2026-10-17T13:34:20Z"
+        },
+        {
+          "name": "AuthnContext",
+          "value": "unspecified"
+        },
+        {
+          "name": "SessionIndex",
+          "value": "bUGKyRb9P-LPmQevyKv2McOf::4d9b1bdf-1a6a-4aca-8e41-a79d5c3435b4"
+        }
+      ]
+    },
+    {
+      "section": "Attributes",
+      "fields": [
+        {
+          "name": "givenName",
+          "value": "Alice"
+        },
+        {
+          "name": "surname",
+          "value": "Anderson"
+        },
+        {
+          "name": "email",
+          "value": "alice@idlab.example"
+        },
+        {
+          "name": "role",
+          "value": "view-profile, manage-account-links, default-roles-idlab, lab-user, uma_authorization, offline_access, manage-account, lab-admin"
+        }
+      ]
+    },
+    {
+      "section": "Signature on response",
+      "fields": [
+        {
+          "name": "Signed element",
+          "value": "response (ID ID_3839722f-7176-46a6-a2a4-df98d1845130)"
+        },
+        {
+          "name": "Covers",
+          "value": "ID_3839722f-7176-46a6-a2a4-df98d1845130"
+        },
+        {
+          "name": "Algorithm",
+          "value": "rsa-sha256, sha256"
+        },
+        {
+          "name": "Result",
+          "value": "invalid (key)"
+        },
+        {
+          "name": "Cert subject",
+          "value": "CN=idlab"
+        },
+        {
+          "name": "Cert issuer",
+          "value": "CN=idlab (self-signed)"
+        },
+        {
+          "name": "Cert valid from",
+          "value": "2026-10-17T13:32:40Z"
+        },
+        {
+          "name": "Cert valid until",
+          "value": "2036-10-17T13:34:20Z"
+        },
+        {
+          "name": "Cert key",
+          "value": "RSA 2048"
+        },
+        {
+          "name": "Cert SHA-256",
+          "value": "99:47:97:FA:DD:EA:4A:3D:A5:7A:62:09:D4:FB:08:9A:A4:9A:00:4F:91:D5:12:73:8E:BE:F3:D6:74:05:4D:25"
+        },
+        {
+          "name": "Cert SHA-1",
+          "value": "3F:B0:CF:5D:A0:25:2A:98:C1:03:08:4D:59:E9:92:9D:88:62:34:62"
+        }
+      ]
+    },
+    {
+      "section": "Signature on assertion",
+      "fields": [
+        {
+          "name": "Signed element",
+          "value": "assertion (ID ID_bcdfe58e-da53-48d2-be56-dd14abf5b798)"
+        },
+        {
+          "name": "Covers",
+          "value": "ID_bcdfe58e-da53-48d2-be56-dd14abf5b798"
+        },
+        {
+          "name": "Algorithm",
+          "value": "rsa-sha256, sha256"
+        },
+        {
+          "name": "Result",
+          "value": "invalid (key)"
+        },
+        {
+          "name": "Cert subject",
+          "value": "CN=idlab"
+        },
+        {
+          "name": "Cert issuer",
+          "value": "CN=idlab (self-signed)"
+        },
+        {
+          "name": "Cert valid from",
+          "value": "2026-10-17T13:32:40Z"
+        },
+        {
+          "name": "Cert valid until",
+          "value": "2036-10-17T13:34:20Z"
+        },
+        {
+          "name": "Cert key",
+          "value": "RSA 2048"
+        },
+        {
+          "name": "Cert SHA-256",
+          "value": "99:47:97:FA:DD:EA:4A:3D:A5:7A:62:09:D4:FB:08:9A:A4:9A:00:4F:91:D5:12:73:8E:BE:F3:D6:74:05:4D:25"
+        },
+        {
+          "name": "Cert SHA-1",
+          "value": "3F:B0:CF:5D:A0:25:2A:98:C1:03:08:4D:59:E9:92:9D:88:62:34:62"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "saml.status",
+      "status": "PASS",
+      "title": "Response status",
+      "summary": "Success.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "saml.signature.response",
+      "status": "FAIL",
+      "title": "Response signature",
+      "summary": "The signature does not match the certificate from metadata idp-metadata.xml. It was made with a different certificate (included in the message), so the IdP has most likely rotated its signing certificate and the SP still trusts the old one.",
+      "next_step": "Compare the SHA-256 fingerprints below. Give the SP the IdP's current certificate or refresh its copy of the IdP metadata.",
+      "runbook": "01-expired-signing-cert",
+      "runbook_url": "https://github.com/MarkHawk/identity-lab/blob/main/runbooks/01-expired-signing-cert.md",
+      "details": {
+        "error": "Signature verification failed: "
+      }
+    },
+    {
+      "check_id": "saml.signature.assertion",
+      "status": "FAIL",
+      "title": "Assertion signature",
+      "summary": "The signature does not match the certificate from metadata idp-metadata.xml. It was made with a different certificate (included in the message), so the IdP has most likely rotated its signing certificate and the SP still trusts the old one.",
+      "next_step": "Compare the SHA-256 fingerprints below. Give the SP the IdP's current certificate or refresh its copy of the IdP metadata.",
+      "runbook": "01-expired-signing-cert",
+      "runbook_url": "https://github.com/MarkHawk/identity-lab/blob/main/runbooks/01-expired-signing-cert.md",
+      "details": {
+        "error": "Signature verification failed: "
+      }
+    },
+    {
+      "check_id": "saml.signature.coverage",
+      "status": "FAIL",
+      "title": "Signature coverage",
+      "summary": "No valid signature covers the assertion, so an SP must reject it.",
+      "next_step": "See the signature results above for why each signature failed.",
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "saml.signature.algorithm",
+      "status": "PASS",
+      "title": "Signature algorithm",
+      "summary": "Uses rsa-sha256, sha256.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "algorithms": [
+          "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+          "http://www.w3.org/2001/04/xmlenc#sha256",
+          "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+          "http://www.w3.org/2001/04/xmlenc#sha256"
+        ]
+      }
+    },
+    {
+      "check_id": "saml.cert.validity",
+      "status": "PASS",
+      "title": "Signing certificate dates",
+      "summary": "Valid until 2036-10-17 13:34:20 UTC (another 3653 days).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "not_before": "2026-10-17T13:32:40Z",
+        "not_after": "2036-10-17T13:34:20Z",
+        "sha256_fingerprint": "99:47:97:FA:DD:EA:4A:3D:A5:7A:62:09:D4:FB:08:9A:A4:9A:00:4F:91:D5:12:73:8E:BE:F3:D6:74:05:4D:25"
+      }
+    },
+    {
+      "check_id": "saml.cert.trusted_validity",
+      "status": "FAIL",
+      "title": "Trusted certificate dates",
+      "summary": "The certificate the SP trusts (from metadata idp-metadata.xml) expired on 2026-10-17 13:34:16 UTC, 3 s ago. The IdP is now signing with a different certificate, so the SP must be given the IdP's current certificate.",
+      "next_step": "Give the SP the IdP's current signing certificate, or refresh its copy of the IdP metadata, so it trusts the key the IdP signs with now.",
+      "runbook": "01-expired-signing-cert",
+      "runbook_url": "https://github.com/MarkHawk/identity-lab/blob/main/runbooks/01-expired-signing-cert.md",
+      "details": {
+        "not_after": "2026-10-17T13:34:16Z",
+        "sha256_fingerprint": "0F:59:B3:93:47:4E:ED:94:B5:7B:EC:8C:BD:45:1E:57:09:FA:D5:F5:79:F8:EC:5F:1B:D6:45:A2:DB:5F:64:D6",
+        "signer_differs": true
+      }
+    },
+    {
+      "check_id": "saml.cert.metadata_match",
+      "status": "FAIL",
+      "title": "Certificate matches trusted",
+      "summary": "The IdP signed with a certificate that is not in metadata idp-metadata.xml (signing SHA-256 99:47:97:FA:DD:EA:4A:3D..., trusted 0F:59:B3:93:47:4E:ED:94...).",
+      "next_step": "The IdP has a new signing certificate the SP does not know about. Download the IdP's current metadata or certificate and update the SP.",
+      "runbook": "01-expired-signing-cert",
+      "runbook_url": "https://github.com/MarkHawk/identity-lab/blob/main/runbooks/01-expired-signing-cert.md",
+      "details": {
+        "signing_sha256": "99:47:97:FA:DD:EA:4A:3D:A5:7A:62:09:D4:FB:08:9A:A4:9A:00:4F:91:D5:12:73:8E:BE:F3:D6:74:05:4D:25",
+        "trusted_sha256": [
+          "0F:59:B3:93:47:4E:ED:94:B5:7B:EC:8C:BD:45:1E:57:09:FA:D5:F5:79:F8:EC:5F:1B:D6:45:A2:DB:5F:64:D6"
+        ]
+      }
+    },
+    {
+      "check_id": "saml.time.not_before",
+      "status": "PASS",
+      "title": "Not before",
+      "summary": "Conditions NotBefore 2026-10-17 13:34:18 UTC (now) has passed.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "value": "2026-10-17T13:34:18Z",
+        "seconds_in_future": 0
+      }
+    },
+    {
+      "check_id": "saml.time.not_on_or_after",
+      "status": "PASS",
+      "title": "Not on or after",
+      "summary": "Valid for another 59 s (Conditions NotOnOrAfter 2026-10-17 13:35:18 UTC).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "value": "2026-10-17T13:35:18Z",
+        "seconds_remaining": 59.243,
+        "issued": "2026-10-17T13:34:20Z"
+      }
+    },
+    {
+      "check_id": "saml.issuer",
+      "status": "PASS",
+      "title": "Issuer",
+      "summary": "Matches 'https://idlab.home:8180/realms/idlab'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": "https://idlab.home:8180/realms/idlab",
+        "expected": "https://idlab.home:8180/realms/idlab"
+      }
+    },
+    {
+      "check_id": "saml.audience",
+      "status": "PASS",
+      "title": "Audience",
+      "summary": "Matches 'https://idlab.home:8181/saml/metadata'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": [
+          "https://idlab.home:8181/saml/metadata"
+        ],
+        "expected": "https://idlab.home:8181/saml/metadata"
+      }
+    },
+    {
+      "check_id": "saml.destination",
+      "status": "PASS",
+      "title": "Destination",
+      "summary": "Matches 'https://idlab.home:8181/saml/acs'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": "https://idlab.home:8181/saml/acs",
+        "expected": "https://idlab.home:8181/saml/acs"
+      }
+    },
+    {
+      "check_id": "saml.recipient",
+      "status": "PASS",
+      "title": "Recipient",
+      "summary": "Matches 'https://idlab.home:8181/saml/acs' (expected value from --expect-destination).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": [
+          "https://idlab.home:8181/saml/acs"
+        ],
+        "expected": "https://idlab.home:8181/saml/acs"
+      }
+    },
+    {
+      "check_id": "saml.in_response_to",
+      "status": "PASS",
+      "title": "InResponseTo",
+      "summary": "Matches the AuthnRequest ID 'ONELOGIN_55d0484f0a7a2fbfbc1789acd5925dee473859c5'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    }
+  ],
+  "likely_cause": {
+    "pattern": "idp-key-rotation",
+    "label": "key rotation, trusted cert expired",
+    "summary": "The certificate the SP trusts has expired and the IdP has moved on to a new signing key, so the SP no longer trusts the key that signs its logins.",
+    "first_step": "Give the SP the IdP's current signing certificate, or have it refresh the IdP metadata.",
+    "runbook": "01-expired-signing-cert",
+    "runbook_url": "https://github.com/MarkHawk/identity-lab/blob/main/runbooks/01-expired-signing-cert.md",
+    "explains": [
+      "saml.signature.response",
+      "saml.signature.assertion",
+      "saml.signature.coverage",
+      "saml.cert.trusted_validity",
+      "saml.cert.metadata_match"
+    ],
+    "not_explained": []
+  },
+  "summary": {
+    "fail": 5,
+    "warn": 0,
+    "pass": 10,
+    "skip": 0,
+    "verdict": "5 problems to fix (5 FAIL, 0 WARN, 10 PASS, 0 SKIP)",
+    "exit_code": 1
+  }
+}

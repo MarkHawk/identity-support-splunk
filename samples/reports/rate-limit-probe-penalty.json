@@ -1,0 +1,507 @@
+{
+  "tool": "rate-limit-probe",
+  "version": "0.1.0",
+  "target": {
+    "url": "http://127.0.0.1:45739/s/penalty",
+    "local": true,
+    "method": "GET"
+  },
+  "limits": {
+    "max_requests": 100,
+    "rate": 10.0,
+    "max_wait": 60.0
+  },
+  "notes": [
+    "demo window shortened to 4 s"
+  ],
+  "sent": 13,
+  "duration": 7.005,
+  "stop": null,
+  "timeline": [
+    {
+      "type": "request",
+      "n": 1,
+      "phase": "discover",
+      "at": 0.0,
+      "status": 200,
+      "rate_headers": [
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "4"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434544"
+        ]
+      ],
+      "retry_after": null,
+      "limit": 5,
+      "remaining": 4,
+      "reset": 5.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 2,
+      "phase": "discover",
+      "at": 0.1,
+      "status": 200,
+      "rate_headers": [
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "3"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434544"
+        ]
+      ],
+      "retry_after": null,
+      "limit": 5,
+      "remaining": 3,
+      "reset": 5.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 3,
+      "phase": "discover",
+      "at": 0.2,
+      "status": 200,
+      "rate_headers": [
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "2"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434544"
+        ]
+      ],
+      "retry_after": null,
+      "limit": 5,
+      "remaining": 2,
+      "reset": 5.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 4,
+      "phase": "discover",
+      "at": 0.3,
+      "status": 200,
+      "rate_headers": [
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "1"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434544"
+        ]
+      ],
+      "retry_after": null,
+      "limit": 5,
+      "remaining": 1,
+      "reset": 5.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 5,
+      "phase": "discover",
+      "at": 0.4,
+      "status": 200,
+      "rate_headers": [
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "0"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434544"
+        ]
+      ],
+      "retry_after": null,
+      "limit": 5,
+      "remaining": 0,
+      "reset": 5.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 6,
+      "phase": "discover",
+      "at": 0.501,
+      "status": 429,
+      "rate_headers": [
+        [
+          "Retry-After",
+          "4"
+        ],
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "0"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434544"
+        ]
+      ],
+      "retry_after": 4.0,
+      "limit": 5,
+      "remaining": 0,
+      "reset": 5.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "wait",
+      "at": 0.502,
+      "seconds": 2.0,
+      "source": "early",
+      "purpose": "early"
+    },
+    {
+      "type": "request",
+      "n": 7,
+      "phase": "early",
+      "at": 2.502,
+      "status": 429,
+      "rate_headers": [
+        [
+          "Retry-After",
+          "4"
+        ],
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "0"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434546"
+        ]
+      ],
+      "retry_after": 4.0,
+      "limit": 5,
+      "remaining": 0,
+      "reset": 5.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "wait",
+      "at": 2.503,
+      "seconds": 4.0,
+      "source": "Retry-After",
+      "purpose": "honour"
+    },
+    {
+      "type": "request",
+      "n": 8,
+      "phase": "honour",
+      "at": 6.503,
+      "status": 200,
+      "rate_headers": [
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "4"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434548"
+        ]
+      ],
+      "retry_after": null,
+      "limit": 5,
+      "remaining": 4,
+      "reset": 3.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 9,
+      "phase": "refill",
+      "at": 6.603,
+      "status": 200,
+      "rate_headers": [
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "3"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434548"
+        ]
+      ],
+      "retry_after": null,
+      "limit": 5,
+      "remaining": 3,
+      "reset": 3.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 10,
+      "phase": "refill",
+      "at": 6.704,
+      "status": 200,
+      "rate_headers": [
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "2"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434548"
+        ]
+      ],
+      "retry_after": null,
+      "limit": 5,
+      "remaining": 2,
+      "reset": 3.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 11,
+      "phase": "refill",
+      "at": 6.804,
+      "status": 200,
+      "rate_headers": [
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "1"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434548"
+        ]
+      ],
+      "retry_after": null,
+      "limit": 5,
+      "remaining": 1,
+      "reset": 3.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 12,
+      "phase": "refill",
+      "at": 6.904,
+      "status": 200,
+      "rate_headers": [
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "0"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434548"
+        ]
+      ],
+      "retry_after": null,
+      "limit": 5,
+      "remaining": 0,
+      "reset": 2.0,
+      "error": null,
+      "error_kind": null
+    },
+    {
+      "type": "request",
+      "n": 13,
+      "phase": "refill",
+      "at": 7.004,
+      "status": 429,
+      "rate_headers": [
+        [
+          "Retry-After",
+          "4"
+        ],
+        [
+          "X-RateLimit-Limit",
+          "5"
+        ],
+        [
+          "X-RateLimit-Remaining",
+          "0"
+        ],
+        [
+          "X-RateLimit-Reset",
+          "1792434551"
+        ]
+      ],
+      "retry_after": 4.0,
+      "limit": 5,
+      "remaining": 0,
+      "reset": 5.0,
+      "error": null,
+      "error_kind": null
+    }
+  ],
+  "findings": [
+    {
+      "id": "limit.start",
+      "status": "INFO",
+      "title": "When 429s start",
+      "summary": "Request 6, 0.5 s in: 5 requests were accepted first.",
+      "details": {
+        "request": 6,
+        "at": 0.501,
+        "burst": 5
+      }
+    },
+    {
+      "id": "limit.observed",
+      "status": "INFO",
+      "title": "Observed limit",
+      "summary": "5 requests, then refused until 4.5 s after the first request. Consistent with a fixed or sliding window of 5 per 4 s, which the Limit header (5) confirms.",
+      "details": {
+        "burst": 5,
+        "policy_limit": 5,
+        "policy_window": null,
+        "window": 4.501,
+        "window_nice": 4,
+        "window_source": "Retry-After",
+        "refill_accepted": 5,
+        "shape": "full"
+      }
+    },
+    {
+      "id": "headers.retry_after",
+      "status": "PASS",
+      "title": "Retry-After",
+      "summary": "Sent on every 429, in seconds. Waiting as asked was enough: the next request was accepted.",
+      "details": {
+        "with": 3,
+        "of": 3,
+        "form": [
+          "seconds"
+        ]
+      }
+    },
+    {
+      "id": "headers.quota",
+      "status": "PASS",
+      "title": "X-RateLimit headers",
+      "summary": "Remaining counted down to 0, Limit matched what happened and Reset agreed with Retry-After.",
+      "details": {
+        "styles": [
+          "x-ratelimit"
+        ],
+        "remaining": [
+          4,
+          3,
+          2,
+          1,
+          0
+        ],
+        "problems": []
+      }
+    },
+    {
+      "id": "behaviour.early_retry",
+      "status": "FAIL",
+      "title": "Early retry",
+      "summary": "A request sent 2 s early was refused and the wait went back up to 4 s: the server restarts the limit on every early request. A client that retries before the wait is over stays limited for as long as it keeps retrying.",
+      "details": {
+        "delay": 2.001,
+        "expected": 1.999,
+        "new_hint": 4.0,
+        "penalised": true
+      }
+    },
+    {
+      "id": "behaviour.recovery",
+      "status": "PASS",
+      "title": "Recovery",
+      "summary": "A client that waits as told gets back in: accepted 6 s after the first 429, at the first try.",
+      "details": {
+        "recovered": true,
+        "after": 6.003,
+        "attempts": 1
+      }
+    },
+    {
+      "id": "behaviour.reset",
+      "status": "INFO",
+      "title": "Reset",
+      "summary": "After the wait, the full 5 requests were available again at once.",
+      "details": {
+        "accepted": 5,
+        "burst": 5
+      }
+    }
+  ],
+  "likely_cause": {
+    "pattern": "early-retries-extend",
+    "label": "client retries during the limit",
+    "summary": "Each request sent during the limit restarts it, so a client that retries immediately and ignores Retry-After never leaves the limit.",
+    "next_step": "Make the client wait for the full Retry-After before retrying, and back off when there is none. Check its logs for retries less than 4 s apart after a 429."
+  },
+  "summary": {
+    "pass": 3,
+    "warn": 0,
+    "fail": 1,
+    "info": 3,
+    "verdict": "1 problem to fix (1 FAIL, 0 WARN, 3 PASS, 3 INFO)",
+    "exit_code": 1
+  }
+}

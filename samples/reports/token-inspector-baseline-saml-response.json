@@ -1,0 +1,443 @@
+{
+  "tool": "token-inspector",
+  "version": "0.1.0",
+  "input": {
+    "kind": "saml",
+    "label": "SAML Response",
+    "encoding": "raw XML",
+    "container": "pasted value",
+    "location": "input",
+    "other_tokens": 0
+  },
+  "checked_at": "2026-10-17T11:29:17Z",
+  "skew_seconds": 60,
+  "redacted": false,
+  "notes": [],
+  "decoded": [
+    {
+      "section": "Response",
+      "fields": [
+        {
+          "name": "ID",
+          "value": "ID_3dfc46fd-c1bf-4d07-b823-1879556435c1"
+        },
+        {
+          "name": "Issuer",
+          "value": "https://idlab.home:8180/realms/idlab"
+        },
+        {
+          "name": "IssueInstant",
+          "value": "2026-10-17T11:29:18Z"
+        },
+        {
+          "name": "Destination",
+          "value": "https://idlab.home:8181/saml/acs"
+        },
+        {
+          "name": "InResponseTo",
+          "value": "ONELOGIN_90db25135b7f86c6a3140b132f98d5f7d6a12874"
+        },
+        {
+          "name": "Status",
+          "value": "Success"
+        },
+        {
+          "name": "Assertions",
+          "value": "1"
+        }
+      ]
+    },
+    {
+      "section": "Assertion",
+      "fields": [
+        {
+          "name": "ID",
+          "value": "ID_e37b7f70-4fa9-4d80-9dea-5774e4a79bfe"
+        },
+        {
+          "name": "Issuer",
+          "value": "https://idlab.home:8180/realms/idlab"
+        },
+        {
+          "name": "IssueInstant",
+          "value": "2026-10-17T11:29:18Z"
+        },
+        {
+          "name": "NameID",
+          "value": "alice@idlab.example"
+        },
+        {
+          "name": "NameID format",
+          "value": "email address"
+        },
+        {
+          "name": "Confirmation",
+          "value": "bearer"
+        },
+        {
+          "name": "Recipient",
+          "value": "https://idlab.home:8181/saml/acs"
+        },
+        {
+          "name": "InResponseTo",
+          "value": "ONELOGIN_90db25135b7f86c6a3140b132f98d5f7d6a12874"
+        },
+        {
+          "name": "NotOnOrAfter",
+          "value": "2026-10-17T11:34:16Z"
+        },
+        {
+          "name": "NotBefore",
+          "value": "2026-10-17T11:29:16Z"
+        },
+        {
+          "name": "NotOnOrAfter",
+          "value": "2026-10-17T11:30:16Z"
+        },
+        {
+          "name": "Audience",
+          "value": "https://idlab.home:8181/saml/metadata"
+        },
+        {
+          "name": "AuthnInstant",
+          "value": "2026-10-17T11:29:18Z"
+        },
+        {
+          "name": "AuthnContext",
+          "value": "unspecified"
+        },
+        {
+          "name": "SessionIndex",
+          "value": "a2wITEii2L7_IU9x7DU5cXlj::4d9b1bdf-1a6a-4aca-8e41-a79d5c3435b4"
+        }
+      ]
+    },
+    {
+      "section": "Attributes",
+      "fields": [
+        {
+          "name": "givenName",
+          "value": "Alice"
+        },
+        {
+          "name": "surname",
+          "value": "Anderson"
+        },
+        {
+          "name": "email",
+          "value": "alice@idlab.example"
+        },
+        {
+          "name": "role",
+          "value": "view-profile, manage-account-links, default-roles-idlab, lab-user, uma_authorization, offline_access, manage-account, lab-admin"
+        }
+      ]
+    },
+    {
+      "section": "Signature on response",
+      "fields": [
+        {
+          "name": "Signed element",
+          "value": "response (ID ID_3dfc46fd-c1bf-4d07-b823-1879556435c1)"
+        },
+        {
+          "name": "Covers",
+          "value": "ID_3dfc46fd-c1bf-4d07-b823-1879556435c1"
+        },
+        {
+          "name": "Algorithm",
+          "value": "rsa-sha256, sha256"
+        },
+        {
+          "name": "Result",
+          "value": "valid"
+        },
+        {
+          "name": "Cert subject",
+          "value": "CN=idlab"
+        },
+        {
+          "name": "Cert issuer",
+          "value": "CN=identity-lab Local CA,O=identity-lab"
+        },
+        {
+          "name": "Cert valid from",
+          "value": "2026-10-14T07:26:00Z"
+        },
+        {
+          "name": "Cert valid until",
+          "value": "2027-10-14T08:26:00Z"
+        },
+        {
+          "name": "Cert key",
+          "value": "RSA 2048"
+        },
+        {
+          "name": "Cert SHA-256",
+          "value": "15:C8:41:7C:1A:4B:8D:C4:0E:3E:30:FD:FD:B4:C5:42:05:B4:5B:E2:1A:4C:32:0A:B4:81:04:B4:BB:AC:3C:CE"
+        },
+        {
+          "name": "Cert SHA-1",
+          "value": "2A:74:C9:9A:E7:A5:63:5A:07:6C:BE:B3:D0:4E:84:B7:73:CE:BB:CE"
+        }
+      ]
+    },
+    {
+      "section": "Signature on assertion",
+      "fields": [
+        {
+          "name": "Signed element",
+          "value": "assertion (ID ID_e37b7f70-4fa9-4d80-9dea-5774e4a79bfe)"
+        },
+        {
+          "name": "Covers",
+          "value": "ID_e37b7f70-4fa9-4d80-9dea-5774e4a79bfe"
+        },
+        {
+          "name": "Algorithm",
+          "value": "rsa-sha256, sha256"
+        },
+        {
+          "name": "Result",
+          "value": "valid"
+        },
+        {
+          "name": "Cert subject",
+          "value": "CN=idlab"
+        },
+        {
+          "name": "Cert issuer",
+          "value": "CN=identity-lab Local CA,O=identity-lab"
+        },
+        {
+          "name": "Cert valid from",
+          "value": "2026-10-14T07:26:00Z"
+        },
+        {
+          "name": "Cert valid until",
+          "value": "2027-10-14T08:26:00Z"
+        },
+        {
+          "name": "Cert key",
+          "value": "RSA 2048"
+        },
+        {
+          "name": "Cert SHA-256",
+          "value": "15:C8:41:7C:1A:4B:8D:C4:0E:3E:30:FD:FD:B4:C5:42:05:B4:5B:E2:1A:4C:32:0A:B4:81:04:B4:BB:AC:3C:CE"
+        },
+        {
+          "name": "Cert SHA-1",
+          "value": "2A:74:C9:9A:E7:A5:63:5A:07:6C:BE:B3:D0:4E:84:B7:73:CE:BB:CE"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "saml.status",
+      "status": "PASS",
+      "title": "Response status",
+      "summary": "Success.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "saml.signature.response",
+      "status": "PASS",
+      "title": "Response signature",
+      "summary": "Valid rsa-sha256 signature, verified with the certificate from metadata idp-metadata.xml.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "algorithm": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
+      }
+    },
+    {
+      "check_id": "saml.signature.assertion",
+      "status": "PASS",
+      "title": "Assertion signature",
+      "summary": "Valid rsa-sha256 signature, verified with the certificate from metadata idp-metadata.xml.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "algorithm": "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256"
+      }
+    },
+    {
+      "check_id": "saml.signature.coverage",
+      "status": "PASS",
+      "title": "Signature coverage",
+      "summary": "The assertion you read (ID ID_e37b7…) is covered by a valid Response and Assertion signature.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "assertion_id": "ID_e37b7f70-4fa9-4d80-9dea-5774e4a79bfe",
+        "covered_by": [
+          "Response",
+          "Assertion"
+        ]
+      }
+    },
+    {
+      "check_id": "saml.signature.algorithm",
+      "status": "PASS",
+      "title": "Signature algorithm",
+      "summary": "Uses rsa-sha256, sha256.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "algorithms": [
+          "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+          "http://www.w3.org/2001/04/xmlenc#sha256",
+          "http://www.w3.org/2001/04/xmldsig-more#rsa-sha256",
+          "http://www.w3.org/2001/04/xmlenc#sha256"
+        ]
+      }
+    },
+    {
+      "check_id": "saml.cert.validity",
+      "status": "PASS",
+      "title": "Signing certificate dates",
+      "summary": "Valid until 2027-10-14 08:26:00 UTC (another 362 days).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "not_before": "2026-10-14T07:26:00Z",
+        "not_after": "2027-10-14T08:26:00Z",
+        "sha256_fingerprint": "15:C8:41:7C:1A:4B:8D:C4:0E:3E:30:FD:FD:B4:C5:42:05:B4:5B:E2:1A:4C:32:0A:B4:81:04:B4:BB:AC:3C:CE"
+      }
+    },
+    {
+      "check_id": "saml.cert.trusted_validity",
+      "status": "PASS",
+      "title": "Trusted certificate dates",
+      "summary": "The certificate the SP trusts is valid until 2027-10-14 08:26:00 UTC (another 362 days).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "not_after": "2027-10-14T08:26:00Z",
+        "sha256_fingerprint": "15:C8:41:7C:1A:4B:8D:C4:0E:3E:30:FD:FD:B4:C5:42:05:B4:5B:E2:1A:4C:32:0A:B4:81:04:B4:BB:AC:3C:CE"
+      }
+    },
+    {
+      "check_id": "saml.cert.metadata_match",
+      "status": "PASS",
+      "title": "Certificate matches trusted",
+      "summary": "The signing certificate is the one in metadata idp-metadata.xml.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "saml.time.not_before",
+      "status": "PASS",
+      "title": "Not before",
+      "summary": "Conditions NotBefore 2026-10-17 11:29:16 UTC (now) has passed.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "value": "2026-10-17T11:29:16Z",
+        "seconds_in_future": 0
+      }
+    },
+    {
+      "check_id": "saml.time.not_on_or_after",
+      "status": "PASS",
+      "title": "Not on or after",
+      "summary": "Valid for another 59 s (Conditions NotOnOrAfter 2026-10-17 11:30:16 UTC).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "value": "2026-10-17T11:30:16Z",
+        "seconds_remaining": 59.78,
+        "issued": "2026-10-17T11:29:18Z"
+      }
+    },
+    {
+      "check_id": "saml.issuer",
+      "status": "PASS",
+      "title": "Issuer",
+      "summary": "Matches 'https://idlab.home:8180/realms/idlab'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": "https://idlab.home:8180/realms/idlab",
+        "expected": "https://idlab.home:8180/realms/idlab"
+      }
+    },
+    {
+      "check_id": "saml.audience",
+      "status": "PASS",
+      "title": "Audience",
+      "summary": "Matches 'https://idlab.home:8181/saml/metadata'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": [
+          "https://idlab.home:8181/saml/metadata"
+        ],
+        "expected": "https://idlab.home:8181/saml/metadata"
+      }
+    },
+    {
+      "check_id": "saml.destination",
+      "status": "PASS",
+      "title": "Destination",
+      "summary": "Matches 'https://idlab.home:8181/saml/acs'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": "https://idlab.home:8181/saml/acs",
+        "expected": "https://idlab.home:8181/saml/acs"
+      }
+    },
+    {
+      "check_id": "saml.recipient",
+      "status": "PASS",
+      "title": "Recipient",
+      "summary": "Matches 'https://idlab.home:8181/saml/acs' (expected value from --expect-destination).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": [
+          "https://idlab.home:8181/saml/acs"
+        ],
+        "expected": "https://idlab.home:8181/saml/acs"
+      }
+    },
+    {
+      "check_id": "saml.in_response_to",
+      "status": "PASS",
+      "title": "InResponseTo",
+      "summary": "Matches the AuthnRequest ID 'ONELOGIN_90db25135b7f86c6a3140b132f98d5f7d6a12874'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    }
+  ],
+  "likely_cause": null,
+  "summary": {
+    "fail": 0,
+    "warn": 0,
+    "pass": 15,
+    "skip": 0,
+    "verdict": "no problems found (0 FAIL, 0 WARN, 15 PASS, 0 SKIP)",
+    "exit_code": 0
+  }
+}

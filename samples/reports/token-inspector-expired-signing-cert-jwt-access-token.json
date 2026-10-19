@@ -1,0 +1,298 @@
+{
+  "tool": "token-inspector",
+  "version": "0.1.0",
+  "input": {
+    "kind": "jwt",
+    "label": "access token (JWT)",
+    "encoding": "compact JWS",
+    "container": "pasted value",
+    "location": "input",
+    "other_tokens": 0
+  },
+  "checked_at": "2026-10-17T13:34:19Z",
+  "skew_seconds": 60,
+  "redacted": false,
+  "notes": [],
+  "decoded": [
+    {
+      "section": "Token",
+      "fields": [
+        {
+          "name": "Type",
+          "value": "access token (set with --token-type)"
+        },
+        {
+          "name": "Signature",
+          "value": "256 bytes"
+        }
+      ]
+    },
+    {
+      "section": "Header",
+      "fields": [
+        {
+          "name": "alg",
+          "value": "RS256"
+        },
+        {
+          "name": "typ",
+          "value": "JWT"
+        },
+        {
+          "name": "kid",
+          "value": "-UffjEAkcMOpLnbJt3Pu8rIg8Kjy2lSfIloYr0UgiQQ"
+        }
+      ]
+    },
+    {
+      "section": "Claims",
+      "fields": [
+        {
+          "name": "exp",
+          "value": "2026-10-17T13:39:20Z"
+        },
+        {
+          "name": "iat",
+          "value": "2026-10-17T13:34:20Z"
+        },
+        {
+          "name": "auth_time",
+          "value": "2026-10-17T13:34:19Z"
+        },
+        {
+          "name": "jti",
+          "value": "onrtac:416b660f-27d2-7275-4df3-2a545bd9d3b8"
+        },
+        {
+          "name": "iss",
+          "value": "https://idlab.home:8180/realms/idlab"
+        },
+        {
+          "name": "aud",
+          "value": "account"
+        },
+        {
+          "name": "sub",
+          "value": "8f844328-b4c4-451a-a7bb-33841b6f2af2"
+        },
+        {
+          "name": "typ",
+          "value": "Bearer"
+        },
+        {
+          "name": "azp",
+          "value": "oidc-rp"
+        },
+        {
+          "name": "sid",
+          "value": "bUGKyRb9P-LPmQevyKv2McOf"
+        },
+        {
+          "name": "acr",
+          "value": "0"
+        },
+        {
+          "name": "allowed-origins",
+          "value": "[\"https://idlab.home:8182\"]"
+        },
+        {
+          "name": "realm_access",
+          "value": "{\"roles\": [\"default-roles-idlab\", \"offline_access\", \"uma_authorization\", \"lab-user\", \"lab-admin\"]}"
+        },
+        {
+          "name": "resource_access",
+          "value": "{\"account\": {\"roles\": [\"manage-account\", \"manage-account-links\", \"view-profile\"]}}"
+        },
+        {
+          "name": "scope",
+          "value": "openid profile email"
+        },
+        {
+          "name": "realm_roles",
+          "value": "[\"default-roles-idlab\", \"offline_access\", \"uma_authorization\", \"lab-user\", \"lab-admin\"]"
+        },
+        {
+          "name": "email_verified",
+          "value": true
+        },
+        {
+          "name": "name",
+          "value": "Alice Anderson"
+        },
+        {
+          "name": "preferred_username",
+          "value": "alice"
+        },
+        {
+          "name": "given_name",
+          "value": "Alice"
+        },
+        {
+          "name": "family_name",
+          "value": "Anderson"
+        },
+        {
+          "name": "email",
+          "value": "alice@idlab.example"
+        }
+      ]
+    }
+  ],
+  "findings": [
+    {
+      "check_id": "jwt.algorithm",
+      "status": "PASS",
+      "title": "Algorithm",
+      "summary": "Uses RS256 (as expected from the keys in JWKS jwks.json).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "alg": "RS256",
+        "expected": [
+          "RS256",
+          "RSA-OAEP"
+        ]
+      }
+    },
+    {
+      "check_id": "jwt.kid",
+      "status": "FAIL",
+      "title": "Key ID (kid)",
+      "summary": "kid '-UffjEAkcMOpLnbJt3Pu8rIg8Kjy2lSfIloYr0UgiQQ' is not in JWKS jwks.json, which has 'S16yFIQ4OXJPHikbIHncjDMhdPXaXJaAUSbhebJsIPM', 'giC-nxpmyYCMLTmM1vvbSPJnBwAFn0ZQqFPFBb1O4ng'. The IdP has probably rotated its signing key and the relying party's cached copy of the JWKS is out of date.",
+      "next_step": "Download the IdP's current JWKS (the jwks_uri in its discovery document) and compare. Then refresh or restart the relying party's key cache. Check the JWKS is from the right IdP and realm.",
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "kid": "-UffjEAkcMOpLnbJt3Pu8rIg8Kjy2lSfIloYr0UgiQQ",
+        "jwks_kids": [
+          "S16yFIQ4OXJPHikbIHncjDMhdPXaXJaAUSbhebJsIPM",
+          "giC-nxpmyYCMLTmM1vvbSPJnBwAFn0ZQqFPFBb1O4ng"
+        ]
+      }
+    },
+    {
+      "check_id": "jwt.signature",
+      "status": "FAIL",
+      "title": "Signature",
+      "summary": "The signature does not verify with any of the 1 matching keys in JWKS jwks.json.",
+      "next_step": "If the kid result above failed, the IdP is signing with a key this JWKS does not have. Otherwise treat the token as forged or corrupted.",
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "jwt.time.exp",
+      "status": "PASS",
+      "title": "Expiry (exp)",
+      "summary": "Valid for another 5 min (exp 2026-10-17 13:39:20 UTC).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "value": "2026-10-17T13:39:20Z",
+        "seconds_remaining": 301.0,
+        "issued": "2026-10-17T13:34:20Z"
+      }
+    },
+    {
+      "check_id": "jwt.time.nbf",
+      "status": "SKIP",
+      "title": "Not before (nbf)",
+      "summary": "No nbf is set (it is optional).",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "jwt.time.iat",
+      "status": "PASS",
+      "title": "Issued at (iat)",
+      "summary": "iat is 1 s ahead of this clock, within the 60 s allowance.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "value": "2026-10-17T13:34:20Z",
+        "seconds_in_future": 1.0
+      }
+    },
+    {
+      "check_id": "jwt.issuer",
+      "status": "PASS",
+      "title": "Issuer (iss)",
+      "summary": "Matches 'https://idlab.home:8180/realms/idlab'.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": "https://idlab.home:8180/realms/idlab",
+        "expected": "https://idlab.home:8180/realms/idlab"
+      }
+    },
+    {
+      "check_id": "jwt.audience",
+      "status": "SKIP",
+      "title": "Audience (aud)",
+      "summary": "Not checked: pass --expect-audience to compare the audience.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {
+        "actual": "account"
+      }
+    },
+    {
+      "check_id": "oidc.nonce",
+      "status": "SKIP",
+      "title": "Nonce",
+      "summary": "Not an ID token, so no nonce is expected.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "oidc.azp",
+      "status": "SKIP",
+      "title": "Authorised party (azp)",
+      "summary": "Not an ID token.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    },
+    {
+      "check_id": "oidc.required_claims",
+      "status": "SKIP",
+      "title": "Required claims",
+      "summary": "No standard required claims for this token type. Use --require-claim to add some.",
+      "next_step": null,
+      "runbook": null,
+      "runbook_url": null,
+      "details": {}
+    }
+  ],
+  "likely_cause": {
+    "pattern": "kid-not-in-jwks",
+    "label": "signing key not in JWKS",
+    "summary": "The token is signed with a key that is not in the JWKS the relying party has, most likely because the IdP has rotated its keys and the cached JWKS is out of date.",
+    "first_step": "Download the IdP's current JWKS from its jwks_uri, then refresh or restart the relying party's key cache.",
+    "runbook": null,
+    "runbook_url": null,
+    "explains": [
+      "jwt.kid",
+      "jwt.signature"
+    ],
+    "not_explained": []
+  },
+  "summary": {
+    "fail": 2,
+    "warn": 0,
+    "pass": 4,
+    "skip": 5,
+    "verdict": "2 problems to fix (2 FAIL, 0 WARN, 4 PASS, 5 SKIP)",
+    "exit_code": 1
+  }
+}

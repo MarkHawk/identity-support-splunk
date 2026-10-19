@@ -1,0 +1,25 @@
+{
+  "since": "2026-10-19T18:26:13Z",
+  "until": "2026-10-19T18:28:48Z",
+  "project": "identity-lab",
+  "lines": {
+    "keycloak": 287,
+    "ldap": 453,
+    "nas": 0,
+    "oidc-rp": 66,
+    "radius": 22,
+    "saml-sp": 69
+  },
+  "reports": [
+    "token-inspector-baseline-jwt-access-token",
+    "token-inspector-baseline-jwt-id-token",
+    "token-inspector-baseline-saml-response",
+    "token-inspector-expired-signing-cert-jwt-access-token",
+    "token-inspector-expired-signing-cert-jwt-id-token",
+    "token-inspector-expired-signing-cert-saml-response",
+    "rate-limit-probe-fixed-seconds",
+    "rate-limit-probe-lying",
+    "rate-limit-probe-penalty",
+    "rate-limit-probe-block"
+  ]
+}
