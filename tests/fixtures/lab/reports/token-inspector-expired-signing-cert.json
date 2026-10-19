@@ -1,0 +1,13 @@
+{
+  "tool": "token-inspector",
+  "version": "0.1.0",
+  "input": {"kind": "saml", "label": "SAML Response"},
+  "checked_at": "2026-10-17T13:34:20Z",
+  "decoded": [{"section": "Assertion", "fields": [{"name": "NameID", "value": "alice@idlab.example"}]}],
+  "findings": [
+    {"check_id": "saml.status", "status": "PASS", "title": "Response status", "summary": "Success.", "runbook": null, "runbook_url": null},
+    {"check_id": "saml.signature.response", "status": "FAIL", "title": "Response signature", "summary": "The signature does not match the certificate from metadata.", "runbook": "01-expired-signing-cert", "runbook_url": "https://github.com/MarkHawk/identity-lab/blob/main/runbooks/01-expired-signing-cert.md"}
+  ],
+  "likely_cause": {"pattern": "key-rotation", "label": "the IdP rotated its signing key", "runbook": "01-expired-signing-cert", "runbook_url": "https://github.com/MarkHawk/identity-lab/blob/main/runbooks/01-expired-signing-cert.md"},
+  "summary": {"fail": 1, "warn": 0, "pass": 1, "skip": 0, "verdict": "1 problem to fix (1 FAIL, 0 WARN, 1 PASS, 0 SKIP)", "exit_code": 1}
+}

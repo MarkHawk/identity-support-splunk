@@ -1,0 +1,15 @@
+{
+  "tool": "rate-limit-probe",
+  "version": "0.1.0",
+  "target": {"url": "http://127.0.0.1:40000/s/penalty", "local": true, "method": "GET"},
+  "sent": 4,
+  "timeline": [
+    {"type": "request", "n": 1, "at": 0.0, "status": 200},
+    {"type": "request", "n": 2, "at": 0.1, "status": 429},
+    {"type": "request", "n": 3, "at": 2.0, "status": 429},
+    {"type": "request", "n": 4, "at": 6.0, "status": 200}
+  ],
+  "findings": [{"id": "retry.penalty", "status": "FAIL", "title": "Retrying early extends the wait", "summary": "Every request sent while limited restarted the wait."}],
+  "likely_cause": {"pattern": "penalty", "label": "requests during the wait restart it", "summary": "The client retries before Retry-After."},
+  "summary": {"pass": 1, "warn": 0, "fail": 1, "info": 0, "verdict": "1 problem to fix (1 FAIL, 0 WARN, 1 PASS, 0 INFO)", "exit_code": 1}
+}

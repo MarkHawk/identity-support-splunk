@@ -1,0 +1,6 @@
+# Everything in the app is readable by every role and shared system-wide, so
+# the sourcetypes, eventtypes and tags also apply to searches in other apps
+# (such as the CIM Authentication data model). Only admins change it.
+[]
+access = read : [ * ], write : [ admin, sc_admin ]
+export = system

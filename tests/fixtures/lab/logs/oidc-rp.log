@@ -1,0 +1,3 @@
+2026-10-19T18:03:00.000000000Z 2026-10-19 18:03:00,000 INFO oidc-rp event=oidc_authorize_redirect redirect_uri=https://rp.idlab.example:8182/callback
+2026-10-19T18:03:01.000000000Z 2026-10-19 18:03:01,000 INFO oidc-rp event=oidc_login_ok sub=5b0c-dave email=dave@idlab.example iss=https://idp.idlab.example:8180/realms/idlab
+2026-10-19T18:06:00.000000000Z 2026-10-19 18:06:00,000 WARNING oidc-rp event=oidc_login_failed reason=token_validation_failed error='ID token signature verification failed' detail='kid not in JWKS'

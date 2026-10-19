@@ -1,0 +1,7 @@
+2026-10-19T18:00:00.000000000Z Mon Oct 19 18:00:00 2026 : Info: Ready to process requests
+2026-10-19T18:40:00.000000000Z Mon Oct 19 18:40:00 2026 : Auth: (1) Login OK: [dave] (from client nas port 0)
+2026-10-19T18:40:10.000000000Z Mon Oct 19 18:40:10 2026 : Auth: (2) Login incorrect (ldap: Bind credentials incorrect: Invalid credentials): [dave] (from client nas port 0)
+2026-10-19T18:45:00.000000000Z Mon Oct 19 18:45:00 2026 : Info: Dropping packet without response because of error: Received packet from 192.0.2.12 with invalid Message-Authenticator!  (Shared secret is incorrect.) (from client nas)
+2026-10-19T18:45:02.000000000Z Mon Oct 19 18:45:02 2026 : Info: Dropping packet without response because of error: Received packet from 192.0.2.12 with invalid Message-Authenticator!  (Shared secret is incorrect.) (from client nas)
+2026-10-19T18:45:04.000000000Z Mon Oct 19 18:45:04 2026 : Info: Dropping packet without response because of error: Received packet from 192.0.2.12 with invalid Message-Authenticator!  (Shared secret is incorrect.) (from client nas)
+2026-10-19T18:50:00.000000000Z Mon Oct 19 18:50:00 2026 : Error: Ignoring request to auth address * port 1812 bound to server default from unknown client 192.0.2.20 port 37224 proto udp

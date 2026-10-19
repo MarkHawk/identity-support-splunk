@@ -1,0 +1,10 @@
+2026-10-19T18:00:00.000000000Z [2026-10-19 18:00:00 +0000] [1] [INFO] Starting gunicorn 26.2.0
+2026-10-19T18:01:00.000000000Z 127.0.0.1 - - [19/Oct/2026:18:01:00 +0000] "GET /healthz HTTP/1.1" 200 16 "-" "Python-urllib/3.13"
+2026-10-19T18:02:00.000000000Z 2026-10-19 18:02:00,000 INFO saml-sp event=saml_login_ok name_id=alice@idlab.example assertion_id=ID_aaaa
+2026-10-19T18:10:00.000000000Z 2026-10-19 18:10:00,000 WARNING saml-sp event=saml_login_failed reason=idp_cert_expired error='IdP signing certificate expired on 2026-10-19 18:09:00 UTC; refresh the IdP metadata' detail=''
+2026-10-19T18:10:00.100000000Z 192.0.2.10 - - [19/Oct/2026:18:10:00 +0000] "POST /saml/acs HTTP/1.1" 401 2048 "-" "Mozilla/5.0"
+2026-10-19T18:20:00.000000000Z 2026-10-19 18:20:00,000 WARNING saml-sp event=saml_login_failed reason=invalid_response error='Could not validate timestamp: expired. Check system clock.' detail='' sp_clock_minus_issue_instant=+00:10:05
+2026-10-19T18:21:00.000000000Z 2026-10-19 18:21:00,000 ERROR saml-sp unhandled error
+2026-10-19T18:21:00.000100000Z Traceback (most recent call last):
+2026-10-19T18:21:00.000200000Z   File "/app/app.py", line 280, in acs
+2026-10-19T18:21:00.000300000Z ValueError: example

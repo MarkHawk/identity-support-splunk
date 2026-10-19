@@ -1,0 +1,4 @@
+2026-10-19T18:45:00.000000000Z nas: Access-Request for dave to radius:1812
+2026-10-19T18:45:06.000000000Z nas: no reply from radius:1812 after 3 attempts (6s): RADIUS server not responding
+2026-10-19T18:46:00.000000000Z nas: Access-Request for dave to radius:1812
+2026-10-19T18:46:00.100000000Z nas: Access-Reject
