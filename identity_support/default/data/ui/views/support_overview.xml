@@ -23,7 +23,7 @@
     "ds_failures": {
       "type": "ds.search",
       "name": "Failures with their likely cause",
-      "options": {"query": "`support_failures` | eval cause=coalesce(cause, \"unknown: \" . signature)"}
+      "options": {"query": "`support_failures` | eval cause=coalesce(cause, \"unknown: \" . signature) | fields _time user app cause signature runbook runbook_url"}
     },
     "ds_totals": {
       "type": "ds.chain",
@@ -109,18 +109,18 @@
   "layout": {
     "type": "grid",
     "globalInputs": ["input_time"],
-    "options": {"width": 1440, "height": 1640},
+    "options": {"width": 1440, "height": 1900},
     "structure": [
       {"item": "viz_count", "type": "block", "position": {"x": 0, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_users", "type": "block", "position": {"x": 360, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_first", "type": "block", "position": {"x": 720, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_last", "type": "block", "position": {"x": 1080, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_over_time", "type": "block", "position": {"x": 0, "y": 120, "w": 1440, "h": 320}},
-      {"item": "viz_by_cause", "type": "block", "position": {"x": 0, "y": 440, "w": 1440, "h": 300}},
-      {"item": "viz_who", "type": "block", "position": {"x": 0, "y": 740, "w": 1440, "h": 300}},
-      {"item": "viz_radius", "type": "block", "position": {"x": 0, "y": 1040, "w": 720, "h": 320}},
-      {"item": "viz_ldap", "type": "block", "position": {"x": 720, "y": 1040, "w": 720, "h": 200}},
-      {"item": "viz_idp_ldap", "type": "block", "position": {"x": 720, "y": 1240, "w": 720, "h": 120}}
+      {"item": "viz_by_cause", "type": "block", "position": {"x": 0, "y": 440, "w": 1440, "h": 480}},
+      {"item": "viz_who", "type": "block", "position": {"x": 0, "y": 920, "w": 1440, "h": 360}},
+      {"item": "viz_radius", "type": "block", "position": {"x": 0, "y": 1280, "w": 720, "h": 320}},
+      {"item": "viz_ldap", "type": "block", "position": {"x": 720, "y": 1280, "w": 720, "h": 200}},
+      {"item": "viz_idp_ldap", "type": "block", "position": {"x": 720, "y": 1480, "w": 720, "h": 120}}
     ]
   }
 }

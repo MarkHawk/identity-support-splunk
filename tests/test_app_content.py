@@ -28,6 +28,10 @@ def test_dashboard_studio_definition_is_consistent(view):
     for name, source in sources.items():
         if source["type"] == "ds.chain":
             assert source["options"]["extend"] in sources, name
+            base = sources[source["options"]["extend"]]
+            if base["type"] == "ds.search":
+                # a chain only sees the fields its base search names
+                assert "| fields " in base["options"]["query"] or "| stats " in base["options"]["query"], name
         else:
             assert source["type"] == "ds.search"
             # every base search reads the app's index through its macros
