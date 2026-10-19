@@ -310,11 +310,14 @@ def report_sourcetype(report, path):
 
 
 def report_time(report, path, override=None):
-    """checked_at (token-inspector), else a FILE.meta.json "time", else override, else now."""
+    """When the report was made: a FILE.meta.json "time" (written by capture,
+    when the tool was run against the lab), else checked_at (token-inspector,
+    which a captured sample may set to the token's own time with --now), else
+    override, else now."""
     path = pathlib.Path(path)
     meta = path.with_name(path.name[: -len(".json")] + ".meta.json")
-    for value in (report.get("checked_at"),
-                  json.loads(meta.read_text()).get("time") if meta.exists() else None,
+    for value in (json.loads(meta.read_text()).get("time") if meta.exists() else None,
+                  report.get("checked_at"),
                   override):
         if value:
             return parse_time(value)

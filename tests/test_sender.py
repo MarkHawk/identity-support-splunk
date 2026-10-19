@@ -296,12 +296,13 @@ def test_replay_rejects_unknown_log_names(tmp_path, capfd):
     assert code == 1 and "no sourcetype for postgres.log" in text
 
 
-def test_report_time_from_meta_sidecar_then_option(tmp_path):
-    p = tmp_path / "rate-limit-probe-penalty.json"
-    report = {"tool": "rate-limit-probe"}
-    assert hec_send.report_time(report, p, "2026-01-01T00:00:00Z") == dt.datetime(2026, 1, 1, tzinfo=dt.UTC)
-    (tmp_path / "rate-limit-probe-penalty.meta.json").write_text('{"time": "2026-10-19T18:00:00+00:00"}')
-    assert hec_send.report_time(report, p, "2026-01-01T00:00:00Z") == dt.datetime(2026, 10, 19, 18, tzinfo=dt.UTC)
+def test_report_time_prefers_sidecar_then_checked_at_then_option(tmp_path):
+    p = tmp_path / "token-inspector-x.json"
+    option = "2026-01-01T00:00:00Z"
+    assert hec_send.report_time({}, p, option) == dt.datetime(2026, 1, 1, tzinfo=dt.UTC)
+    assert hec_send.report_time(TI_REPORT, p, option) == dt.datetime(2026, 10, 19, 17, 41, tzinfo=dt.UTC)
+    (tmp_path / "token-inspector-x.meta.json").write_text('{"time": "2026-10-19T18:00:00+00:00"}')
+    assert hec_send.report_time(TI_REPORT, p, option) == dt.datetime(2026, 10, 19, 18, tzinfo=dt.UTC)
 
 
 def test_report_command_rejects_other_json(tmp_path, capfd):
