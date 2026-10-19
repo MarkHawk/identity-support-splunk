@@ -206,6 +206,8 @@ def sanitise_tree(src, dest, personal=None):
             out = json.dumps(s.json_value(json.loads(raw)), indent=2, ensure_ascii=False) + "\n"
         else:
             lines = trim_log(f.stem, raw.splitlines())
+            if not lines:
+                continue  # nothing left once the noise is trimmed
             out = "".join(s.text(line) + "\n" for line in lines)
         outputs[rel] = out
     if dest.exists():
