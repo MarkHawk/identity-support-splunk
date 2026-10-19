@@ -20,8 +20,8 @@ You need Docker with Compose, Python 3.12 or later, and about 2 GB of
 free disk space for the Splunk image.
 
 ```
-git clone https://github.com/MarkHawk/splunk-support-app
-cd splunk-support-app
+git clone https://github.com/MarkHawk/identity-support-splunk
+cd identity-support-splunk
 python3 scripts/init_env.py
 docker compose up -d
 ```
@@ -122,6 +122,22 @@ starts, so a Java stack trace or a Python traceback stays whole.
 3. Restart Splunk. The app creates the `identity_support` index.
 4. Create a HEC token whose default index is `identity_support`, or one
    allowed to write to it.
+
+If your Splunk runs in a local container from the `splunk/splunk` image,
+step 4 and the sender's settings are one command:
+
+```
+python3 scripts/connect_local_splunk.py --container splunk
+```
+
+It does four things, printing each step and what success looks like:
+- creates the HEC token in the container (or reuses one with the same name);
+- saves `HEC_URL`, `HEC_TOKEN` and `HEC_INDEX` in `.env`, readable by you
+  only;
+- copies Splunk's CA certificate to `splunk-ca.pem`;
+- sends one test report over verified TLS.
+
+The token is never printed.
 
 ## Send your own data
 

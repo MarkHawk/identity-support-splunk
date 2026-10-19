@@ -32,3 +32,7 @@ def test_related_tools_are_linked():
     for repo in ("identity-lab", "token-inspector", "rate-limit-probe"):
         assert f"https://github.com/MarkHawk/{repo}" in README, repo
     assert "Claude Code" in README
+
+
+def test_clone_url_uses_the_repository_name():
+    assert "git clone https://github.com/MarkHawk/identity-support-splunk\ncd identity-support-splunk\n" in README

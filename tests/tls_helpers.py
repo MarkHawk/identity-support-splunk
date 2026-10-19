@@ -20,7 +20,7 @@ def make_ca_and_server(folder, names=("localhost",), ips=("127.0.0.1",)):
     now = dt.datetime.now(dt.UTC)
     ca_key = ec.generate_private_key(ec.SECP256R1())
     ca = (
-        x509.CertificateBuilder().subject_name(_name("splunk-support-app test CA")).issuer_name(_name("rate-limit-probe test CA"))
+        x509.CertificateBuilder().subject_name(_name("identity-support-splunk test CA")).issuer_name(_name("identity-support-splunk test CA"))
         .public_key(ca_key.public_key()).serial_number(x509.random_serial_number())
         .not_valid_before(now - dt.timedelta(minutes=5)).not_valid_after(now + dt.timedelta(hours=1))
         .add_extension(x509.BasicConstraints(ca=True, path_length=0), critical=True)
