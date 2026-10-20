@@ -1,18 +1,18 @@
 # Identity Support for Splunk
 
-**A Splunk app that answers the three questions every support ticket
-starts with: when did it start, who is affected, and what is the likely
-cause?** It reads the logs from
-[identity-lab](https://github.com/MarkHawk/identity-lab) (the identity
-provider, a SAML service provider, an OIDC relying party, a RADIUS
-server, a NAS and an LDAP directory) and the JSON reports from
+**identity-support-splunk is a Splunk app that answers the three
+questions every support ticket starts with: when did it start, who is
+affected, and what is the likely cause?** It reads the logs from every
+part of [identity-lab](https://github.com/MarkHawk/identity-lab) (the
+identity provider, the SAML and OIDC sample apps, the RADIUS server and
+NAS, and the LDAP directory), plus the JSON reports from
 [token-inspector](https://github.com/MarkHawk/token-inspector) and
 [rate-limit-probe](https://github.com/MarkHawk/rate-limit-probe). Each
-failure gets a likely cause and a link to the identity-lab runbook that
-explains it.
+failure is matched to a likely cause and a link to the identity-lab
+runbook that explains it.
 
-It ships with sample data captured from a real identity-lab run, so you
-can try it without the lab.
+It ships with sample data captured from a real identity-lab run, so
+you can try it without the lab.
 
 ![Support overview](docs/screenshots/overview.png)
 *Support overview: failures, users affected, first and latest failure, and failures over time by likely cause.*
