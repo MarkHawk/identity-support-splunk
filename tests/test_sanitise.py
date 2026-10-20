@@ -73,15 +73,39 @@ def test_deflated_saml_request_in_a_url_is_checked(tmp_path, monkeypatch):
     monkeypatch.setattr(sanitise, "PERSONAL_FILE", tmp_path / "absent")
     deflate = zlib.compressobj(wbits=-zlib.MAX_WBITS)
     request = f'<samlp:AuthnRequest Destination="https://{OTHER}:8183/realms/idlab/protocol/saml"/>'.encode()
-    encoded = urllib.parse.quote(base64.b64encode(deflate.compress(request) + deflate.flush()).decode(), safe="")
-    line = f'192.0.2.10 "GET /realms/idlab/protocol/saml?SAMLRequest={encoded}&RelayState=%2F HTTP/1.1" 200 1\n'
+    enc = urllib.parse.quote(base64.b64encode(deflate.compress(request) + deflate.flush()).decode(), safe="")
+    line = f'192.0.2.10 "GET /realms/idlab/protocol/saml?SAMLRequest={enc}&RelayState=%2F HTTP/1.1" 200 1\n'
     (tmp_path / "proxy.log").write_text(line)
-    assert sanitise.check_paths([tmp_path / "proxy.log"], personal=[]) == [(str(tmp_path / "proxy.log"), "private IPv4 address")]
+    kinds = [k for _, k in sanitise.check_paths([tmp_path / "proxy.log"], personal=[])]
+    assert kinds == ["private IPv4 address", "single-use login value"]
 
 
 def test_url_encoded_email_is_checked(tmp_path):
     (tmp_path / "proxy.log").write_text(f'"GET /x?login_hint={urllib.parse.quote(CORP)} HTTP/1.1"\n')
     assert [k for _, k in sanitise.check_paths([tmp_path / "proxy.log"], personal=[])] == ["email address"]
+
+
+def test_single_use_login_values_are_masked_consistently():
+    code, state = "aedb9efb-c3ca-1c1d-6704-47f5c633d1fb.cNza9AJBNUr", "PeQFxbStmiKKMgplVeqlBAfpp49dRE"
+    s = sanitise.Sanitiser()
+    callback = s.text(f'"GET /auth/callback?state={state}&session_state=abc123&code={code} HTTP/1.1" 302')
+    assert callback == ('"GET /auth/callback?state=masked-state-1&session_state=masked-session_state-1'
+                        '&code=masked-code-1 HTTP/1.1" 302')
+    # the same state in another file and line keeps its name; a new one gets the next
+    assert s.text(f"/auth?response_type=code&state={state}&nonce=n0nce&code_challenge_method=S256") == (
+        "/auth?response_type=code&state=masked-state-1&nonce=masked-nonce-1&code_challenge_method=S256")
+    assert s.text("?state=" + "other-state-value") == "?state=masked-state-2"
+    assert s.text("?SAMLRequest=fVN%2B&RelayState=%2Fdebug&SigAlg=x&Signature=S6DH") == (
+        "?SAMLRequest=masked-SAMLRequest-1&RelayState=%2Fdebug&SigAlg=x&Signature=masked-Signature-1")
+    # already masked samples stay as they are when sanitised again
+    assert s.text(callback) == callback
+
+
+def test_check_finds_unmasked_single_use_values(tmp_path):
+    # built at run time, so the hygiene test never sees an unmasked value here
+    (tmp_path / "a.log").write_text("GET /realms/idlab/login-actions/authenticate?session_code=" + "E4Q6cUOsih3eHTtVX\n")
+    (tmp_path / "b.log").write_text("GET /x?session_code=masked-session_code-1&state=s\n")
+    assert sanitise.check_paths([tmp_path], personal=[]) == [(str(tmp_path / "a.log"), "single-use login value")]
 
 
 def test_json_reports_are_sanitised_value_by_value(tmp_path):

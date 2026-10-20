@@ -20,7 +20,11 @@ each private address becomes its own documentation address (192.0.2.10,
 correlates across Keycloak, RADIUS and the directory; each email address
 outside the example domains becomes userN@example.com; home directories
 become "~"; personal strings become "redacted" (a GitHub account in a
-github.com URL is kept, as the hygiene test allows). A private key anywhere
+github.com URL is kept, as the hygiene test allows). Single-use login values
+in URLs (authorisation codes, state, nonce, Keycloak's session codes, SAML
+requests and responses, signatures) become masked-<name>-N, again the same
+value the same way everywhere, so a state still links the authorisation
+request to its callback. A private key anywhere
 stops the run. Noise is trimmed: health-check requests, and directory
 connections that only made an anonymous bind (the lab's health check).
 The output is checked again before the run reports success.
@@ -55,6 +59,16 @@ EMAIL = re.compile(
     r"(?!(?:[A-Za-z0-9-]+\.)*example(?:\.(?:com|org|net))?\b)(?!localhost\b)"
     r"[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)*\.[A-Za-z]{2,}"
 )
+
+# Query parameters whose values are single-use login secrets or carry one
+# (Keycloak's client_data holds the state). Names are matched exactly, so
+# code_challenge_method=S256 and response_type=code stay.
+ONE_TIME_PARAMS = ("code", "session_code", "session_state", "state", "nonce", "code_challenge", "client_data",
+                   "SAMLRequest", "SAMLResponse", "Signature")
+ONE_TIME_VALUE = re.compile(r"(?<=[?&])(" + "|".join(ONE_TIME_PARAMS) + r")=([^&\s\"]+)")
+MASKED = "masked-"
+# What the checker counts as unmasked: a value long enough to be real.
+UNMASKED_VALUE = re.compile(r"(?<=[?&])(?:" + "|".join(ONE_TIME_PARAMS) + r")=(?!" + MASKED + r")[^&\s\"]{8,}")
 
 _B64_BLOB = re.compile(r"[A-Za-z0-9+/_-]{40,}={0,2}")
 
@@ -99,6 +113,8 @@ def find_problems(text, personal=()):
         found.append("email address")
     if PRIVATE_KEY.search(text):
         found.append("private key")
+    if UNMASKED_VALUE.search(text):
+        found.append("single-use login value")
     if any(p.search(text) for p in personal):
         found.append("personal pattern from .personal-patterns")
     return found
@@ -150,6 +166,7 @@ class Sanitiser:
         self.personal = list(personal)
         self.addresses = {}
         self.emails = {}
+        self.one_time = {}
 
     def _address(self, match):
         ip = match.group(0)
@@ -159,6 +176,15 @@ class Sanitiser:
             block = "192.0.2" if n < 245 else "198.51.100"
             self.addresses[ip] = f"{block}.{10 + n % 245}"
         return self.addresses[ip]
+
+    def _one_time(self, match):
+        name, value = match.groups()
+        if value.startswith(MASKED):
+            return match.group(0)
+        if (name, value) not in self.one_time:
+            n = sum(1 for k in self.one_time if k[0] == name) + 1
+            self.one_time[(name, value)] = f"{MASKED}{name}-{n}"
+        return f"{name}={self.one_time[(name, value)]}"
 
     def _email(self, match):
         address = match.group(0)
@@ -173,6 +199,7 @@ class Sanitiser:
         text = RFC1918.sub(self._address, text)
         text = EMAIL.sub(self._email, text)
         text = HOME_DIR.sub(HOME_REPLACEMENT, text)
+        text = ONE_TIME_VALUE.sub(self._one_time, text)
         if self.personal:
             # Keep github.com/<account> as it is; mask personal strings elsewhere.
             pieces, last = [], 0

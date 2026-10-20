@@ -152,7 +152,7 @@ def test_proxy_access_fields():
     f = fields("proxy", '" 504 ')
     assert (f["src"], f["http_method"], f["uri_path"], f["status"], f["bytes"]) == (
         "192.0.2.10", "GET", "/auth/callback", "504", "562")
-    assert f["request"] == "GET /auth/callback?state=s&code=c HTTP/1.1"
+    assert f["request"] == "GET /auth/callback?state=masked-state-1&code=masked-code-1 HTTP/1.1"
     assert (f["site"], f["upstream"], f["upstream_status"]) == ("rp.idlab.example:8185", "192.0.2.32:8182", "504")
     assert (f["request_time"], f["upstream_time"]) == ("5.005", "5.004")
 
@@ -194,7 +194,7 @@ def test_proxy_error_rate_limit_zone():
 def test_proxy_error_line_cut_short_by_nginx():
     f = fields("proxy", "too big header")
     assert f["uri_path"] == "/realms/idlab/protocol/saml"
-    assert f["upstream"].endswith("&Signature=S6DHaj") and "site" not in f
+    assert f["upstream"].endswith("&Signature=masked-Signa") and "site" not in f
 
 
 def test_proxy_notice_lines():
