@@ -38,7 +38,7 @@
     "ds_rlp": {
       "type": "ds.search",
       "name": "rate-limit-probe reports",
-      "options": {"query": "`support_index` eventtype=idlab_rate_limit_probe | spath path=sent output=sent | table _time target_url sent status_429 verdict likely_cause | sort - _time"}
+      "options": {"query": "`support_index` eventtype=idlab_rate_limit_probe | spath path=sent output=sent | sort - _time | eval time=strftime(_time, \"%Y-%m-%d %H:%M:%S\") | table time target_url sent status_429 verdict likely_cause"}
     },
     "ds_rlp_findings": {
       "type": "ds.search",

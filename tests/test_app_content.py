@@ -109,3 +109,25 @@ def test_runbook_drilldowns_open_a_real_url(view):
             assert viz["options"]["showInternalFields"] is False, name
             source = d["dataSources"][viz["dataSources"]["primary"]]
             assert "_runbook_url" in source["options"]["query"].rsplit("| table ", 1)[-1], name
+
+
+@pytest.mark.parametrize("view", VIEWS, ids=lambda p: p.stem)
+def test_times_follow_the_viewers_time_zone(view):
+    """Every time shown goes through strftime without a zone (or is _time on
+    a chart axis), so each viewer sees their own Splunk time zone. No query
+    names a zone, and no table shows raw _time (Studio formats that itself,
+    with the zone the session started with)."""
+    _, d = definition(view)
+    for name, source in d["dataSources"].items():
+        query = source["options"]["query"]
+        assert not re.search(r"UTC|GMT|%Z|%z|[+-]00:?00", query), name
+        for fmt in re.findall(r'strftime\([^,]+, "([^"]*)"\)', query):
+            assert fmt == "%Y-%m-%d %H:%M:%S", (name, fmt)
+        table = re.search(r"\| table ([^|]*)", query)
+        if table:
+            assert "_time" not in table.group(1).split(), name
+
+
+def test_radius_chart_counts_in_whole_numbers():
+    _, d = definition(APP / "default/data/ui/views/support_overview.xml")
+    assert d["visualizations"]["viz_radius"]["options"]["yAxisMajorTickInterval"] == 1

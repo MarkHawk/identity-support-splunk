@@ -95,7 +95,7 @@
       "title": "RADIUS: Access-Reject versus no reply",
       "description": "Access-Reject: the server answered no (password, policy). No reply: it dropped or ignored the request (shared secret, unknown NAS), which users see as a timeout.",
       "dataSources": {"primary": "ds_radius"},
-      "options": {"stackMode": "stacked", "legendDisplay": "bottom"}
+      "options": {"stackMode": "stacked", "legendDisplay": "bottom", "yAxisMajorTickInterval": 1}
     },
     "viz_ldap": {
       "type": "splunk.table",
