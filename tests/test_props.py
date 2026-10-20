@@ -272,3 +272,14 @@ def test_fixture_times_are_plausible():
         for line in path.read_text().splitlines():
             ts = hec_send.docker_ts(line)
             assert ts and dt.datetime(2026, 10, 19, 18, tzinfo=dt.UTC) <= ts < dt.datetime(2026, 10, 19, 19, tzinfo=dt.UTC)
+
+
+def test_calculated_fields_never_use_each_other():
+    """Splunk evaluates a stanza's EVAL- fields independently, so one that
+    reads another sees the extracted value (or nothing), not the result."""
+    for sourcetype in props.sections():
+        calculated = {k.removeprefix("EVAL-") for k in props[sourcetype] if k.startswith("EVAL-")}
+        for key, expr in props[sourcetype].items():
+            if key.startswith("EVAL-"):
+                used = set(re.findall(r"(?<![\w.\"'])([A-Za-z_][\w.]*)\b(?!\s*\()", re.sub(r'"[^"]*"', '""', expr)))
+                assert not (used & calculated) - {key.removeprefix("EVAL-")}, (sourcetype, key)
