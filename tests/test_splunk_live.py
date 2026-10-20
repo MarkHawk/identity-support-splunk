@@ -140,6 +140,12 @@ def test_radius_dropped_packets_point_at_the_shared_secret(host):
     assert got["radius_unknown_client"][0] == "1" and got["nas_no_reply"][0] == "1"
 
 
+def test_every_radius_failure_has_an_app(host):
+    rows = search(f"`support_index` host={host} (eventtype=idlab_radius_no_reply OR eventtype=idlab_radius_auth) "
+                  "| fillnull value=MISSING app | stats count by sourcetype app")
+    assert {(r["sourcetype"], r["app"]) for r in rows} == {("idlab:radius", "radius"), ("idlab:nas", "radius")}
+
+
 def test_ldap_result_49_is_an_authentication_failure(host):
     rows = search(f"`support_index` host={host} tag=authentication sourcetype=idlab:slapd | table action err signature")
     assert [(r["action"], r["err"], r["signature"]) for r in rows] == [("failure", "49", "ldap_bind_49")] * 2
