@@ -165,3 +165,12 @@ def test_proxy_alerts_link_their_runbooks(name, runbooks):
     assert set(re.findall(r"/runbooks/([0-9]{2}-[a-z-]+)\.md", s["description"])) == runbooks
     assert "where " in s["search"] and ">= 3" in s["search"]
     assert (s["dispatch.earliest_time"], s["cron_schedule"]) == ("-5m@m", "*/5 * * * *")
+
+
+def test_when_did_it_start_shows_every_cause_on_one_page():
+    """A Studio table pages at 10 rows unless told otherwise."""
+    import csv
+    _, d = definition(APP / "default/data/ui/views/support_overview.xml")
+    with (APP / "lookups/support_causes.csv").open(newline="") as f:
+        causes = {row["cause"] for row in csv.DictReader(f)}
+    assert d["visualizations"]["viz_by_cause"]["options"]["count"] >= len(causes)
