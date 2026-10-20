@@ -206,6 +206,7 @@ def test_forwarded_headers_point_at_the_proxy(host):
     row = one(host, "signature=kc_invalid_destination")
     assert (row["action"], row["kc_reason"], row["runbook"]) == ("failure", "invalid_destination", "09-proxy-forwarded-headers")
     assert row["cause"].startswith("Reverse proxy is the likely cause")
+    assert "app" not in row, "Keycloak's clientId=\"null\" is not an app"
 
 
 def alert_query(host, name, threshold=None):
