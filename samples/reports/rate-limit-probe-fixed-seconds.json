@@ -2,7 +2,7 @@
   "tool": "rate-limit-probe",
   "version": "0.1.0",
   "target": {
-    "url": "http://127.0.0.1:39075/s/fixed-seconds",
+    "url": "http://127.0.0.1:46185/s/fixed-seconds",
     "local": true,
     "method": "GET"
   },
@@ -15,7 +15,7 @@
     "demo window shortened to 2 s"
   ],
   "sent": 13,
-  "duration": 3.004,
+  "duration": 3.005,
   "stop": null,
   "timeline": [
     {
@@ -92,7 +92,7 @@
       "type": "request",
       "n": 6,
       "phase": "discover",
-      "at": 0.5,
+      "at": 0.501,
       "status": 429,
       "rate_headers": [
         [
@@ -135,7 +135,7 @@
     },
     {
       "type": "wait",
-      "at": 1.502,
+      "at": 1.503,
       "seconds": 1.0,
       "source": "Retry-After",
       "purpose": "honour"
@@ -144,7 +144,7 @@
       "type": "request",
       "n": 8,
       "phase": "honour",
-      "at": 2.502,
+      "at": 2.503,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -200,7 +200,7 @@
       "type": "request",
       "n": 12,
       "phase": "refill",
-      "at": 2.903,
+      "at": 2.904,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -214,7 +214,7 @@
       "type": "request",
       "n": 13,
       "phase": "refill",
-      "at": 3.003,
+      "at": 3.004,
       "status": 429,
       "rate_headers": [
         [
@@ -238,7 +238,7 @@
       "summary": "Request 6, 0.5 s in: 5 requests were accepted first.",
       "details": {
         "request": 6,
-        "at": 0.5,
+        "at": 0.501,
         "burst": 5
       }
     },
@@ -251,7 +251,7 @@
         "burst": 5,
         "policy_limit": null,
         "policy_window": null,
-        "window": 2.5,
+        "window": 2.501,
         "window_nice": 2,
         "window_source": "Retry-After",
         "refill_accepted": 5,

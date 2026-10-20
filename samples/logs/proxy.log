@@ -1,0 +1,322 @@
+2026-10-20T19:28:47.410030981Z 2026/10/20 19:28:47 [error] 559#559: oidc-rp-proxied could not be resolved (2: Server failure)
+2026-10-20T19:28:47.410094636Z 2026/10/20 19:28:47 [error] 559#559: saml-sp-proxied could not be resolved (2: Server failure)
+2026-10-20T19:29:03.756307148Z 192.0.2.11 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6586 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.007 upstream_time=0.006
+2026-10-20T19:29:06.685907407Z 192.0.2.11 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6586 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:18.107141097Z 192.0.2.11 "GET / HTTP/1.1" 200 2636 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=200 request_time=0.014 upstream_time=0.014
+2026-10-20T19:29:18.187988612Z 192.0.2.11 "GET /login HTTP/1.1" 302 2517 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=302 request_time=0.007 upstream_time=0.007
+2026-10-20T19:29:18.200581409Z 192.0.2.11 "GET /realms/idlab/protocol/saml?SAMLRequest=masked-SAMLRequest-1&RelayState=%2Fdebug&Signature=masked-Signature-1&SigAlg=http%3A%2F%2Fwww.w3.org%2F2001%2F04%2Fxmldsig-more%23rsa-sha256 HTTP/1.1" 200 7041 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.008 upstream_time=0.008
+2026-10-20T19:29:18.223762901Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143193 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.015 upstream_time=0.015
+2026-10-20T19:29:18.226752160Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13038 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.017 upstream_time=0.017
+2026-10-20T19:29:18.226782691Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.013 upstream_time=0.013
+2026-10-20T19:29:18.228736561Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.007 upstream_time=0.007
+2026-10-20T19:29:18.228760023Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.015 upstream_time=0.015
+2026-10-20T19:29:18.249477973Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13806 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:18.277781642Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:18.280707678Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26618 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.005 upstream_time=0.005
+2026-10-20T19:29:18.282113134Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Medium.woff2 HTTP/1.1" 200 26867 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.005 upstream_time=0.005
+2026-10-20T19:29:18.283033199Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 79058 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:29:18.499557029Z 192.0.2.11 "POST /realms/idlab/login-actions/authenticate?session_code=masked-session_code-1&execution=3f9a14ac-9286-4b02-8653-d6c8ce2a6bae&client_id=https%3A%2F%2Fidlab.home%3A8184%2Fsaml%2Fmetadata&tab_id=QUJnWUf2qj0&client_data=masked-client_data-1 HTTP/1.1" 200 17060 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.077 upstream_time=0.077
+2026-10-20T19:29:18.558107869Z 2026/10/20 19:29:18 [warn] 559#559: *1041 a client request body is buffered to a temporary file /tmp/client_body/0000000005, client: 192.0.2.11, server: , request: "POST /saml/acs HTTP/1.1", host: "idlab.home:8184"
+2026-10-20T19:29:18.594176888Z 192.0.2.11 "POST /saml/acs HTTP/1.1" 302 199 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=302 request_time=0.036 upstream_time=0.036
+2026-10-20T19:29:18.624103147Z 192.0.2.11 "GET /debug HTTP/1.1" 200 16042 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=200 request_time=0.014 upstream_time=0.014
+2026-10-20T19:29:20.656110349Z 192.0.2.11 "GET / HTTP/1.1" 200 2548 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.014 upstream_time=0.014
+2026-10-20T19:29:20.741526426Z 192.0.2.18 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6586 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:29:20.743760919Z 192.0.2.11 "GET /login HTTP/1.1" 302 943 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.012 upstream_time=0.012
+2026-10-20T19:29:20.755709452Z 192.0.2.11 "GET /realms/idlab/protocol/openid-connect/auth?response_type=code&client_id=oidc-rp-proxied&redirect_uri=https%3A%2F%2Fidlab.home%3A8185%2Fauth%2Fcallback&scope=openid+email+profile&state=masked-state-1&nonce=masked-nonce-1&code_challenge=masked-code_challenge-1&code_challenge_method=S256 HTTP/1.1" 200 6897 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:29:20.773262864Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143193 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.006 upstream_time=0.007
+2026-10-20T19:29:20.773282180Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13038 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.004
+2026-10-20T19:29:20.780527467Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:20.782454576Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:20.782498784Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:29:20.806211757Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13814 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.001 upstream_time=0.001
+2026-10-20T19:29:20.837890698Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26618 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:29:20.837910991Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:29:20.839900520Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 79058 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:29:20.840931391Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Medium.woff2 HTTP/1.1" 200 26867 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:29:21.008934731Z 192.0.2.11 "POST /realms/idlab/login-actions/authenticate?session_code=masked-session_code-2&execution=3f9a14ac-9286-4b02-8653-d6c8ce2a6bae&client_id=oidc-rp-proxied&tab_id=JC-gsEwpXPA&client_data=masked-client_data-2 HTTP/1.1" 302 0 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=302 request_time=0.050 upstream_time=0.051
+2026-10-20T19:29:21.032313575Z 192.0.2.18 "POST /realms/idlab/protocol/openid-connect/token HTTP/1.1" 200 3744 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.008 upstream_time=0.009
+2026-10-20T19:29:21.046137972Z 192.0.2.18 "GET /realms/idlab/protocol/openid-connect/certs HTTP/1.1" 200 3285 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:29:21.060253251Z 192.0.2.18 "GET /realms/idlab/protocol/openid-connect/userinfo HTTP/1.1" 200 295 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:29:21.062681755Z 192.0.2.11 "GET /auth/callback?state=masked-state-1&session_state=masked-session_state-1&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=masked-code-1 HTTP/1.1" 302 199 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.051 upstream_time=0.051
+2026-10-20T19:29:21.079423002Z 192.0.2.11 "GET /debug HTTP/1.1" 200 4983 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.014 upstream_time=0.014
+2026-10-20T19:29:22.859465415Z 192.0.2.11 "GET / HTTP/1.1" 200 2636 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=200 request_time=0.007 upstream_time=0.007
+2026-10-20T19:29:22.950316550Z 192.0.2.11 "GET /login HTTP/1.1" 302 2505 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=302 request_time=0.006 upstream_time=0.006
+2026-10-20T19:29:22.966442709Z 192.0.2.11 "GET /realms/idlab/protocol/saml?SAMLRequest=masked-SAMLRequest-2&RelayState=%2Fdebug&Signature=masked-Signature-2&SigAlg=http%3A%2F%2Fwww.w3.org%2F2001%2F04%2Fxmldsig-more%23rsa-sha256 HTTP/1.1" 200 7041 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.011 upstream_time=0.011
+2026-10-20T19:29:22.980386219Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143193 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.005 upstream_time=0.005
+2026-10-20T19:29:22.984136236Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13038 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.000 upstream_time=0.000
+2026-10-20T19:29:22.988292925Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:22.988325781Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:22.989335030Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:23.010332344Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13806 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.001
+2026-10-20T19:29:23.034356528Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:23.045004646Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26626 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:23.046340958Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Medium.woff2 HTTP/1.1" 200 26875 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:23.046359278Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 79058 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:29:23.270472477Z 192.0.2.11 "POST /realms/idlab/login-actions/authenticate?session_code=masked-session_code-3&execution=3f9a14ac-9286-4b02-8653-d6c8ce2a6bae&client_id=https%3A%2F%2Fidlab.home%3A8184%2Fsaml%2Fmetadata&tab_id=Kj_v1S_DEuY&client_data=masked-client_data-3 HTTP/1.1" 200 16828 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.116 upstream_time=0.114
+2026-10-20T19:29:23.307706578Z 2026/10/20 19:29:23 [warn] 559#559: *1064 a client request body is buffered to a temporary file /tmp/client_body/0000000006, client: 192.0.2.11, server: , request: "POST /saml/acs HTTP/1.1", host: "idlab.home:8184"
+2026-10-20T19:29:23.321048661Z 192.0.2.11 "POST /saml/acs HTTP/1.1" 302 199 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=302 request_time=0.013 upstream_time=0.013
+2026-10-20T19:29:23.327170584Z 192.0.2.11 "GET /debug HTTP/1.1" 200 15805 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:29:25.383721940Z 192.0.2.11 "GET / HTTP/1.1" 200 2548 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.008 upstream_time=0.008
+2026-10-20T19:29:25.465767784Z 192.0.2.11 "GET /login HTTP/1.1" 302 943 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:25.479132503Z 192.0.2.11 "GET /realms/idlab/protocol/openid-connect/auth?response_type=code&client_id=oidc-rp-proxied&redirect_uri=https%3A%2F%2Fidlab.home%3A8185%2Fauth%2Fcallback&scope=openid+email+profile&state=masked-state-2&nonce=masked-nonce-2&code_challenge=masked-code_challenge-2&code_challenge_method=S256 HTTP/1.1" 200 6897 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:29:25.495220721Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13046 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:25.498381995Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143200 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.005 upstream_time=0.005
+2026-10-20T19:29:25.502116908Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:29:25.513107914Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:25.516125164Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:25.541099552Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13806 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:25.575012096Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:25.575034178Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Medium.woff2 HTTP/1.1" 200 26867 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:29:25.575037968Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26618 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:29:25.575041096Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 79058 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:29:25.830755471Z 192.0.2.11 "POST /realms/idlab/login-actions/authenticate?session_code=masked-session_code-4&execution=3f9a14ac-9286-4b02-8653-d6c8ce2a6bae&client_id=oidc-rp-proxied&tab_id=LTAHNvHjBRI&client_data=masked-client_data-4 HTTP/1.1" 302 0 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=302 request_time=0.108 upstream_time=0.108
+2026-10-20T19:29:25.863961755Z 192.0.2.18 "POST /realms/idlab/protocol/openid-connect/token HTTP/1.1" 200 3674 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.017 upstream_time=0.017
+2026-10-20T19:29:25.883268610Z 192.0.2.18 "GET /realms/idlab/protocol/openid-connect/userinfo HTTP/1.1" 200 275 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:29:25.885898124Z 192.0.2.11 "GET /auth/callback?state=masked-state-2&session_state=masked-session_state-2&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=masked-code-2 HTTP/1.1" 302 199 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.052 upstream_time=0.052
+2026-10-20T19:29:25.893049874Z 192.0.2.11 "GET /debug HTTP/1.1" 200 4921 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:30:35.773658807Z 2026/10/20 19:30:35 [notice] 1#1: signal 1 (SIGHUP) received from 5797, reconfiguring
+2026-10-20T19:30:35.773688784Z 2026/10/20 19:30:35 [notice] 1#1: reconfiguring
+2026-10-20T19:30:35.776078058Z 2026/10/20 19:30:35 [notice] 1#1: using the "epoll" event method
+2026-10-20T19:30:35.776165592Z 2026/10/20 19:30:35 [notice] 1#1: start worker processes
+2026-10-20T19:30:35.776463669Z 2026/10/20 19:30:35 [notice] 1#1: start worker process 5798
+2026-10-20T19:30:35.876759275Z 2026/10/20 19:30:35 [notice] 559#559: gracefully shutting down
+2026-10-20T19:30:35.876800041Z 2026/10/20 19:30:35 [notice] 559#559: exiting
+2026-10-20T19:30:35.877458838Z 2026/10/20 19:30:35 [notice] 559#559: exit
+2026-10-20T19:30:35.896779327Z 2026/10/20 19:30:35 [notice] 1#1: signal 17 (SIGCHLD) received from 559
+2026-10-20T19:30:35.896812150Z 2026/10/20 19:30:35 [notice] 1#1: worker process 559 exited with code 0
+2026-10-20T19:30:35.896821984Z 2026/10/20 19:30:35 [notice] 1#1: signal 29 (SIGIO) received
+2026-10-20T19:30:39.045914915Z 2026/10/20 19:30:39 [error] 5798#5798: *1096 upstream prematurely closed connection while reading response header from upstream, client: 192.0.2.11, server: , request: "GET / HTTP/1.1", upstream: "http://192.0.2.18:8182/", host: "idlab.home:8185"
+2026-10-20T19:30:39.045921936Z 192.0.2.11 "GET / HTTP/1.1" 502 552 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=502 request_time=0.003 upstream_time=0.003
+2026-10-20T19:30:42.203376388Z 2026/10/20 19:30:42 [notice] 1#1: signal 1 (SIGHUP) received from 5836, reconfiguring
+2026-10-20T19:30:42.203408781Z 2026/10/20 19:30:42 [notice] 1#1: reconfiguring
+2026-10-20T19:30:42.206178169Z 2026/10/20 19:30:42 [notice] 1#1: using the "epoll" event method
+2026-10-20T19:30:42.206203339Z 2026/10/20 19:30:42 [notice] 1#1: start worker processes
+2026-10-20T19:30:42.206207988Z 2026/10/20 19:30:42 [notice] 1#1: start worker process 5837
+2026-10-20T19:30:42.306455055Z 2026/10/20 19:30:42 [notice] 5798#5798: gracefully shutting down
+2026-10-20T19:30:42.306482579Z 2026/10/20 19:30:42 [notice] 5798#5798: exiting
+2026-10-20T19:30:42.307110168Z 2026/10/20 19:30:42 [notice] 5798#5798: exit
+2026-10-20T19:30:42.334804559Z 2026/10/20 19:30:42 [notice] 1#1: signal 17 (SIGCHLD) received from 5798
+2026-10-20T19:30:42.334837485Z 2026/10/20 19:30:42 [notice] 1#1: worker process 5798 exited with code 0
+2026-10-20T19:30:42.334847364Z 2026/10/20 19:30:42 [notice] 1#1: signal 29 (SIGIO) received
+2026-10-20T19:30:45.530666306Z 192.0.2.11 "GET / HTTP/1.1" 200 2548 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:30:45.611498760Z 192.0.2.11 "GET /login HTTP/1.1" 302 943 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.002 upstream_time=0.002
+2026-10-20T19:30:45.633256790Z 192.0.2.11 "GET /realms/idlab/protocol/openid-connect/auth?response_type=code&client_id=oidc-rp-proxied&redirect_uri=https%3A%2F%2Fidlab.home%3A8185%2Fauth%2Fcallback&scope=openid+email+profile&state=masked-state-3&nonce=masked-nonce-3&code_challenge=masked-code_challenge-3&code_challenge_method=S256 HTTP/1.1" 200 6897 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.015 upstream_time=0.015
+2026-10-20T19:30:45.659394989Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.010 upstream_time=0.010
+2026-10-20T19:30:45.659969381Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143193 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.017 upstream_time=0.017
+2026-10-20T19:30:45.663809224Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:30:45.663838711Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13038 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.016 upstream_time=0.016
+2026-10-20T19:30:45.666468887Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.017 upstream_time=0.017
+2026-10-20T19:30:45.687544434Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13814 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:30:45.719333573Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:30:45.725963733Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26618 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.008 upstream_time=0.008
+2026-10-20T19:30:45.728348540Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Medium.woff2 HTTP/1.1" 200 26867 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.008 upstream_time=0.009
+2026-10-20T19:30:45.733002730Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 79058 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.012 upstream_time=0.012
+2026-10-20T19:30:45.920990066Z 192.0.2.11 "POST /realms/idlab/login-actions/authenticate?session_code=masked-session_code-5&execution=3f9a14ac-9286-4b02-8653-d6c8ce2a6bae&client_id=oidc-rp-proxied&tab_id=4V3CjsIABnk&client_data=masked-client_data-5 HTTP/1.1" 302 0 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=302 request_time=0.051 upstream_time=0.051
+2026-10-20T19:30:45.937500827Z 192.0.2.18 "POST /realms/idlab/protocol/openid-connect/token HTTP/1.1" 200 3744 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.008 upstream_time=0.008
+2026-10-20T19:30:45.945911348Z 192.0.2.18 "GET /realms/idlab/protocol/openid-connect/certs HTTP/1.1" 200 3285 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:30:45.957733109Z 192.0.2.18 "GET /realms/idlab/protocol/openid-connect/userinfo HTTP/1.1" 200 295 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:30:45.959523714Z 192.0.2.11 "GET /auth/callback?state=masked-state-3&session_state=masked-session_state-3&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=masked-code-3 HTTP/1.1" 302 199 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.037 upstream_time=0.037
+2026-10-20T19:30:45.962900558Z 192.0.2.11 "GET /debug HTTP/1.1" 200 4983 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.001 upstream_time=0.001
+2026-10-20T19:30:46.766453470Z 192.0.2.11 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6586 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:30:46.951375100Z 2026/10/20 19:30:46 [notice] 1#1: signal 1 (SIGHUP) received from 5876, reconfiguring
+2026-10-20T19:30:46.951402922Z 2026/10/20 19:30:46 [notice] 1#1: reconfiguring
+2026-10-20T19:30:46.953698114Z 2026/10/20 19:30:46 [notice] 1#1: using the "epoll" event method
+2026-10-20T19:30:46.953810530Z 2026/10/20 19:30:46 [notice] 1#1: start worker processes
+2026-10-20T19:30:46.954024853Z 2026/10/20 19:30:46 [notice] 1#1: start worker process 5877
+2026-10-20T19:30:47.054719473Z 2026/10/20 19:30:47 [notice] 5837#5837: gracefully shutting down
+2026-10-20T19:30:47.057199843Z 2026/10/20 19:30:47 [notice] 5837#5837: exiting
+2026-10-20T19:30:47.057233350Z 2026/10/20 19:30:47 [notice] 5837#5837: exit
+2026-10-20T19:30:47.078852021Z 2026/10/20 19:30:47 [notice] 1#1: signal 17 (SIGCHLD) received from 5837
+2026-10-20T19:30:47.078889742Z 2026/10/20 19:30:47 [notice] 1#1: worker process 5837 exited with code 0
+2026-10-20T19:30:47.078896578Z 2026/10/20 19:30:47 [notice] 1#1: signal 29 (SIGIO) received
+2026-10-20T19:30:48.244508137Z 192.0.2.11 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6481 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.007 upstream_time=0.007
+2026-10-20T19:30:48.718666692Z 192.0.2.11 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6481 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:30:49.176831396Z 192.0.2.11 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6481 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:30:50.729379603Z 192.0.2.11 "GET / HTTP/1.1" 200 2636 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=200 request_time=0.007 upstream_time=0.007
+2026-10-20T19:30:50.819990671Z 192.0.2.11 "GET /login HTTP/1.1" 302 2477 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=302 request_time=0.009 upstream_time=0.009
+2026-10-20T19:30:50.832652127Z 192.0.2.11 "GET /realms/idlab/protocol/saml?SAMLRequest=masked-SAMLRequest-3&RelayState=%2Fdebug&Signature=masked-Signature-3&SigAlg=http%3A%2F%2Fwww.w3.org%2F2001%2F04%2Fxmldsig-more%23rsa-sha256 HTTP/1.1" 400 3706 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=400 request_time=0.007 upstream_time=0.007
+2026-10-20T19:30:50.859914702Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143193 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.010 upstream_time=0.010
+2026-10-20T19:30:50.860631192Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13038 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.012 upstream_time=0.012
+2026-10-20T19:30:50.863148835Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.012 upstream_time=0.012
+2026-10-20T19:30:50.864492645Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.011 upstream_time=0.011
+2026-10-20T19:30:50.866190005Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.012 upstream_time=0.012
+2026-10-20T19:30:50.885855447Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13806 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.001 upstream_time=0.001
+2026-10-20T19:30:50.897820964Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:30:50.898454085Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26618 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:30:54.187439300Z 192.0.2.11 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6481 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:30:54.526988525Z 2026/10/20 19:30:54 [notice] 1#1: signal 1 (SIGHUP) received from 5945, reconfiguring
+2026-10-20T19:30:54.527016086Z 2026/10/20 19:30:54 [notice] 1#1: reconfiguring
+2026-10-20T19:30:54.531287191Z 2026/10/20 19:30:54 [notice] 1#1: using the "epoll" event method
+2026-10-20T19:30:54.531310810Z 2026/10/20 19:30:54 [notice] 1#1: start worker processes
+2026-10-20T19:30:54.531315164Z 2026/10/20 19:30:54 [notice] 1#1: start worker process 5946
+2026-10-20T19:30:54.630766357Z 2026/10/20 19:30:54 [notice] 5877#5877: gracefully shutting down
+2026-10-20T19:30:54.631777183Z 2026/10/20 19:30:54 [notice] 5877#5877: exiting
+2026-10-20T19:30:54.632366144Z 2026/10/20 19:30:54 [notice] 5877#5877: exit
+2026-10-20T19:30:54.652828487Z 2026/10/20 19:30:54 [notice] 1#1: signal 17 (SIGCHLD) received from 5877
+2026-10-20T19:30:54.652863169Z 2026/10/20 19:30:54 [notice] 1#1: worker process 5877 exited with code 0
+2026-10-20T19:30:54.652869774Z 2026/10/20 19:30:54 [notice] 1#1: signal 29 (SIGIO) received
+2026-10-20T19:30:55.826590487Z 192.0.2.11 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6586 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.007 upstream_time=0.007
+2026-10-20T19:30:56.136306212Z 192.0.2.11 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6586 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.002
+2026-10-20T19:30:56.448323288Z 192.0.2.11 "GET /realms/idlab/.well-known/openid-configuration HTTP/1.1" 200 6586 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:30:57.859015137Z 192.0.2.11 "GET / HTTP/1.1" 200 2636 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:30:57.944983915Z 192.0.2.11 "GET /login HTTP/1.1" 302 2501 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=302 request_time=0.005 upstream_time=0.005
+2026-10-20T19:30:57.960172379Z 192.0.2.11 "GET /realms/idlab/protocol/saml?SAMLRequest=masked-SAMLRequest-4&RelayState=%2Fdebug&Signature=masked-Signature-4&SigAlg=http%3A%2F%2Fwww.w3.org%2F2001%2F04%2Fxmldsig-more%23rsa-sha256 HTTP/1.1" 200 7041 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.010 upstream_time=0.010
+2026-10-20T19:30:57.991597512Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.013 upstream_time=0.013
+2026-10-20T19:30:57.991630272Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13038 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.013 upstream_time=0.013
+2026-10-20T19:30:57.997171528Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.015 upstream_time=0.015
+2026-10-20T19:30:57.998685807Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.019 upstream_time=0.019
+2026-10-20T19:30:57.999306175Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143193 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.024 upstream_time=0.024
+2026-10-20T19:30:58.026172717Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13806 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.001 upstream_time=0.002
+2026-10-20T19:30:58.057402447Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:30:58.058785564Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Medium.woff2 HTTP/1.1" 200 26867 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:30:58.059246310Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26618 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:30:58.060805895Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 79058 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.005 upstream_time=0.005
+2026-10-20T19:30:58.262946090Z 192.0.2.11 "POST /realms/idlab/login-actions/authenticate?session_code=masked-session_code-6&execution=3f9a14ac-9286-4b02-8653-d6c8ce2a6bae&client_id=https%3A%2F%2Fidlab.home%3A8184%2Fsaml%2Fmetadata&tab_id=5jM6UAsZ13M&client_data=masked-client_data-6 HTTP/1.1" 200 17060 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.058 upstream_time=0.058
+2026-10-20T19:30:58.303093633Z 2026/10/20 19:30:58 [warn] 5946#5946: *1140 a client request body is buffered to a temporary file /tmp/client_body/0000000007, client: 192.0.2.11, server: , request: "POST /saml/acs HTTP/1.1", host: "idlab.home:8184"
+2026-10-20T19:30:58.316260750Z 192.0.2.11 "POST /saml/acs HTTP/1.1" 302 199 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=302 request_time=0.014 upstream_time=0.014
+2026-10-20T19:30:58.325105763Z 192.0.2.11 "GET /debug HTTP/1.1" 200 16042 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=200 request_time=0.005 upstream_time=0.005
+2026-10-20T19:31:01.443918008Z 192.0.2.11 "GET / HTTP/1.1" 200 2548 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:31:01.526933788Z 192.0.2.11 "GET /login HTTP/1.1" 302 943 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.002 upstream_time=0.002
+2026-10-20T19:31:01.537898642Z 192.0.2.11 "GET /realms/idlab/protocol/openid-connect/auth?response_type=code&client_id=oidc-rp-proxied&redirect_uri=https%3A%2F%2Fidlab.home%3A8185%2Fauth%2Fcallback&scope=openid+email+profile&state=masked-state-4&nonce=masked-nonce-4&code_challenge=masked-code_challenge-4&code_challenge_method=S256 HTTP/1.1" 200 6897 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.005 upstream_time=0.005
+2026-10-20T19:31:01.552624539Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13038 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:31:01.554012443Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:31:01.554187963Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143193 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.008 upstream_time=0.008
+2026-10-20T19:31:01.561302907Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.001
+2026-10-20T19:31:01.561401426Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.001
+2026-10-20T19:31:01.583032322Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13806 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.001 upstream_time=0.001
+2026-10-20T19:31:01.603475808Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.001 upstream_time=0.002
+2026-10-20T19:31:01.603788883Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26618 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.001 upstream_time=0.002
+2026-10-20T19:31:01.604741096Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Medium.woff2 HTTP/1.1" 200 26867 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.002
+2026-10-20T19:31:01.605103488Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 79058 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:31:01.753620628Z 192.0.2.11 "POST /realms/idlab/login-actions/authenticate?session_code=masked-session_code-7&execution=3f9a14ac-9286-4b02-8653-d6c8ce2a6bae&client_id=oidc-rp-proxied&tab_id=uyDdwWoFdq4&client_data=masked-client_data-7 HTTP/1.1" 302 0 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=302 request_time=0.052 upstream_time=0.052
+2026-10-20T19:31:06.756867362Z 2026/10/20 19:31:06 [error] 5946#5946: *1153 upstream timed out (110: Operation timed out) while reading response header from upstream, client: 192.0.2.11, server: , request: "GET /auth/callback?state=masked-state-4&session_state=masked-session_state-4&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=masked-code-4 HTTP/1.1", upstream: "https://192.0.2.18:8182/auth/callback?state=masked-state-4&session_state=masked-session_state-4&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=masked-code-4", host: "idlab.home:8185"
+2026-10-20T19:31:06.757041225Z 192.0.2.11 "GET /auth/callback?state=masked-state-4&session_state=masked-session_state-4&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=masked-code-4 HTTP/1.1" 504 562 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=504 request_time=5.001 upstream_time=5.001
+2026-10-20T19:31:11.779917600Z 192.0.2.18 "POST /realms/idlab/protocol/openid-connect/token HTTP/1.1" 200 3744 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.017 upstream_time=0.017
+2026-10-20T19:31:11.791519962Z 192.0.2.18 "GET /realms/idlab/protocol/openid-connect/userinfo HTTP/1.1" 200 295 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.009 upstream_time=0.009
+2026-10-20T19:31:11.963668221Z 192.0.2.11 "GET / HTTP/1.1" 200 2548 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:31:12.043180594Z 192.0.2.11 "GET /login HTTP/1.1" 302 943 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.002 upstream_time=0.001
+2026-10-20T19:31:12.053374146Z 192.0.2.11 "GET /realms/idlab/protocol/openid-connect/auth?response_type=code&client_id=oidc-rp-proxied&redirect_uri=https%3A%2F%2Fidlab.home%3A8185%2Fauth%2Fcallback&scope=openid+email+profile&state=masked-state-5&nonce=masked-nonce-5&code_challenge=masked-code_challenge-5&code_challenge_method=S256 HTTP/1.1" 200 6897 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:31:12.074739031Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143193 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.007 upstream_time=0.007
+2026-10-20T19:31:12.075185103Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:31:12.075402780Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:31:12.075933242Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13038 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:31:12.081182756Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.001 upstream_time=0.001
+2026-10-20T19:31:12.105498799Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13806 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:31:12.138172346Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:31:12.138811836Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26618 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:31:12.143635567Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Medium.woff2 HTTP/1.1" 200 26867 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:31:12.143655333Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 79058 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.009 upstream_time=0.009
+2026-10-20T19:31:12.333630951Z 192.0.2.11 "POST /realms/idlab/login-actions/authenticate?session_code=masked-session_code-8&execution=3f9a14ac-9286-4b02-8653-d6c8ce2a6bae&client_id=oidc-rp-proxied&tab_id=AAOV8StQjQ4&client_data=masked-client_data-8 HTTP/1.1" 302 0 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=302 request_time=0.066 upstream_time=0.066
+2026-10-20T19:31:12.359022613Z 192.0.2.18 "POST /realms/idlab/protocol/openid-connect/token HTTP/1.1" 200 3744 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.011 upstream_time=0.011
+2026-10-20T19:31:12.374179175Z 192.0.2.18 "GET /realms/idlab/protocol/openid-connect/userinfo HTTP/1.1" 200 295 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:31:12.376641006Z 192.0.2.11 "GET /auth/callback?state=masked-state-5&session_state=masked-session_state-5&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=masked-code-5 HTTP/1.1" 302 199 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.039 upstream_time=0.039
+2026-10-20T19:31:12.380843789Z 192.0.2.11 "GET /debug HTTP/1.1" 200 4983 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:31:13.366205105Z 2026/10/20 19:31:13 [notice] 1#1: signal 1 (SIGHUP) received from 6002, reconfiguring
+2026-10-20T19:31:13.366234620Z 2026/10/20 19:31:13 [notice] 1#1: reconfiguring
+2026-10-20T19:31:13.368597872Z 2026/10/20 19:31:13 [notice] 1#1: using the "epoll" event method
+2026-10-20T19:31:13.368781110Z 2026/10/20 19:31:13 [notice] 1#1: start worker processes
+2026-10-20T19:31:13.368941603Z 2026/10/20 19:31:13 [notice] 1#1: start worker process 6003
+2026-10-20T19:31:13.469313284Z 2026/10/20 19:31:13 [notice] 5946#5946: gracefully shutting down
+2026-10-20T19:31:13.471209050Z 2026/10/20 19:31:13 [notice] 5946#5946: exiting
+2026-10-20T19:31:13.471247067Z 2026/10/20 19:31:13 [notice] 5946#5946: exit
+2026-10-20T19:31:13.490906076Z 2026/10/20 19:31:13 [notice] 1#1: signal 17 (SIGCHLD) received from 5946
+2026-10-20T19:31:13.490933551Z 2026/10/20 19:31:13 [notice] 1#1: worker process 5946 exited with code 0
+2026-10-20T19:31:13.490971206Z 2026/10/20 19:31:13 [notice] 1#1: signal 29 (SIGIO) received
+2026-10-20T19:31:16.640384156Z 192.0.2.11 "GET / HTTP/1.1" 200 2636 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=200 request_time=0.007 upstream_time=0.007
+2026-10-20T19:31:16.750725877Z 192.0.2.11 "GET /login HTTP/1.1" 302 2525 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=302 request_time=0.007 upstream_time=0.007
+2026-10-20T19:31:16.774174367Z 2026/10/20 19:31:16 [error] 6003#6003: *1177 upstream sent too big header while reading response header from upstream, client: 192.0.2.11, server: , request: "GET /realms/idlab/protocol/saml?SAMLRequest=masked-SAMLRequest-5&RelayState=%2Fdebug&Signature=masked-Signature-5&SigAlg=http%3A%2F%2Fwww.w3.org%2F2001%2F04%2Fxmldsig-more%23rsa-sha256 HTTP/1.1", upstream: "https://192.0.2.16:8180/realms/idlab/protocol/saml?SAMLRequest=masked-SAMLRequest-5&RelayState=%2Fdebug&Signature=masked-Signature-6
+2026-10-20T19:31:16.774832037Z 192.0.2.11 "GET /realms/idlab/protocol/saml?SAMLRequest=masked-SAMLRequest-5&RelayState=%2Fdebug&Signature=masked-Signature-5&SigAlg=http%3A%2F%2Fwww.w3.org%2F2001%2F04%2Fxmldsig-more%23rsa-sha256 HTTP/1.1" 502 552 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=502 request_time=0.016 upstream_time=0.016
+2026-10-20T19:31:20.108842453Z 2026/10/20 19:31:20 [notice] 1#1: signal 1 (SIGHUP) received from 6042, reconfiguring
+2026-10-20T19:31:20.108870145Z 2026/10/20 19:31:20 [notice] 1#1: reconfiguring
+2026-10-20T19:31:20.111381105Z 2026/10/20 19:31:20 [notice] 1#1: using the "epoll" event method
+2026-10-20T19:31:20.111538242Z 2026/10/20 19:31:20 [notice] 1#1: start worker processes
+2026-10-20T19:31:20.112095873Z 2026/10/20 19:31:20 [notice] 1#1: start worker process 6043
+2026-10-20T19:31:20.212518222Z 2026/10/20 19:31:20 [notice] 6003#6003: gracefully shutting down
+2026-10-20T19:31:20.212559529Z 2026/10/20 19:31:20 [notice] 6003#6003: exiting
+2026-10-20T19:31:20.213190377Z 2026/10/20 19:31:20 [notice] 6003#6003: exit
+2026-10-20T19:31:20.232813077Z 2026/10/20 19:31:20 [notice] 1#1: signal 17 (SIGCHLD) received from 6003
+2026-10-20T19:31:20.232842898Z 2026/10/20 19:31:20 [notice] 1#1: worker process 6003 exited with code 0
+2026-10-20T19:31:20.232852403Z 2026/10/20 19:31:20 [notice] 1#1: signal 29 (SIGIO) received
+2026-10-20T19:31:23.437211190Z 192.0.2.11 "GET / HTTP/1.1" 200 2636 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:31:23.516309000Z 192.0.2.11 "GET /login HTTP/1.1" 302 2517 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=302 request_time=0.009 upstream_time=0.009
+2026-10-20T19:31:23.540125486Z 192.0.2.11 "GET /realms/idlab/protocol/saml?SAMLRequest=masked-SAMLRequest-6&RelayState=%2Fdebug&Signature=masked-Signature-7&SigAlg=http%3A%2F%2Fwww.w3.org%2F2001%2F04%2Fxmldsig-more%23rsa-sha256 HTTP/1.1" 200 7041 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.016 upstream_time=0.016
+2026-10-20T19:31:23.570120241Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.014 upstream_time=0.015
+2026-10-20T19:31:23.570143934Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13038 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.015 upstream_time=0.015
+2026-10-20T19:31:23.571102710Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143193 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.015 upstream_time=0.015
+2026-10-20T19:31:23.572114232Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.009 upstream_time=0.009
+2026-10-20T19:31:23.575115836Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.008 upstream_time=0.009
+2026-10-20T19:31:23.602271926Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13806 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.001 upstream_time=0.001
+2026-10-20T19:31:23.639101901Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Medium.woff2 HTTP/1.1" 200 26867 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:31:23.639126609Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:31:23.639196803Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 79058 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.004 upstream_time=0.004
+2026-10-20T19:31:23.640022957Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26618 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.005 upstream_time=0.005
+2026-10-20T19:31:23.847949185Z 192.0.2.11 "POST /realms/idlab/login-actions/authenticate?session_code=masked-session_code-9&execution=3f9a14ac-9286-4b02-8653-d6c8ce2a6bae&client_id=https%3A%2F%2Fidlab.home%3A8184%2Fsaml%2Fmetadata&tab_id=elHHe4s3N8s&client_data=masked-client_data-9 HTTP/1.1" 200 17060 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.061 upstream_time=0.061
+2026-10-20T19:31:23.887108542Z 2026/10/20 19:31:23 [warn] 6043#6043: *1181 a client request body is buffered to a temporary file /tmp/client_body/0000000008, client: 192.0.2.11, server: , request: "POST /saml/acs HTTP/1.1", host: "idlab.home:8184"
+2026-10-20T19:31:23.900115510Z 192.0.2.11 "POST /saml/acs HTTP/1.1" 302 199 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=302 request_time=0.013 upstream_time=0.013
+2026-10-20T19:31:23.903422633Z 192.0.2.11 "GET /debug HTTP/1.1" 200 16042 host=idlab.home:8184 upstream=192.0.2.17:8181 upstream_status=200 request_time=0.002 upstream_time=0.002
+2026-10-20T19:31:25.263041684Z 2026/10/20 19:31:25 [notice] 1#1: signal 1 (SIGHUP) received from 6087, reconfiguring
+2026-10-20T19:31:25.263078946Z 2026/10/20 19:31:25 [notice] 1#1: reconfiguring
+2026-10-20T19:31:25.265482299Z 2026/10/20 19:31:25 [notice] 1#1: using the "epoll" event method
+2026-10-20T19:31:25.265607303Z 2026/10/20 19:31:25 [notice] 1#1: start worker processes
+2026-10-20T19:31:25.265863562Z 2026/10/20 19:31:25 [notice] 1#1: start worker process 6088
+2026-10-20T19:31:25.366198599Z 2026/10/20 19:31:25 [notice] 6043#6043: gracefully shutting down
+2026-10-20T19:31:25.367359111Z 2026/10/20 19:31:25 [notice] 6043#6043: exiting
+2026-10-20T19:31:25.367829182Z 2026/10/20 19:31:25 [notice] 6043#6043: exit
+2026-10-20T19:31:25.393878223Z 2026/10/20 19:31:25 [notice] 1#1: signal 17 (SIGCHLD) received from 6043
+2026-10-20T19:31:25.393915915Z 2026/10/20 19:31:25 [notice] 1#1: worker process 6043 exited with code 0
+2026-10-20T19:31:25.393925330Z 2026/10/20 19:31:25 [notice] 1#1: signal 29 (SIGIO) received
+2026-10-20T19:31:26.462801505Z 2026/10/20 19:31:26 [notice] 1#1: signal 1 (SIGHUP) received from 6095, reconfiguring
+2026-10-20T19:31:26.462832424Z 2026/10/20 19:31:26 [notice] 1#1: reconfiguring
+2026-10-20T19:31:26.466142047Z 2026/10/20 19:31:26 [notice] 1#1: using the "epoll" event method
+2026-10-20T19:31:26.466302817Z 2026/10/20 19:31:26 [notice] 1#1: start worker processes
+2026-10-20T19:31:26.468158697Z 2026/10/20 19:31:26 [notice] 1#1: start worker process 6096
+2026-10-20T19:31:26.568501670Z 2026/10/20 19:31:26 [notice] 6088#6088: gracefully shutting down
+2026-10-20T19:31:26.568535439Z 2026/10/20 19:31:26 [notice] 6088#6088: exiting
+2026-10-20T19:31:26.569148898Z 2026/10/20 19:31:26 [notice] 6088#6088: exit
+2026-10-20T19:31:26.584620012Z 2026/10/20 19:31:26 [notice] 1#1: signal 17 (SIGCHLD) received from 6088
+2026-10-20T19:31:26.584651856Z 2026/10/20 19:31:26 [notice] 1#1: worker process 6088 exited with code 0
+2026-10-20T19:31:26.584658324Z 2026/10/20 19:31:26 [notice] 1#1: signal 29 (SIGIO) received
+2026-10-20T19:31:30.560035553Z 192.0.2.11 "GET / HTTP/1.1" 200 2548 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:31:30.643912652Z 192.0.2.11 "GET /login HTTP/1.1" 302 943 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.002 upstream_time=0.002
+2026-10-20T19:31:30.648768238Z 2026/10/20 19:31:30 [error] 6096#6096: *1199 limiting requests, excess: 0.315 by zone "kc_login", client: 192.0.2.11, server: , request: "GET /realms/idlab/protocol/openid-connect/auth?response_type=code&client_id=oidc-rp-proxied&redirect_uri=https%3A%2F%2Fidlab.home%3A8185%2Fauth%2Fcallback&scope=openid+email+profile&state=masked-state-15&nonce=masked-nonce-6&code_challenge=masked-code_challenge-6&code_challenge_method=S256 HTTP/1.1", host: "idlab.home:8183", referrer: "https://idlab.home:8185/"
+2026-10-20T19:31:30.649385036Z 192.0.2.11 "GET /realms/idlab/protocol/openid-connect/auth?response_type=code&client_id=oidc-rp-proxied&redirect_uri=https%3A%2F%2Fidlab.home%3A8185%2Fauth%2Fcallback&scope=openid+email+profile&state=masked-state-15&nonce=masked-nonce-6&code_challenge=masked-code_challenge-6&code_challenge_method=S256 HTTP/1.1" 429 564 host=idlab.home:8183 upstream=- upstream_status=- request_time=0.000 upstream_time=-
+2026-10-20T19:31:34.278737918Z 2026/10/20 19:31:34 [notice] 1#1: signal 1 (SIGHUP) received from 6163, reconfiguring
+2026-10-20T19:31:34.278770565Z 2026/10/20 19:31:34 [notice] 1#1: reconfiguring
+2026-10-20T19:31:34.280988405Z 2026/10/20 19:31:34 [notice] 1#1: using the "epoll" event method
+2026-10-20T19:31:34.281828231Z 2026/10/20 19:31:34 [notice] 1#1: start worker processes
+2026-10-20T19:31:34.281849172Z 2026/10/20 19:31:34 [notice] 1#1: start worker process 6164
+2026-10-20T19:31:34.381950487Z 2026/10/20 19:31:34 [notice] 6096#6096: gracefully shutting down
+2026-10-20T19:31:34.381989997Z 2026/10/20 19:31:34 [notice] 6096#6096: exiting
+2026-10-20T19:31:34.382626404Z 2026/10/20 19:31:34 [notice] 6096#6096: exit
+2026-10-20T19:31:34.398768064Z 2026/10/20 19:31:34 [notice] 1#1: signal 17 (SIGCHLD) received from 6096
+2026-10-20T19:31:34.398803680Z 2026/10/20 19:31:34 [notice] 1#1: worker process 6096 exited with code 0
+2026-10-20T19:31:34.398837835Z 2026/10/20 19:31:34 [notice] 1#1: signal 29 (SIGIO) received
+2026-10-20T19:31:35.490071287Z 2026/10/20 19:31:35 [notice] 1#1: signal 1 (SIGHUP) received from 6172, reconfiguring
+2026-10-20T19:31:35.490096651Z 2026/10/20 19:31:35 [notice] 1#1: reconfiguring
+2026-10-20T19:31:35.493282998Z 2026/10/20 19:31:35 [notice] 1#1: using the "epoll" event method
+2026-10-20T19:31:35.493425079Z 2026/10/20 19:31:35 [notice] 1#1: start worker processes
+2026-10-20T19:31:35.493952004Z 2026/10/20 19:31:35 [notice] 1#1: start worker process 6173
+2026-10-20T19:31:35.594023820Z 2026/10/20 19:31:35 [notice] 6164#6164: gracefully shutting down
+2026-10-20T19:31:35.594086944Z 2026/10/20 19:31:35 [notice] 6164#6164: exiting
+2026-10-20T19:31:35.595076331Z 2026/10/20 19:31:35 [notice] 6164#6164: exit
+2026-10-20T19:31:35.614799233Z 2026/10/20 19:31:35 [notice] 1#1: signal 17 (SIGCHLD) received from 6164
+2026-10-20T19:31:35.614845583Z 2026/10/20 19:31:35 [notice] 1#1: worker process 6164 exited with code 0
+2026-10-20T19:31:35.614853697Z 2026/10/20 19:31:35 [notice] 1#1: signal 29 (SIGIO) received
+2026-10-20T19:31:39.654098271Z 192.0.2.11 "GET / HTTP/1.1" 200 2548 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:31:39.744804737Z 192.0.2.11 "GET /login HTTP/1.1" 302 943 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.002 upstream_time=0.002
+2026-10-20T19:31:39.766798933Z 192.0.2.11 "GET /realms/idlab/protocol/openid-connect/auth?response_type=code&client_id=oidc-rp-proxied&redirect_uri=https%3A%2F%2Fidlab.home%3A8185%2Fauth%2Fcallback&scope=openid+email+profile&state=masked-state-6&nonce=masked-nonce-7&code_challenge=masked-code_challenge-7&code_challenge_method=S256 HTTP/1.1" 200 6897 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.015 upstream_time=0.016
+2026-10-20T19:31:39.790605322Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly.min.css HTTP/1.1" 200 143193 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.013 upstream_time=0.013
+2026-10-20T19:31:39.791451924Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/patternfly-addons.css HTTP/1.1" 200 13038 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.011 upstream_time=0.011
+2026-10-20T19:31:39.793555197Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/passwordVisibility.js HTTP/1.1" 200 298 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.008 upstream_time=0.008
+2026-10-20T19:31:39.794642548Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/css/styles.css HTTP/1.1" 200 1207 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.009 upstream_time=0.009
+2026-10-20T19:31:39.798234971Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/js/authChecker.js HTTP/1.1" 200 972 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.012 upstream_time=0.012
+2026-10-20T19:31:39.820085977Z 192.0.2.11 "GET /resources/8ycgf/login/keycloak.v2/img/keycloak-bg-darken.svg HTTP/1.1" 200 13806 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.001 upstream_time=0.001
+2026-10-20T19:31:39.851804477Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/webfonts/fa-solid-900.woff2 HTTP/1.1" 200 79043 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.003 upstream_time=0.003
+2026-10-20T19:31:39.852925352Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatDisplay/RedHatDisplay-Medium.woff2 HTTP/1.1" 200 26618 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.005 upstream_time=0.005
+2026-10-20T19:31:39.853391575Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Medium.woff2 HTTP/1.1" 200 26875 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:31:39.854169658Z 192.0.2.11 "GET /resources/8ycgf/common/keycloak/vendor/patternfly-v5/assets/fonts/RedHatText/RedHatText-Regular.woff2 HTTP/1.1" 200 25829 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.006 upstream_time=0.006
+2026-10-20T19:31:40.061041621Z 192.0.2.11 "POST /realms/idlab/login-actions/authenticate?session_code=masked-session_code-10&execution=3f9a14ac-9286-4b02-8653-d6c8ce2a6bae&client_id=oidc-rp-proxied&tab_id=wSnW-1OnsRQ&client_data=masked-client_data-10 HTTP/1.1" 302 0 host=idlab.home:8183 upstream=192.0.2.16:8180 upstream_status=302 request_time=0.061 upstream_time=0.061
+2026-10-20T19:31:40.085217436Z 192.0.2.18 "POST /realms/idlab/protocol/openid-connect/token HTTP/1.1" 200 3744 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.011 upstream_time=0.011
+2026-10-20T19:31:40.099571704Z 192.0.2.18 "GET /realms/idlab/protocol/openid-connect/userinfo HTTP/1.1" 200 295 host=proxy:8183 upstream=192.0.2.16:8180 upstream_status=200 request_time=0.005 upstream_time=0.005
+2026-10-20T19:31:40.102522766Z 192.0.2.11 "GET /auth/callback?state=masked-state-6&session_state=masked-session_state-6&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=masked-code-6 HTTP/1.1" 302 199 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=302 request_time=0.039 upstream_time=0.039
+2026-10-20T19:31:40.107363393Z 192.0.2.11 "GET /debug HTTP/1.1" 200 4983 host=idlab.home:8185 upstream=192.0.2.18:8182 upstream_status=200 request_time=0.002 upstream_time=0.002

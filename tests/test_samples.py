@@ -55,8 +55,34 @@ def test_every_runbook_scenario_is_in_the_samples():
             seen["05 RADIUS no reply"] += 1
         if f.get("radius_result") == "incorrect":
             seen["RADIUS Access-Reject"] += 1
+        for start, scenario in PROXY_REASONS.items():
+            if f.get("nginx_reason", "").startswith(start):
+                seen[scenario] += 1
+        if f.get("kc_reason") == "invalid_destination":
+            seen["09 proxy forwarded headers"] += 1
     assert set(seen) == {"01 signing certificate", "02 clock skew", "03 redirect URI", "04 LDAP 49",
-                         "05 RADIUS no reply", "RADIUS Access-Reject"}, seen
+                         "05 RADIUS no reply", "RADIUS Access-Reject", *PROXY_REASONS.values(),
+                         "09 proxy forwarded headers"}, seen
+
+
+PROXY_REASONS = {
+    "upstream prematurely closed connection": "06 proxy bad gateway",
+    "upstream timed out": "07 proxy gateway timeout",
+    "limiting requests": "08 proxy rate limit",
+    "upstream sent too big header": "10 proxy header too large",
+}
+
+
+def test_proxy_statuses_in_the_samples():
+    statuses = collections.Counter(f["status"] for service, _, f in sample_events()
+                                   if service == "proxy" and "status" in f)
+    assert {"200", "302", "429", "502", "504"} <= set(statuses)
+    assert statuses["502"] == 2 and statuses["504"] == 1 and statuses["429"] == 1
+
+
+def test_proxied_apps_logged_logins():
+    services = {service for service, _, f in sample_events() if f.get("event", "").endswith("_login_ok")}
+    assert {"saml-sp-proxied", "oidc-rp-proxied"} <= services
 
 
 @pytest.mark.parametrize("path", REPORTS, ids=lambda p: p.name)

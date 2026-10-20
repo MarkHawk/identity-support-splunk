@@ -2,7 +2,7 @@
   "tool": "rate-limit-probe",
   "version": "0.1.0",
   "target": {
-    "url": "http://127.0.0.1:46151/s/block",
+    "url": "http://127.0.0.1:42347/s/block",
     "local": true,
     "method": "GET"
   },

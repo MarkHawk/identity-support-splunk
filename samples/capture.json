@@ -1,14 +1,17 @@
 {
-  "since": "2026-10-19T18:26:13Z",
-  "until": "2026-10-19T18:28:48Z",
+  "since": "2026-10-20T19:28:12Z",
+  "until": "2026-10-20T19:32:37Z",
   "project": "identity-lab",
   "lines": {
     "keycloak": 287,
-    "ldap": 453,
+    "ldap": 663,
     "nas": 0,
-    "oidc-rp": 66,
+    "oidc-rp": 103,
+    "oidc-rp-proxied": 87,
+    "proxy": 326,
     "radius": 22,
-    "saml-sp": 69
+    "saml-sp": 99,
+    "saml-sp-proxied": 76
   },
   "reports": [
     "token-inspector-baseline-jwt-access-token",
