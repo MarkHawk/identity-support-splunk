@@ -38,6 +38,18 @@ def break_events(stanza, text):
     return [e for e in events if e]
 
 
+def index_sourcetype(props, transforms, sourcetype, event):
+    """The sourcetype an event is indexed under: its TRANSFORMS- that write
+    MetaData:Sourcetype run in order, and the last one that matches wins."""
+    for key, value in props[sourcetype].items():
+        if key.startswith("TRANSFORMS-"):
+            for name in (n.strip() for n in value.split(",")):
+                t = transforms[name]
+                if t.get("DEST_KEY") == "MetaData:Sourcetype" and pcre(t["REGEX"]).search(event):
+                    sourcetype = t["FORMAT"].removeprefix("sourcetype::")
+    return sourcetype
+
+
 def extract(props_stanza, transforms, event):
     """Fields from every EXTRACT-, REPORT- and FIELDALIAS- in a props stanza,
     in Splunk's order (extractions, then aliases)."""

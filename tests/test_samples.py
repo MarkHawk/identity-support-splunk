@@ -8,7 +8,7 @@ import json
 import pytest
 
 from conftest import ROOT, load_module
-from splunk_conf import break_events, extract, read_conf
+from splunk_conf import break_events, extract, index_sourcetype, read_conf
 
 hec_send = load_module("sender/hec_send.py")
 props, transforms = read_conf("props.conf"), read_conf("transforms.conf")
@@ -21,7 +21,8 @@ def sample_events():
     for path in LOGS:
         sourcetype = hec_send.SERVICES[path.stem]
         for event in break_events(props[sourcetype], path.read_text()):
-            yield path.stem, event, extract(props[sourcetype], transforms, event)
+            typed = index_sourcetype(props, transforms, sourcetype, event)
+            yield path.stem, event, extract(props[typed], transforms, event)
 
 
 def test_capture_metadata():

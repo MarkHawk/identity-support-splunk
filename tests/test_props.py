@@ -1,6 +1,7 @@
 """Line breaking, timestamps and field extractions, checked offline against
 the fixtures in tests/fixtures/lab (and samples/, once captured)."""
 
+import collections
 import csv
 import datetime as dt
 import re
@@ -8,7 +9,7 @@ import re
 import pytest
 
 from conftest import ROOT, load_module
-from splunk_conf import APP, break_events, extract, pcre, read_conf
+from splunk_conf import APP, break_events, extract, index_sourcetype, pcre, read_conf
 
 hec_send = load_module("sender/hec_send.py")
 props = read_conf("props.conf")
@@ -17,7 +18,7 @@ FIXTURES = ROOT / "tests/fixtures/lab"
 LOG_SOURCETYPES = sorted(set(hec_send.SERVICES.values()))
 # Sourcetypes events are searched under: idlab:nginx lines are given their
 # own type at index time.
-SEARCH_SOURCETYPES = sorted(set(LOG_SOURCETYPES) - {"idlab:nginx"})
+SEARCH_SOURCETYPES = sorted(set(LOG_SOURCETYPES) - {"idlab:nginx"} | {"idlab:nginx:access", "idlab:nginx:error"})
 
 
 def events(service):
@@ -26,9 +27,9 @@ def events(service):
 
 
 def fields(service, contains):
-    sourcetype = hec_send.SERVICES[service]
     matching = [e for e in events(service) if contains in e]
     assert len(matching) == 1, f"{len(matching)} events contain {contains!r}"
+    sourcetype = index_sourcetype(props, transforms, hec_send.SERVICES[service], matching[0])
     return extract(props[sourcetype], transforms, matching[0])
 
 
@@ -77,6 +78,13 @@ def test_healthz_is_dropped_at_index_time():
     dropped = [e for e in events("saml-sp") if pcre(t["REGEX"]).search(e)]
     assert len(dropped) == 1 and "/healthz" in dropped[0]
     assert props["idlab:sp"]["TRANSFORMS-null_healthz"] == "idlab_sp_drop_healthz"
+
+
+def test_proxy_lines_are_typed_access_or_error_at_index_time():
+    typed = collections.Counter(index_sourcetype(props, transforms, "idlab:nginx", e) for e in events("proxy"))
+    assert typed == {"idlab:nginx:access": 7, "idlab:nginx:error": 7}
+    for sourcetype in ("idlab:nginx:access", "idlab:nginx:error"):
+        assert "LINE_BREAKER" not in props[sourcetype], "search-time only: lines break as idlab:nginx"
 
 
 # --- fields ----------------------------------------------------------------
@@ -140,6 +148,61 @@ def test_nas_lines():
     assert fields("nas", "Access-Reject")["nas_result"] == "Access-Reject"
 
 
+def test_proxy_access_fields():
+    f = fields("proxy", '" 504 ')
+    assert (f["src"], f["http_method"], f["uri_path"], f["status"], f["bytes"]) == (
+        "192.0.2.10", "GET", "/auth/callback", "504", "562")
+    assert f["request"] == "GET /auth/callback?state=s&code=c HTTP/1.1"
+    assert (f["site"], f["upstream"], f["upstream_status"]) == ("rp.idlab.example:8185", "192.0.2.32:8182", "504")
+    assert (f["request_time"], f["upstream_time"]) == ("5.005", "5.004")
+
+
+def test_proxy_access_answered_by_nginx_itself():
+    f = fields("proxy", '" 429 ')
+    assert (f["status"], f["upstream"], f["upstream_status"], f["upstream_time"]) == ("429", "-", "-", "-")
+
+
+def test_proxy_access_after_a_retry_keeps_every_upstream():
+    f = fields("proxy", "upstream_status=502, 200")
+    assert (f["upstream"], f["upstream_status"], f["upstream_time"]) == (
+        "192.0.2.32:8182, 192.0.2.33:8182", "502, 200", "0.020, 0.011")
+
+
+@pytest.mark.parametrize("contains, reason", [
+    ("prematurely", "upstream prematurely closed connection while reading response header from upstream"),
+    ("timed out", "upstream timed out (110: Operation timed out) while reading response header from upstream"),
+    ("too big header", "upstream sent too big header while reading response header from upstream"),
+    ("limiting requests", 'limiting requests, excess: 0.307 by zone "kc_login"'),
+])
+def test_proxy_error_reason(contains, reason):
+    f = fields("proxy", contains)
+    assert (f["log_level"], f["nginx_reason"], f["src"]) == ("error", reason, "192.0.2.10")
+
+
+def test_proxy_error_request_upstream_and_host():
+    f = fields("proxy", "prematurely")
+    assert (f["connection_id"], f["request"], f["http_method"], f["uri_path"]) == ("69", "GET / HTTP/1.1", "GET", "/")
+    assert (f["upstream"], f["site"]) == ("http://192.0.2.32:8182/", "rp.idlab.example:8185")
+
+
+def test_proxy_error_rate_limit_zone():
+    f = fields("proxy", "limiting requests")
+    assert (f["limit_zone"], f["limit_excess"], f["site"]) == ("kc_login", "0.307", "idp.idlab.example:8183")
+    assert "upstream" not in f
+
+
+def test_proxy_error_line_cut_short_by_nginx():
+    f = fields("proxy", "too big header")
+    assert f["uri_path"] == "/realms/idlab/protocol/saml"
+    assert f["upstream"].endswith("&Signature=S6DHaj") and "site" not in f
+
+
+def test_proxy_notice_lines():
+    f = fields("proxy", "SIGHUP")
+    assert (f["log_level"], f["nginx_reason"]) == ("notice", "signal 1 (SIGHUP) received from 183, reconfiguring")
+    assert "connection_id" not in f and "src" not in f
+
+
 def test_slapd_bind_and_result_join_on_conn_and_op():
     bind = fields("ldap", 'BIND dn="cn=keycloak-svc')
     result = fields("ldap", "conn=1027 op=0 RESULT tag=97")
@@ -183,7 +246,7 @@ def test_causes_link_identity_lab_runbooks():
 
 
 def test_every_log_sourcetype_looks_up_causes():
-    for sourcetype in SEARCH_SOURCETYPES:
+    for sourcetype in (s for s in SEARCH_SOURCETYPES if "EVAL-signature" in props[s]):
         assert props[sourcetype]["LOOKUP-support_causes"] == "support_causes signature OUTPUT cause runbook runbook_url"
     assert transforms["support_causes"]["filename"] == "support_causes.csv"
 
@@ -193,6 +256,8 @@ def test_eventtypes_and_tags_line_up():
     tagged = {s.removeprefix("eventtype=") for s in tags.sections()}
     assert tagged == set(eventtypes.sections())
     auth = {s.removeprefix("eventtype=") for s in tags.sections() if tags[s].get("authentication") == "enabled"}
+    assert {s.removeprefix("eventtype=") for s in tags.sections() if tags[s].get("web") == "enabled"} == {
+        "idlab_proxy_access"}
     assert auth == {"idlab_keycloak_login", "idlab_sp_login", "idlab_radius_auth", "idlab_ldap_bind_failure"}
 
 
