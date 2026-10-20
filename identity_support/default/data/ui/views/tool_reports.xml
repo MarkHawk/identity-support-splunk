@@ -23,7 +23,7 @@
     "ds_ti": {
       "type": "ds.search",
       "name": "token-inspector reports",
-      "options": {"query": "`support_index` eventtype=idlab_token_inspector | spath path=input.label output=input | spath path=summary.fail output=fail | eval likely_cause=coalesce(likely_cause, \"(none named)\") | table _time input verdict fail likely_cause runbook_url | sort - _time"}
+      "options": {"query": "`support_index` eventtype=idlab_token_inspector | spath path=input.label output=input | spath path=summary.fail output=fail | eval likely_cause=coalesce(likely_cause, \"(none named)\") | eval _runbook_url=runbook_url | sort - _time | eval time=strftime(_time, \"%Y-%m-%d %H:%M:%S\") | table time input verdict fail likely_cause _runbook_url"}
     },
     "ds_ti_fail": {
       "type": "ds.search",
@@ -50,8 +50,9 @@
     "viz_ti": {
       "type": "splunk.table",
       "title": "token-inspector: verdicts (select a row for its runbook)",
+      "options": {"showInternalFields": false},
       "dataSources": {"primary": "ds_ti"},
-      "eventHandlers": [{"type": "drilldown.customUrl", "options": {"url": "$row.runbook_url.value$", "newTab": true}}]
+      "eventHandlers": [{"type": "drilldown.customUrl", "options": {"url": "$row._runbook_url.value|n$", "newTab": true}}]
     },
     "viz_ti_causes": {
       "type": "splunk.pie",

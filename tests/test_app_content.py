@@ -93,3 +93,19 @@ def test_overview_charts_use_the_adaptive_bucket_macro():
     assert "`support_chart(outcome)`" in queries["ds_radius"]
     assert not any("timechart" in q for q in queries.values())
     assert "support_chart(1)" in read_conf("macros.conf")
+
+
+@pytest.mark.parametrize("view", VIEWS, ids=lambda p: p.stem)
+def test_runbook_drilldowns_open_a_real_url(view):
+    """Splunk URL-encodes a token in a custom drilldown URL unless it has the
+    |n filter, and then refuses the encoded https%3A%2F%2F... as invalid. The
+    URL travels in a hidden _runbook_url field, so the table stays narrow."""
+    _, d = definition(view)
+    for name, viz in d["visualizations"].items():
+        for handler in viz.get("eventHandlers", []):
+            if handler["type"] != "drilldown.customUrl":
+                continue
+            assert handler["options"]["url"] == "$row._runbook_url.value|n$", name
+            assert viz["options"]["showInternalFields"] is False, name
+            source = d["dataSources"][viz["dataSources"]["primary"]]
+            assert "_runbook_url" in source["options"]["query"].rsplit("| table ", 1)[-1], name
