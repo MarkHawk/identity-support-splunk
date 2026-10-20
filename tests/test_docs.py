@@ -44,4 +44,4 @@ def test_screenshots_exist_and_come_before_try_it():
         assert (ROOT / "docs/screenshots" / name).is_file(), name
         assert f"](docs/screenshots/{name})" in README, name
     assert README.index("docs/screenshots/") < README.index("## Try it in 5 minutes")
-    assert "times are UTC" in README
+    assert "Splunk user's time zone" in README and "times are UTC" not in README

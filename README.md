@@ -23,7 +23,7 @@ can try it without the lab.
 ![Who is affected?](docs/screenshots/who-is-affected.png)
 *Who is affected? End users and service accounts, with RADIUS rejects versus no reply and LDAP result 49 below.*
 
-The screenshots show real identity-lab data. All times are UTC.
+The screenshots show real identity-lab data. Times are shown in the Splunk user's time zone (UK time in these screenshots).
 
 ## Try it in 5 minutes
 
@@ -104,7 +104,10 @@ Free there is no alerting: the same searches still run as reports.
 
 Container logs are shipped as `docker logs --timestamps` output, so every
 event is timed by Docker's clock, the same for every component (slapd's own
-timestamps are hexadecimal). Line breaking only splits where a new event
+timestamps are hexadecimal). Those timestamps are UTC, and every panel
+shows them in the viewer's own Splunk time zone. After you change your time
+zone in Splunk, sign out and in again: tables and tiles follow at once, but
+chart axes keep the zone the session started with. Line breaking only splits where a new event
 starts, so a Java stack trace or a Python traceback stays whole.
 
 | Sourcetype | From | Key fields |
