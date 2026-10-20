@@ -1,6 +1,6 @@
 <dashboard version="2" theme="light">
   <label>Support overview</label>
-  <description>When did it start, who is affected, and what is the likely cause? Failed logins, dropped RADIUS requests and LDAP bind failures, each with its runbook.</description>
+  <description>When did it start, who is affected, and what is the likely cause? Failed logins, dropped RADIUS requests, LDAP bind failures and requests the reverse proxy refused, each with its runbook.</description>
   <definition><![CDATA[
 {
   "title": "Support overview",
@@ -49,6 +49,16 @@
       "name": "Users and apps affected",
       "options": {"extend": "ds_failures", "query": "| where isnotnull(who) AND who!=\"not in log\" | fillnull value=\"-\" app | stats min(_time) as first_seen max(_time) as last_seen count values(cause) as causes by who app | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\")"}
     },
+    "ds_proxy_status": {
+      "type": "ds.search",
+      "name": "Proxy responses by status",
+      "options": {"query": "`support_index` sourcetype=idlab:nginx:access status=* | eval response=if(tonumber(status) < 400, substr(status, 1, 1) . \"xx\", status) | `support_chart(response)`"}
+    },
+    "ds_proxy_causes": {
+      "type": "ds.search",
+      "name": "Proxy refusals by cause",
+      "options": {"query": "`support_index` eventtype=idlab_proxy_error | stats count min(_time) as first_seen max(_time) as last_seen values(site) as routes latest(runbook) as runbook latest(runbook_url) as runbook_url by cause | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\") | eval _runbook_url=runbook_url | table first_seen last_seen cause count routes runbook _runbook_url"}
+    },
     "ds_radius": {
       "type": "ds.search",
       "name": "RADIUS Access-Reject versus no reply",
@@ -90,6 +100,25 @@
       "description": "End users and service accounts named in the logs.",
       "dataSources": {"primary": "ds_who"}
     },
+    "viz_proxy_status": {
+      "type": "splunk.column",
+      "title": "Reverse proxy: responses over time",
+      "description": "Every request through the proxy by status: 2xx and 3xx grouped, errors by code. 502 and 504 come from the proxy when the app behind it fails it; 429 is the proxy's own rate limit.",
+      "dataSources": {"primary": "ds_proxy_status"},
+      "options": {
+        "stackMode": "stacked",
+        "legendDisplay": "bottom",
+        "seriesColorsByField": {"2xx": "#9DA5AD", "3xx": "#C3CBD4", "400": "#E3A13B", "429": "#D6731E", "502": "#C2362F", "504": "#7E1E1B"}
+      }
+    },
+    "viz_proxy_causes": {
+      "type": "splunk.table",
+      "title": "Reverse proxy: 5xx and 429 by likely cause (select a row for its runbook)",
+      "description": "One row per reason in the proxy's error log. Wrong X-Forwarded headers (runbook 09) leave nothing there: they show as a Keycloak error in When did it start?",
+      "options": {"showInternalFields": false},
+      "dataSources": {"primary": "ds_proxy_causes"},
+      "eventHandlers": [{"type": "drilldown.customUrl", "options": {"url": "$row._runbook_url.value|n$", "newTab": true}}]
+    },
     "viz_radius": {
       "type": "splunk.column",
       "title": "RADIUS: Access-Reject versus no reply",
@@ -112,18 +141,20 @@
   "layout": {
     "type": "grid",
     "globalInputs": ["input_time"],
-    "options": {"width": 1440, "height": 2312},
+    "options": {"width": 1440, "height": 3072},
     "structure": [
       {"item": "viz_count", "type": "block", "position": {"x": 0, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_users", "type": "block", "position": {"x": 360, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_first", "type": "block", "position": {"x": 720, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_last", "type": "block", "position": {"x": 1080, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_over_time", "type": "block", "position": {"x": 0, "y": 120, "w": 1440, "h": 320}},
-      {"item": "viz_by_cause", "type": "block", "position": {"x": 0, "y": 440, "w": 1440, "h": 872}},
-      {"item": "viz_who", "type": "block", "position": {"x": 0, "y": 1312, "w": 1440, "h": 488}},
-      {"item": "viz_radius", "type": "block", "position": {"x": 0, "y": 1800, "w": 720, "h": 512}},
-      {"item": "viz_ldap", "type": "block", "position": {"x": 720, "y": 1800, "w": 720, "h": 392}},
-      {"item": "viz_idp_ldap", "type": "block", "position": {"x": 720, "y": 2192, "w": 720, "h": 120}}
+      {"item": "viz_by_cause", "type": "block", "position": {"x": 0, "y": 440, "w": 1440, "h": 1152}},
+      {"item": "viz_who", "type": "block", "position": {"x": 0, "y": 1592, "w": 1440, "h": 488}},
+      {"item": "viz_proxy_status", "type": "block", "position": {"x": 0, "y": 2080, "w": 720, "h": 480}},
+      {"item": "viz_proxy_causes", "type": "block", "position": {"x": 720, "y": 2080, "w": 720, "h": 480}},
+      {"item": "viz_radius", "type": "block", "position": {"x": 0, "y": 2560, "w": 720, "h": 512}},
+      {"item": "viz_ldap", "type": "block", "position": {"x": 720, "y": 2560, "w": 720, "h": 392}},
+      {"item": "viz_idp_ldap", "type": "block", "position": {"x": 720, "y": 2952, "w": 720, "h": 120}}
     ]
   }
 }

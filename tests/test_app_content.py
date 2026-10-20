@@ -91,6 +91,7 @@ def test_overview_charts_use_the_adaptive_bucket_macro():
     queries = {name: s["options"]["query"] for name, s in d["dataSources"].items()}
     assert "`support_chart(cause)`" in queries["ds_over_time"]
     assert "`support_chart(outcome)`" in queries["ds_radius"]
+    assert "`support_chart(response)`" in queries["ds_proxy_status"]
     assert not any("timechart" in q for q in queries.values())
     assert "support_chart(1)" in read_conf("macros.conf")
 
@@ -131,3 +132,25 @@ def test_times_follow_the_viewers_time_zone(view):
 def test_radius_chart_counts_in_whole_numbers():
     _, d = definition(APP / "default/data/ui/views/support_overview.xml")
     assert d["visualizations"]["viz_radius"]["options"]["yAxisMajorTickInterval"] == 1
+
+
+def test_overview_layout_has_no_gaps_or_overlaps():
+    """Panels tile the canvas exactly: each block is either beside or below
+    another, and the canvas ends where the lowest block does."""
+    _, d = definition(APP / "default/data/ui/views/support_overview.xml")
+    blocks = [i["position"] for i in d["layout"]["structure"]]
+    width, height = d["layout"]["options"]["width"], d["layout"]["options"]["height"]
+    covered = set()
+    for p in blocks:
+        cells = {(x, y) for x in range(p["x"], p["x"] + p["w"], 8) for y in range(p["y"], p["y"] + p["h"], 8)}
+        assert not cells & covered, p
+        covered |= cells
+    assert len(covered) == (width // 8) * (height // 8)
+
+
+def test_proxy_panels():
+    _, d = definition(APP / "default/data/ui/views/support_overview.xml")
+    assert "eventtype=idlab_proxy_error" in d["dataSources"]["ds_proxy_causes"]["options"]["query"]
+    colours = d["visualizations"]["viz_proxy_status"]["options"]["seriesColorsByField"]
+    assert {"429", "502", "504"} <= set(colours)
+    assert "eventtype=idlab_proxy_error" in read_conf("macros.conf")["support_failures"]["definition"]
