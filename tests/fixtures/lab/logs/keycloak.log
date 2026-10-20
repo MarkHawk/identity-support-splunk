@@ -1,5 +1,6 @@
 2026-10-19T18:00:00.100000000Z 2026-10-19 18:00:00,100 INFO  [org.keycloak.services] (executor-thread-1) KC-SERVICES0032: Import finished successfully
 2026-10-19T18:05:00.000000000Z 2026-10-19 18:05:00,000 WARN  [org.keycloak.events] (executor-thread-7) type="LOGIN_ERROR", realmId="0f0e0d0c", realmName="idlab", clientId="oidc-rp", userId="null", sessionId="null", ipAddress="192.0.2.10", error="invalid_redirect_uri", redirect_uri="https://rp.idlab.example:8182/wrong/callback"
+2026-10-19T18:05:30.000000000Z 2026-10-19 18:05:30,000 WARN  [org.keycloak.events] (executor-thread-5) type="LOGIN_ERROR", realmId="0f0e0d0c", realmName="idlab", clientId="null", userId="null", ipAddress="192.0.2.10", error="invalid_authn_request", reason="invalid_destination"
 2026-10-19T18:30:00.000000000Z 2026-10-19 18:30:00,000 WARN  [org.keycloak.storage.UserStorageManager] (executor-thread-9) User storage provider idlab-ldap failed during federated user validation: org.keycloak.storage.StorageUnavailableException: LDAP server is unavailable for provider [idlab-ldap]
 2026-10-19T18:30:00.000100000Z 	at org.keycloak.storage.UserStorageManager.validate(UserStorageManager.java:412)
 2026-10-19T18:30:00.000200000Z Caused by: javax.naming.AuthenticationException: [LDAP: error code 49 - Invalid Credentials]

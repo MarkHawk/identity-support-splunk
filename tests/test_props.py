@@ -240,7 +240,7 @@ def test_every_signature_has_a_cause_and_runbook():
 
 def test_causes_link_identity_lab_runbooks():
     for row in causes():
-        assert row["cause"] and re.fullmatch(r"0[1-5]-[a-z-]+", row["runbook"]), row
+        assert row["cause"] and re.fullmatch(r"(?:0[1-9]|10)-[a-z-]+", row["runbook"]), row
         assert row["runbook_url"] == (
             f"https://github.com/MarkHawk/identity-lab/blob/main/runbooks/{row['runbook']}.md")
 
@@ -249,6 +249,35 @@ def test_every_log_sourcetype_looks_up_causes():
     for sourcetype in (s for s in SEARCH_SOURCETYPES if "EVAL-signature" in props[s]):
         assert props[sourcetype]["LOOKUP-support_causes"] == "support_causes signature OUTPUT cause runbook runbook_url"
     assert transforms["support_causes"]["filename"] == "support_causes.csv"
+
+
+@pytest.mark.parametrize("contains, signature, runbook", [
+    ("prematurely", "proxy_upstream_closed", "06-proxy-bad-gateway"),
+    ("timed out", "proxy_upstream_timeout", "07-proxy-gateway-timeout"),
+    ("limiting requests", "proxy_rate_limited", "08-proxy-rate-limit"),
+    ("too big header", "proxy_header_too_large", "10-proxy-header-too-large"),
+    ("SIGHUP", None, None),
+])
+def test_proxy_error_signature(contains, signature, runbook):
+    """EVAL-signature's match() patterns, run against the fixture's reasons."""
+    expr = props["idlab:nginx:error"]["EVAL-signature"]
+    rules = re.findall(r'match\(nginx_reason, "([^"]+)"\), "([a-z_]+)"', expr)
+    assert len(rules) == expr.count("match(")
+    reason = fields("proxy", contains)["nginx_reason"]
+    found = [sig for pattern, sig in rules if pcre(pattern).search(reason)]
+    assert found == ([signature] if signature else [])
+    app_rule = re.search(r'match\(nginx_reason, "([^"]+)"\)', props["idlab:nginx:error"]["EVAL-app"]).group(1)
+    assert bool(pcre(app_rule).search(reason)) == bool(signature)
+    if signature:
+        assert {row["signature"]: row["runbook"] for row in causes()}[signature] == runbook
+
+
+def test_forwarded_headers_cause_names_the_proxy():
+    f = fields("keycloak", "invalid_destination")
+    assert (f["kc_error"], f["kc_reason"]) == ("invalid_authn_request", "invalid_destination")
+    row = {r["signature"]: r for r in causes()}["kc_invalid_destination"]
+    assert row["runbook"] == "09-proxy-forwarded-headers"
+    assert row["cause"].startswith("Reverse proxy is the likely cause") and "nginx logs nothing" in row["cause"]
 
 
 def test_eventtypes_and_tags_line_up():
