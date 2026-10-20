@@ -14,6 +14,17 @@ explains it.
 It ships with sample data captured from a real identity-lab run, so you
 can try it without the lab.
 
+![Support overview](docs/screenshots/overview.png)
+*Support overview: failures, users affected, first and latest failure, and failures over time by likely cause.*
+
+![When did it start?](docs/screenshots/when-did-it-start.png)
+*When did it start? Each likely cause with its first and last occurrence, who is affected and its runbook.*
+
+![Who is affected?](docs/screenshots/who-is-affected.png)
+*Who is affected? End users and service accounts, with RADIUS rejects versus no reply and LDAP result 49 below.*
+
+The screenshots show real identity-lab data. All times are UTC.
+
 ## Try it in 5 minutes
 
 You need Docker with Compose, Python 3.12 or later, and about 2 GB of
