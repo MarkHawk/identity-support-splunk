@@ -158,6 +158,8 @@ starts, so a Java stack trace or a Python traceback stays whole.
    python3 scripts/package_app.py   # writes dist/identity_support-<version>.tgz
    ```
 
+   What changed between versions is in [CHANGELOG.md](CHANGELOG.md).
+
 2. Install it, either:
    - in Splunk Web: *Apps > Manage Apps > Install app from file*; or
    - from the CLI: `splunk install app <file> -auth admin`.
