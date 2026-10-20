@@ -318,7 +318,8 @@ def fake_docker(calls):
     def runner(cmd):
         calls.append(cmd)
         if cmd[1] == "ps":
-            out = "identity-lab-keycloak-1\tkeycloak\nidentity-lab-postgres-1\tpostgres\nidentity-lab-nas-1\tnas\n"
+            out = ("identity-lab-keycloak-1\tkeycloak\nidentity-lab-postgres-1\tpostgres\nidentity-lab-nas-1\tnas\n"
+                   "identity-lab-proxy-1\tproxy\nidentity-lab-oidc-rp-proxied-1\toidc-rp-proxied\n")
             return subprocess.CompletedProcess(cmd, 0, out, "")
         # stdout and stderr interleave by time
         return subprocess.CompletedProcess(cmd, 0, KEYCLOAK[0] + "\n" + KEYCLOAK[3] + "\n",
@@ -328,7 +329,13 @@ def fake_docker(calls):
 
 def test_compose_containers_keeps_known_services():
     assert hec_send.compose_containers("identity-lab", runner=fake_docker([])) == {
-        "keycloak": "identity-lab-keycloak-1", "nas": "identity-lab-nas-1"}
+        "keycloak": "identity-lab-keycloak-1", "nas": "identity-lab-nas-1", "proxy": "identity-lab-proxy-1",
+        "oidc-rp-proxied": "identity-lab-oidc-rp-proxied-1"}
+
+
+def test_proxy_and_proxied_apps_are_shipped():
+    assert hec_send.SERVICES["proxy"] == "idlab:nginx"
+    assert hec_send.SERVICES["saml-sp-proxied"] == hec_send.SERVICES["oidc-rp-proxied"] == "idlab:sp"
 
 
 def test_container_lines_merges_streams_in_time_order():

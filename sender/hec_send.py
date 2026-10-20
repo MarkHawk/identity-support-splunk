@@ -56,6 +56,10 @@ SERVICES = {
     "keycloak": "idlab:keycloak",
     "saml-sp": "idlab:sp",
     "oidc-rp": "idlab:sp",
+    "saml-sp-proxied": "idlab:sp",
+    "oidc-rp-proxied": "idlab:sp",
+    # nginx access and error logs in one stream; props.conf types each line.
+    "proxy": "idlab:nginx",
     "radius": "idlab:radius",
     "nas": "idlab:nas",
     "ldap": "idlab:slapd",
@@ -77,6 +81,7 @@ EVENT_START = {
     "idlab:radius": DOCKER_TS,
     "idlab:nas": DOCKER_TS,
     "idlab:slapd": DOCKER_TS,
+    "idlab:nginx": DOCKER_TS,
 }
 
 

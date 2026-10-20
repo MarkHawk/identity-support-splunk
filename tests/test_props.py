@@ -15,6 +15,9 @@ props = read_conf("props.conf")
 transforms = read_conf("transforms.conf")
 FIXTURES = ROOT / "tests/fixtures/lab"
 LOG_SOURCETYPES = sorted(set(hec_send.SERVICES.values()))
+# Sourcetypes events are searched under: idlab:nginx lines are given their
+# own type at index time.
+SEARCH_SOURCETYPES = sorted(set(LOG_SOURCETYPES) - {"idlab:nginx"})
 
 
 def events(service):
@@ -152,7 +155,7 @@ def test_slapd_bind_and_result_join_on_conn_and_op():
 def eval_signatures():
     """Every literal signature the EVAL-signature expressions can produce."""
     found = set()
-    for sourcetype in LOG_SOURCETYPES:
+    for sourcetype in SEARCH_SOURCETYPES:
         expr = props[sourcetype].get("EVAL-signature", "")
         # a literal ending in "_" is a prefix (such as "ldap_bind_" . err), not a signature
         found |= {s for s in re.findall(r'(?<![=!]=)"([a-z]+_[a-z0-9_]+)"', expr) if not s.endswith("_")}
@@ -180,7 +183,7 @@ def test_causes_link_identity_lab_runbooks():
 
 
 def test_every_log_sourcetype_looks_up_causes():
-    for sourcetype in LOG_SOURCETYPES:
+    for sourcetype in SEARCH_SOURCETYPES:
         assert props[sourcetype]["LOOKUP-support_causes"] == "support_causes signature OUTPUT cause runbook runbook_url"
     assert transforms["support_causes"]["filename"] == "support_causes.csv"
 

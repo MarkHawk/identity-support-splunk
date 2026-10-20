@@ -19,6 +19,12 @@ LDAP_LOG = (
     "2026-10-19T18:30:01.000100000Z x y conn=7 op=0 RESULT tag=97 err=0 qtime=0 etime=0 text=\n"
 )
 
+# The proxy's access log is on stdout and its error log on stderr.
+PROXY_OUT = (f'2026-10-19T18:31:00.000100000Z {LAB_IP} "GET / HTTP/1.1" 502 552 host=rp.idlab.example:8185 '
+             "upstream=192.0.2.32:8182 upstream_status=502 request_time=0.002 upstream_time=0.002\n")
+PROXY_ERR = ("2026-10-19T18:31:00.000000000Z 2026/10/19 18:31:00 [error] 184#184: *69 upstream prematurely closed "
+             f'connection while reading response header from upstream, client: {LAB_IP}, server: , request: "GET / HTTP/1.1"\n')
+
 
 class FakeSystem:
     """Answers docker, token-inspector and rate-limit-probe; records every command."""
@@ -31,7 +37,10 @@ class FakeSystem:
         ok = lambda out, err="": subprocess.CompletedProcess(cmd, 0, out, err)  # noqa: E731
         if cmd[:2] == ["docker", "ps"]:
             return ok("identity-lab-keycloak-1\tkeycloak\nidentity-lab-ldap-1\tldap\n"
-                      "identity-lab-nas-1\tnas\nidentity-lab-postgres-1\tpostgres\n")
+                      "identity-lab-nas-1\tnas\nidentity-lab-postgres-1\tpostgres\n"
+                      "identity-lab-proxy-1\tproxy\nidentity-lab-saml-sp-proxied-1\tsaml-sp-proxied\n")
+        if cmd[:2] == ["docker", "logs"] and cmd[-1] == "identity-lab-proxy-1":
+            return ok(PROXY_OUT, PROXY_ERR)
         if cmd[:2] == ["docker", "logs"]:
             return ok({"identity-lab-keycloak-1": KEYCLOAK_LOG, "identity-lab-ldap-1": LDAP_LOG}.get(cmd[-1], ""))
         if cmd[0].endswith("token-inspector"):
@@ -94,6 +103,15 @@ def test_samples_are_sanitised_and_empty_logs_skipped(setup):
     assert not (samples / "logs/nas.log").exists()          # nothing logged
     assert not (samples / "logs/ldap.log").exists()         # only health-check binds, trimmed away
     assert LAB_IP in (setup["tmp"] / "raw/logs/keycloak.log").read_text()  # raw stays raw, and gitignored
+
+
+def test_proxy_logs_both_streams_in_time_order(setup):
+    capture.main(setup["argv"] + ["--since", "2026-10-19T18:00:00Z", "--no-tools"], out=io.StringIO(), runner=FakeSystem())
+    proxy = (setup["tmp"] / "samples/logs/proxy.log").read_text().splitlines()
+    assert "[error]" in proxy[0] and " 502 " in proxy[1]
+    assert LAB_IP not in "".join(proxy)
+    meta = json.loads((setup["tmp"] / "samples/capture.json").read_text())
+    assert meta["lines"]["proxy"] == 2 and meta["lines"]["saml-sp-proxied"] == 0
 
 
 def test_tool_reports_with_their_arguments_and_time(setup):

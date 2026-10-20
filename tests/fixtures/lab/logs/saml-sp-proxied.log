@@ -1,0 +1,4 @@
+2026-10-19T18:20:00.000000000Z 2026-10-19 18:20:00,000 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_5cefedd9905ddb7f3850a917f04368578483bec9
+2026-10-19T18:20:00.000100000Z 192.0.2.30 - - [19/Oct/2026:18:20:00 +0000] "GET /login HTTP/1.1" 302 2497 "https://sp.idlab.example:8184/" "Mozilla/5.0"
+2026-10-19T18:20:01.000000000Z 2026-10-19 18:20:01,000 INFO saml-sp event=saml_login_ok name_id=alice@idlab.example assertion_id=ID_8da9eda8
+2026-10-19T18:20:01.000100000Z 192.0.2.30 - - [19/Oct/2026:18:20:01 +0000] "POST /saml/acs HTTP/1.1" 302 199 "-" "Mozilla/5.0"
