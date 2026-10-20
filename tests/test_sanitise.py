@@ -1,5 +1,7 @@
 import base64
 import json
+import urllib.parse
+import zlib
 
 import pytest
 
@@ -63,6 +65,23 @@ def test_private_key_hidden_in_base64_stops_the_run():
     hidden = base64.b64encode((KEY_HEADER + "\nAAAA" * 10).encode()).decode()
     with pytest.raises(sanitise.UnsafeContent):
         sanitise.Sanitiser().text("blob=" + hidden)
+
+
+def test_deflated_saml_request_in_a_url_is_checked(tmp_path, monkeypatch):
+    """A SAML redirect binding sends the AuthnRequest deflated, base64 and
+    URL-encoded; a proxy's access log records it in the query string."""
+    monkeypatch.setattr(sanitise, "PERSONAL_FILE", tmp_path / "absent")
+    deflate = zlib.compressobj(wbits=-zlib.MAX_WBITS)
+    request = f'<samlp:AuthnRequest Destination="https://{OTHER}:8183/realms/idlab/protocol/saml"/>'.encode()
+    encoded = urllib.parse.quote(base64.b64encode(deflate.compress(request) + deflate.flush()).decode(), safe="")
+    line = f'192.0.2.10 "GET /realms/idlab/protocol/saml?SAMLRequest={encoded}&RelayState=%2F HTTP/1.1" 200 1\n'
+    (tmp_path / "proxy.log").write_text(line)
+    assert sanitise.check_paths([tmp_path / "proxy.log"], personal=[]) == [(str(tmp_path / "proxy.log"), "private IPv4 address")]
+
+
+def test_url_encoded_email_is_checked(tmp_path):
+    (tmp_path / "proxy.log").write_text(f'"GET /x?login_hint={urllib.parse.quote(CORP)} HTTP/1.1"\n')
+    assert [k for _, k in sanitise.check_paths([tmp_path / "proxy.log"], personal=[])] == ["email address"]
 
 
 def test_json_reports_are_sanitised_value_by_value(tmp_path):

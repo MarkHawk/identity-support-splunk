@@ -11,7 +11,8 @@ case-sensitively; lines starting with "re:" are regular expressions, so
 .personal-patterns.example is deliberately empty.
 
 Base64 can hide any of these, so the checker also scans decoded base64 and
-JWT segments.
+JWT segments, URL-decoded text, and deflated base64 (a SAML redirect-binding
+SAMLRequest in a proxy's access log).
 
 Sanitising rewrites rather than deletes, so the samples still tell the story:
 each private address becomes its own documentation address (192.0.2.10,
@@ -36,6 +37,8 @@ import pathlib
 import shutil
 import re
 import sys
+import urllib.parse
+import zlib
 
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 PERSONAL_FILE = ROOT / ".personal-patterns"
@@ -105,19 +108,32 @@ def _b64url_decode(segment):
     return base64.urlsafe_b64decode(segment + "=" * (-len(segment) % 4))
 
 
+def _inflate(raw):
+    """Raw DEFLATE data decompressed, or None."""
+    try:
+        return zlib.decompress(raw, -zlib.MAX_WBITS)
+    except zlib.error:
+        return None
+
+
 def decoded_views(text):
-    """The text plus decoded forms of any base64 or JWT content inside it."""
+    """The text plus decoded forms of any URL-encoded, base64 (also deflated)
+    or JWT content inside it."""
     views = [text]
-    for blob in _B64_BLOB.findall(text):
+    unquoted = urllib.parse.unquote(text) if "%" in text else text
+    if unquoted != text:
+        views.append(unquoted)
+    for blob in _B64_BLOB.findall(unquoted):
         for decoder in (base64.b64decode, _b64url_decode):
             try:
                 raw = decoder(blob + "=" * (-len(blob) % 4)) if decoder is base64.b64decode else decoder(blob)
             except (binascii.Error, ValueError):
                 continue
-            try:
-                views.append(raw.decode("utf-8"))
-            except UnicodeDecodeError:
-                pass
+            for data in (raw, _inflate(raw)):
+                try:
+                    views.append(data.decode("utf-8"))
+                except (AttributeError, UnicodeDecodeError):
+                    pass
     for token in re.findall(r"[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]{8,}\.[A-Za-z0-9_-]*", text):
         for segment in token.split(".")[:2]:
             try:
