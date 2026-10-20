@@ -154,3 +154,14 @@ def test_proxy_panels():
     colours = d["visualizations"]["viz_proxy_status"]["options"]["seriesColorsByField"]
     assert {"429", "502", "504"} <= set(colours)
     assert "eventtype=idlab_proxy_error" in read_conf("macros.conf")["support_failures"]["definition"]
+
+
+@pytest.mark.parametrize("name, runbooks", [
+    ("Reverse proxy 502/504 spike", {"06-proxy-bad-gateway", "07-proxy-gateway-timeout", "10-proxy-header-too-large"}),
+    ("Reverse proxy rate limiting logins", {"08-proxy-rate-limit"}),
+])
+def test_proxy_alerts_link_their_runbooks(name, runbooks):
+    s = read_conf("savedsearches.conf")[name]
+    assert set(re.findall(r"/runbooks/([0-9]{2}-[a-z-]+)\.md", s["description"])) == runbooks
+    assert "where " in s["search"] and ">= 3" in s["search"]
+    assert (s["dispatch.earliest_time"], s["cron_schedule"]) == ("-5m@m", "*/5 * * * *")
