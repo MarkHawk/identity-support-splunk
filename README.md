@@ -4,8 +4,8 @@
 questions every support ticket starts with: when did it start, who is
 affected, and what is the likely cause?** It reads the logs from every
 part of [identity-lab](https://github.com/MarkHawk/identity-lab) (the
-identity provider, the SAML and OIDC sample apps, the RADIUS server and
-NAS, and the LDAP directory), plus the JSON reports from
+identity provider, the SAML and OIDC sample apps, the nginx reverse proxy
+in front of them, the RADIUS server and NAS, and the LDAP directory), plus the JSON reports from
 [token-inspector](https://github.com/MarkHawk/token-inspector) and
 [rate-limit-probe](https://github.com/MarkHawk/rate-limit-probe). Each
 failure is matched to a likely cause and a link to the identity-lab
@@ -73,6 +73,13 @@ and 8088 alone.
 - *Who is affected?* End users and service accounts, each with their apps
   and causes. A failed bind as `uid=...` counts as that user's own password
   being rejected, not as an outage.
+- *Reverse proxy: responses over time.* Every request through the proxy by
+  status, with 2xx and 3xx grouped and each error code on its own.
+- *Reverse proxy: 5xx and 429 by likely cause.* One row per reason in the
+  proxy's error log (bad gateway, gateway timeout, rate limit, IdP headers
+  too large), with the route and the runbook. Wrong `X-Forwarded-*`
+  headers leave nothing in nginx's logs. They show in *When did it start?*
+  as the Keycloak error they cause, whose likely cause names the proxy.
 - *RADIUS: Access-Reject versus no reply.* A reject means the server
   answered no. No reply means it dropped or ignored the request (a shared
   secret mismatch, or an unknown NAS), which users see as a timeout.
@@ -93,11 +100,14 @@ and 8088 alone.
 | RADIUS server not responding | any request dropped or ignored in the last 5 minutes | 05 |
 | LDAP bind failing (result 49) | a service account's bind, or the IdP's LDAP federation, fails with 49 in the last 15 minutes (one user's wrong password does not count) | 04 |
 | SAML certificate or clock problem | the SP refuses logins for a certificate or clock reason in the last 15 minutes | 01, 02 |
+| Reverse proxy 502/504 spike | the proxy answers 502 or 504 at least 3 times in 5 minutes; lists the reasons from its error log | 06, 07, 10 |
+| Reverse proxy rate limiting logins | the proxy's rate limit refuses at least 3 requests (429) in 5 minutes | 08 |
 | rate-limit-probe found a problem | a report in the last hour has a FAIL | (the report's own next step) |
 
 The samples set off the LDAP and SAML alerts at the next five-minute run.
-The RADIUS alert looks back only five minutes, so it can miss them by the
-time it runs. The capture is also too short for the SSO spike. On Splunk
+The RADIUS and proxy 502/504 alerts look back only five minutes, so they
+can miss them by the time they run. The capture is also too short for the
+SSO spike, and has a single 429, below the rate-limit alert's threshold. On Splunk
 Free there is no alerting: the same searches still run as reports.
 
 ## How it works
@@ -113,7 +123,9 @@ starts, so a Java stack trace or a Python traceback stays whole.
 | Sourcetype | From | Key fields |
 |---|---|---|
 | `idlab:keycloak` | identity provider | `kc_type`, `kc_error`, `kc_clientId`, `kc_username`, `ldap_result_code` (from stack traces) |
-| `idlab:sp` | SAML SP and OIDC RP | `event`, `reason`, `error`, `name_id` / `email`; health checks dropped at index time |
+| `idlab:sp` | SAML SP and OIDC RP, and their copies behind the proxy | `event`, `reason`, `error`, `name_id` / `email`; `app` ends in `-proxied` for the copies; health checks dropped at index time |
+| `idlab:nginx:access` | reverse proxy access log | `status`, `request`, `src`, `site`, `upstream`, `upstream_status`, `request_time`, `upstream_time`, `upstream_response_time` (seconds, from the last upstream tried) |
+| `idlab:nginx:error` | reverse proxy error log | `log_level`, `nginx_reason` (the reason text), `src`, `request`, `upstream`, `site`, `limit_zone` |
 | `idlab:radius` | RADIUS server | `radius_result`, `radius_outcome` (Access-Accept, Access-Reject, no reply), `user`, `nas_client` |
 | `idlab:nas` | NAS client output | `nas_result`, `radius_outcome`, `attempts` |
 | `idlab:slapd` | LDAP directory | `conn`, `op`, `bind_dn`, `err` (a bind is two lines, joined on `conn` and `op`) |
@@ -122,7 +134,14 @@ starts, so a Java stack trace or a Python traceback stays whole.
 
 - **CIM:** login events map to the Authentication data model (`action`,
   `app`, `dest`, `src`, `user`, `reason`, `signature`), tagged
-  `authentication`. So do the directory's failed binds.
+  `authentication`. So do the directory's failed binds. The proxy's access
+  log maps to the Web data model, tagged `web`.
+- **The proxy's two logs** arrive in one stream from the container, as
+  `idlab:nginx`. Each line is typed `idlab:nginx:access` or
+  `idlab:nginx:error` at index time, so the typing does not depend on
+  how the lines reach Splunk. nginx cuts an
+  error line at about 2 KB, so a line for a long SAML request can end
+  without its upstream and host.
 - **Likely cause:** each failure gets a short `signature`, such as
   `saml_clock_skew` or `radius_bad_shared_secret`. The
   [`support_causes`](identity_support/lookups/support_causes.csv) lookup
@@ -221,6 +240,12 @@ writes a sanitised copy to `samples/`.
   every file.
 - Personal email addresses, home directories and the personal strings in
   your local `.personal-patterns` are replaced.
+- Single-use login values in URLs (authorisation codes, `state`, `nonce`,
+  Keycloak's session codes, SAML requests and responses, signatures)
+  become `masked-<name>-N`. The same value gets the same name everywhere,
+  so a `state` still links an authorisation request to its callback.
+- Base64, deflated SAML requests and URL-encoded text are decoded before
+  the final check.
 - A private key anywhere stops the run.
 - Health-check noise is trimmed.
 
