@@ -23,6 +23,9 @@ you can try it without the lab.
 ![Who is affected?](docs/screenshots/who-is-affected.png)
 *Who is affected? End users and service accounts, with RADIUS rejects versus no reply and LDAP result 49 below.*
 
+![Reverse proxy](docs/screenshots/proxy.png)
+*Reverse proxy: responses over time by status, and each 502, 504 or 429 with its likely cause, route and runbook.*
+
 The screenshots show real identity-lab data. Times are shown in the Splunk user's time zone (UK time in these screenshots).
 
 ## Try it in 5 minutes
@@ -51,8 +54,8 @@ with the last 4 hours.
 
 When you've finished, `docker compose down -v` removes the stack and its
 data. Everything listens on 127.0.0.1 only, on ports 18000 (web), 18088
-(HEC) and 18089 (management). That leaves a Splunk you already run on 8000
-and 8088 alone.
+(HEC) and 18089 (management): Splunk's defaults plus 10000, so they don't
+clash with a Splunk you already run.
 
 ## What you see
 
