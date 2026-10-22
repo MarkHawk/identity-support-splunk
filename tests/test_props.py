@@ -399,6 +399,14 @@ def test_app_quoted_value_with_quotes_inside_is_kept_whole():
     assert f["detail"] == "ProxyError" and "port" not in f, "no pairs from inside a quoted value"
 
 
+def test_edge_rp_force_https_fields():
+    f = fields("oidc-rp-edge", "path=/login scheme=http")
+    assert (f["sp_app"], f["event"], f["path"], f["scheme"], f["x_forwarded_proto"]) == (
+        "oidc-rp", "force_https", "/login", "http", "-")
+    f = fields("oidc-rp-edge", '"GET /login HTTP/1.1" 302')
+    assert (f["src"], f["uri_path"], f["status"]) == ("192.0.2.40", "/login", "302")
+
+
 # --- the egress proxy (Squid) ------------------------------------------------
 
 def test_squid_access_fields():
@@ -505,6 +513,6 @@ def test_bypass_and_tls_rules_only_apply_to_the_app_behind_the_proxy():
     assert eval_case(props["idlab:sp"]["EVAL-signature"], f, "docker:oidc-rp") is None
 
 
-def test_egress_app_name():
-    expr = props["idlab:sp"]["EVAL-app"]
-    assert 'replace(source, "^.*(-proxied|-egress)$", "\\1")' in expr
+def test_proxied_egress_and_edge_app_names():
+    for key in ("EVAL-app", "EVAL-dest"):
+        assert 'replace(source, "^.*(-proxied|-egress|-edge)$", "\\1")' in props["idlab:sp"][key]

@@ -36,7 +36,7 @@ pytestmark = pytest.mark.skipif(not all(os.environ.get(n) for n in NEEDED),
 
 # Events the fixtures should produce once indexed: the healthz line is dropped.
 # The proxy's lines are all typed access or error at index time.
-EXPECTED = {"idlab:keycloak": 6, "idlab:sp": 24, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
+EXPECTED = {"idlab:keycloak": 6, "idlab:sp": 46, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
             "idlab:nginx:access": 7, "idlab:nginx:error": 7, "idlab:squid:access": 7, "idlab:squid:cache": 5,
             "token_inspector:report": 1, "rate_limit_probe:report": 1}
 
@@ -133,7 +133,8 @@ def test_sp_failure_without_a_known_cause_keeps_its_reason(host):
 def test_sp_login_ok_user(host):
     rows = search(f"`support_index` host={host} tag=authentication action=success sourcetype=idlab:sp | sort user app | table app user")
     assert [(r["app"], r["user"]) for r in rows] == [
-        ("saml-sp", "alice@idlab.example"), ("saml-sp-proxied", "alice@idlab.example"), ("oidc-rp", "dave@idlab.example")]
+        ("oidc-rp-edge", "alice@idlab.example"), ("saml-sp", "alice@idlab.example"),
+        ("saml-sp-proxied", "alice@idlab.example"), ("oidc-rp", "dave@idlab.example")]
 
 
 def test_proxied_app_failure_names_the_proxied_copy(host):
