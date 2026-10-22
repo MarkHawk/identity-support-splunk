@@ -203,3 +203,21 @@ def test_when_did_it_start_shows_every_cause_on_one_page():
     with (APP / "lookups/support_causes.csv").open(newline="") as f:
         causes = {row["cause"] for row in csv.DictReader(f)}
     assert d["visualizations"]["viz_by_cause"]["options"]["count"] >= len(causes)
+
+
+def test_cause_columns_are_wide():
+    """At an even split the cause text wraps to ten lines and the tables need twice the height."""
+    _, d = definition(APP / "default/data/ui/views/support_overview.xml")
+    v = d["visualizations"]
+    for viz, column in [("viz_by_cause", "cause"), ("viz_who", "causes"), ("viz_proxy_causes", "cause"),
+                        ("viz_egress_causes", "cause")]:
+        assert v[viz]["options"]["columnFormat"][column]["width"] >= 480, viz
+
+
+def test_api_panels():
+    _, d = definition(APP / "default/data/ui/views/support_overview.xml")
+    assert "eventtype=idlab_api_auth" in d["dataSources"]["ds_api_results"]["options"]["query"]
+    assert "`support_chart(result)`" in d["dataSources"]["ds_api_results"]["options"]["query"]
+    q = d["dataSources"]["ds_api_reasons"]["options"]["query"]
+    assert "action=failure" in q and "by reason status" in q and "_runbook_url=runbook_url" in q
+    assert "[search `support_redirect_loops`]" in d["dataSources"]["ds_failures"]["options"]["query"]

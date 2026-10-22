@@ -384,6 +384,7 @@ def overview_query(host, name):
         return full(s["options"]["extend"]) + " " + s["options"]["query"] if s["type"] == "ds.chain" else s["options"]["query"]
     q = full(name)
     q = q.replace("(`support_failures`)", f"(`support_failures` host={host})", 1)
+    q = q.replace("[search `support_redirect_loops`]", f"[search `support_redirect_loops` | search host={host}]", 1)
     q = q.replace("(`support_index` sourcetype=idlab:slapd", f"(`support_index` host={host} sourcetype=idlab:slapd", 1)
     if f"host={host}" not in q:
         q = q.replace("`support_index`", f"`support_index` host={host}", 1)
@@ -453,3 +454,27 @@ def test_overview_egress_panels(host):
         ("1", "1"), ("1", "3"), ("1", "1"), ("1", "0"), ("1", "0")]
     series = {k for r in search(overview_query(host, "ds_egress_status")) for k in r if not k.startswith("_")}
     assert series == {"tunnelled", "407", "403", "intercepted, no tunnel"}
+
+
+def test_overview_when_did_it_start_shows_loops_and_bearer_tokens(host):
+    rows = [r for r in search(overview_query(host, "ds_by_cause")) if r.get("runbook", "").startswith(("15-", "16-"))]
+    loops = {r["routes"]: r for r in rows if r["runbook"] == "15-redirect-loop"}
+    assert {k: (r["count"], r["apps"], r["affected"]) for k, r in loops.items()} == {
+        "/": ("1", "oidc-rp-edge", "not in log"), "/debug": ("1", "oidc-rp-edge", "not in log")}
+    assert loops["/"]["cause"].startswith("Redirect loop (too many redirects): the app forces HTTPS but gets no X-Forwarded-Proto")
+    [expired] = [r for r in rows if r["cause"].startswith("API refuses the access token as expired")]
+    assert expired["count"] == "2" and expired["affected"] == "2 users"
+    assert expired["cause"].endswith(". Token lifetime (exp - iat): 10 s, very short: check the client's access token lifespan in the IdP")
+    [audience] = [r for r in rows if r["cause"].startswith("API refuses the access token as not meant for it")]
+    assert "Token lifetime" not in audience["cause"] and audience["apps"] == "api"
+
+
+def test_overview_api_panels(host):
+    rows = search(overview_query(host, "ds_api_reasons"))
+    assert [(r["reason"], r["status"], r["count"], r.get("lifetime", "-")) for r in rows] == [
+        ("no_token", "401", "1", "-"), ("not_jwt", "401", "1", "-"), ("not_bearer", "400", "1", "-"),
+        ("wrong_audience", "401", "1", "-"), ("expired", "401", "2", "10 s")]
+    assert rows[3]["audiences"] == "idlab-api-staging account" and rows[3]["clients"] == "oidc-rp"
+    assert all(r["_runbook_url"].endswith("/16-api-bearer-401.md") for r in rows)
+    series = {k for r in search(overview_query(host, "ds_api_results")) for k in r if not k.startswith("_")}
+    assert series == {"accepted", "no_token", "not_jwt", "not_bearer", "wrong_audience", "expired"}
