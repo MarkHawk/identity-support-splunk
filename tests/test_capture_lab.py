@@ -25,6 +25,13 @@ PROXY_OUT = (f'2026-10-19T18:31:00.000100000Z {LAB_IP} "GET / HTTP/1.1" 502 552 
 PROXY_ERR = ("2026-10-19T18:31:00.000000000Z 2026/10/19 18:31:00 [error] 184#184: *69 upstream prematurely closed "
              f'connection while reading response header from upstream, client: {LAB_IP}, server: , request: "GET / HTTP/1.1"\n')
 
+# Squid's access log is on stdout; cache.log, with its indented detail
+# lines, on stderr.
+SQUID_OUT = (f"2026-10-19T18:32:00.000000000Z 1792434720.000     25 {LAB_IP} NONE_NONE/200 0 CONNECT keycloak:8180 "
+             f"- HIER_DIRECT/{LAB_IP} -\n")
+SQUID_ERR = ("2026-10-19T18:32:00.001000000Z 2026/10/19 18:32:00| ERROR: Cannot accept a TLS connection\n"
+             "2026-10-19T18:32:00.001100000Z     error detail: SQUID_TLS_ERR_ACCEPT+TLS_LIB_ERR=A000418+TLS_IO_ERR=1\n")
+
 
 class FakeSystem:
     """Answers docker, token-inspector and rate-limit-probe; records every command."""
@@ -38,9 +45,12 @@ class FakeSystem:
         if cmd[:2] == ["docker", "ps"]:
             return ok("identity-lab-keycloak-1\tkeycloak\nidentity-lab-ldap-1\tldap\n"
                       "identity-lab-nas-1\tnas\nidentity-lab-postgres-1\tpostgres\n"
-                      "identity-lab-proxy-1\tproxy\nidentity-lab-saml-sp-proxied-1\tsaml-sp-proxied\n")
+                      "identity-lab-proxy-1\tproxy\nidentity-lab-saml-sp-proxied-1\tsaml-sp-proxied\n"
+                      "identity-lab-squid-1\tsquid\nidentity-lab-oidc-rp-egress-1\toidc-rp-egress\n")
         if cmd[:2] == ["docker", "logs"] and cmd[-1] == "identity-lab-proxy-1":
             return ok(PROXY_OUT, PROXY_ERR)
+        if cmd[:2] == ["docker", "logs"] and cmd[-1] == "identity-lab-squid-1":
+            return ok(SQUID_OUT, SQUID_ERR)
         if cmd[:2] == ["docker", "logs"]:
             return ok({"identity-lab-keycloak-1": KEYCLOAK_LOG, "identity-lab-ldap-1": LDAP_LOG}.get(cmd[-1], ""))
         if cmd[0].endswith("token-inspector"):
@@ -112,6 +122,15 @@ def test_proxy_logs_both_streams_in_time_order(setup):
     assert LAB_IP not in "".join(proxy)
     meta = json.loads((setup["tmp"] / "samples/capture.json").read_text())
     assert meta["lines"]["proxy"] == 2 and meta["lines"]["saml-sp-proxied"] == 0
+
+
+def test_squid_logs_both_streams_in_time_order(setup):
+    capture.main(setup["argv"] + ["--since", "2026-10-19T18:00:00Z", "--no-tools"], out=io.StringIO(), runner=FakeSystem())
+    squid = (setup["tmp"] / "samples/logs/squid.log").read_text().splitlines()
+    assert "NONE_NONE/200" in squid[0] and "ERROR: Cannot accept" in squid[1] and "A000418" in squid[2]
+    assert LAB_IP not in "".join(squid)
+    meta = json.loads((setup["tmp"] / "samples/capture.json").read_text())
+    assert meta["lines"]["squid"] == 3 and meta["lines"]["oidc-rp-egress"] == 0
 
 
 def test_tool_reports_with_their_arguments_and_time(setup):

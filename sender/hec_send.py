@@ -58,8 +58,11 @@ SERVICES = {
     "oidc-rp": "idlab:sp",
     "saml-sp-proxied": "idlab:sp",
     "oidc-rp-proxied": "idlab:sp",
+    "oidc-rp-egress": "idlab:sp",
     # nginx access and error logs in one stream; props.conf types each line.
     "proxy": "idlab:nginx",
+    # Squid's access log (stdout) and cache.log (stderr); props.conf types each event.
+    "squid": "idlab:squid",
     "radius": "idlab:radius",
     "nas": "idlab:nas",
     "ldap": "idlab:slapd",
@@ -82,6 +85,9 @@ EVENT_START = {
     "idlab:nas": DOCKER_TS,
     "idlab:slapd": DOCKER_TS,
     "idlab:nginx": DOCKER_TS,
+    # An access line starts with epoch seconds, a cache.log message with its
+    # own date; cache.log's indented detail lines stay with the message.
+    "idlab:squid": DOCKER_TS + r"(?:\d{10}\.\d{3} |\d{4}/\d{2}/\d{2} \d{2}:\d{2}:\d{2}\| )",
 }
 
 

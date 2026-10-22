@@ -87,6 +87,15 @@ def test_proxy_lines_are_typed_access_or_error_at_index_time():
         assert "LINE_BREAKER" not in props[sourcetype], "search-time only: lines break as idlab:nginx"
 
 
+
+def test_squid_cache_log_detail_lines_stay_with_their_message():
+    squid = events("squid")
+    assert len(squid) == 12
+    tls = [e for e in squid if "Cannot accept a TLS connection" in e]
+    assert len(tls) == 1 and "TLS_LIB_ERR=A000418" in tls[0] and "current master transaction" in tls[0]
+    assert any("Accepting HTTP Socket" in e and "listening port: 3128" in e for e in squid)
+
+
 # --- fields ----------------------------------------------------------------
 
 def test_keycloak_event_fields():

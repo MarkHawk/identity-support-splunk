@@ -338,6 +338,11 @@ def test_proxy_and_proxied_apps_are_shipped():
     assert hec_send.SERVICES["saml-sp-proxied"] == hec_send.SERVICES["oidc-rp-proxied"] == "idlab:sp"
 
 
+def test_egress_proxy_and_its_app_are_shipped():
+    assert hec_send.SERVICES["squid"] == "idlab:squid"
+    assert hec_send.SERVICES["oidc-rp-egress"] == "idlab:sp"
+
+
 def test_container_lines_merges_streams_in_time_order():
     calls = []
     lines = hec_send.container_lines("identity-lab-keycloak-1", "15m", "2026-10-19T18:00:00Z",
