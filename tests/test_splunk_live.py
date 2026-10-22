@@ -332,6 +332,21 @@ def alert_query(host, name, threshold=None):
     return spl.replace(">= 3", f">= {threshold}") if threshold else spl
 
 
+def test_redirect_loop_alert(host):
+    spl = read_conf_search("App stuck in a redirect loop").replace(
+        "`support_redirect_loops`", f"`support_redirect_loops` | search host={host}", 1)
+    rows = {r["cause"]: r for r in search(spl)}
+    assert len(rows) == 2
+    [missing] = [r for c, r in rows.items() if "gets no X-Forwarded-Proto" in c]
+    assert (missing["app"], missing["loops"], missing["redirects"], missing["paths"]) == ("oidc-rp-edge", "1", "6", "/")
+    assert missing["runbook_url"].endswith("/15-redirect-loop.md")
+
+
+def read_conf_search(name):
+    from splunk_conf import read_conf
+    return read_conf("savedsearches.conf")[name]["search"]
+
+
 def test_egress_alert(host):
     rows = {r["runbook"]: r for r in search(alert_query(host, "Egress proxy refusing the IdP"))}
     assert set(rows) == {"11-proxy-auth-required", "12-proxy-policy-block", "13-proxy-tls-interception"}

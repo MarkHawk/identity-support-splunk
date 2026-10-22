@@ -56,7 +56,7 @@ def test_saved_searches_use_the_macros_and_name_a_runbook():
     assert saved.sections()
     for name in saved.sections():
         s = saved[name]
-        assert s["search"].startswith("`support_index`"), name
+        assert s["search"].startswith(("`support_index`", "`support_redirect_loops`")), name
         assert s["enableSched"] == "1" and s["alert.track"] == "1", name
         assert "action." not in " ".join(s), f"{name}: no alert actions are shipped"
         if name != "rate-limit-probe found a problem":
@@ -221,3 +221,10 @@ def test_api_panels():
     q = d["dataSources"]["ds_api_reasons"]["options"]["query"]
     assert "action=failure" in q and "by reason status" in q and "_runbook_url=runbook_url" in q
     assert "[search `support_redirect_loops`]" in d["dataSources"]["ds_failures"]["options"]["query"]
+
+
+def test_redirect_loop_alert():
+    s = read_conf("savedsearches.conf")["App stuck in a redirect loop"]
+    assert read_conf("macros.conf")["support_redirect_loops"]["definition"].startswith("`support_index`")
+    assert "15-redirect-loop.md" in s["description"]
+    assert (s["alert.suppress.fields"], s["alert.digest_mode"]) == ("host,app", "0")
