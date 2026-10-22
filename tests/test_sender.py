@@ -343,6 +343,12 @@ def test_egress_proxy_and_its_app_are_shipped():
     assert hec_send.SERVICES["oidc-rp-egress"] == "idlab:sp"
 
 
+def test_edge_rp_and_the_api_are_shipped():
+    assert hec_send.SERVICES["oidc-rp-edge"] == "idlab:sp"
+    assert hec_send.SERVICES["api"] == "idlab:api"
+    assert hec_send.EVENT_START["idlab:api"] == hec_send.EVENT_START["idlab:sp"]
+
+
 def test_container_lines_merges_streams_in_time_order():
     calls = []
     lines = hec_send.container_lines("identity-lab-keycloak-1", "15m", "2026-10-19T18:00:00Z",

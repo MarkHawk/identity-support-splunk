@@ -1,0 +1,22 @@
+2026-10-19T18:40:00.240000000Z 2026-10-19 18:40:00,240 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-19T18:40:00.240100000Z 192.0.2.40 - - [19/Oct/2026:18:40:00 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0"
+2026-10-19T18:40:00.242000000Z 2026-10-19 18:40:00,242 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-19T18:40:00.242100000Z 192.0.2.40 - - [19/Oct/2026:18:40:00 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0"
+2026-10-19T18:40:00.244000000Z 2026-10-19 18:40:00,244 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-19T18:40:00.244100000Z 192.0.2.40 - - [19/Oct/2026:18:40:00 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0"
+2026-10-19T18:40:00.246000000Z 2026-10-19 18:40:00,246 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-19T18:40:00.246100000Z 192.0.2.40 - - [19/Oct/2026:18:40:00 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0"
+2026-10-19T18:40:00.248000000Z 2026-10-19 18:40:00,248 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-19T18:40:00.248100000Z 192.0.2.40 - - [19/Oct/2026:18:40:00 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0"
+2026-10-19T18:40:00.250000000Z 2026-10-19 18:40:00,250 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-19T18:40:00.250100000Z 192.0.2.40 - - [19/Oct/2026:18:40:00 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0"
+2026-10-19T18:41:00.000000000Z 2026-10-19 18:41:00,000 INFO oidc-rp event=force_https path=/login scheme=http x_forwarded_proto=-
+2026-10-19T18:41:00.000100000Z 192.0.2.40 - - [19/Oct/2026:18:41:00 +0000] "GET /login HTTP/1.1" 302 240 "-" "curl/8.18.0"
+2026-10-19T18:42:00.100000000Z 2026-10-19 18:42:00,100 INFO oidc-rp event=force_https path=/debug scheme=http x_forwarded_proto=https
+2026-10-19T18:42:00.103000000Z 2026-10-19 18:42:00,103 INFO oidc-rp event=force_https path=/debug scheme=http x_forwarded_proto=https
+2026-10-19T18:42:00.106000000Z 2026-10-19 18:42:00,106 INFO oidc-rp event=force_https path=/debug scheme=http x_forwarded_proto=https
+2026-10-19T18:42:00.109000000Z 2026-10-19 18:42:00,109 INFO oidc-rp event=force_https path=/debug scheme=http x_forwarded_proto=https
+2026-10-19T18:42:00.112000000Z 2026-10-19 18:42:00,112 INFO oidc-rp event=force_https path=/debug scheme=http x_forwarded_proto=https
+2026-10-19T18:43:00.000000000Z 192.0.2.41 - - [19/Oct/2026:18:43:00 +0000] "GET / HTTP/1.1" 200 2548 "-" "Mozilla/5.0"
+2026-10-19T18:43:01.000000000Z 2026-10-19 18:43:01,000 INFO oidc-rp event=oidc_authorize_redirect redirect_uri=https://rp.idlab.example:8187/auth/callback
+2026-10-19T18:43:01.400000000Z 2026-10-19 18:43:01,400 INFO oidc-rp event=oidc_login_ok sub=0b6f6f1e-3c1b-4d4e-9a55-1f2e3d4c5b6a email=alice@idlab.example iss=https://idp.idlab.example:8183/realms/idlab elapsed=0.04s

@@ -32,6 +32,16 @@ SQUID_OUT = (f"2026-10-19T18:32:00.000000000Z 1792434720.000     25 {LAB_IP} NON
 SQUID_ERR = ("2026-10-19T18:32:00.001000000Z 2026/10/19 18:32:00| ERROR: Cannot accept a TLS connection\n"
              "2026-10-19T18:32:00.001100000Z     error detail: SQUID_TLS_ERR_ACCEPT+TLS_LIB_ERR=A000418+TLS_IO_ERR=1\n")
 
+# The RP behind the proxy's :8187 route, and the API it calls.
+EDGE_LOG = ("2026-10-22T08:44:57.240000000Z 2026-10-22 08:44:57,240 INFO oidc-rp event=force_https path=/ "
+            "scheme=http x_forwarded_proto=-\n"
+            f'2026-10-22T08:44:57.240100000Z {LAB_IP} - - [22/Oct/2026:08:44:57 +0000] "GET / HTTP/1.1" 302 235 "-" "curl/8.18.0"\n')
+API_LOG = ("2026-10-22T08:51:43.568000000Z 2026-10-22 08:51:43,568 WARNING api event=api_token_rejected "
+           "error=invalid_token error_description='The access token expired at 2026-10-22T08:52:26Z' "
+           "sub=e52e5f3f-8b98-4f7d-935e-3fa7bbacb59f azp=oidc-rp aud='idlab-api account' "
+           "iss=https://idlab.home:8180/realms/idlab exp=2026-10-22T08:52:26Z\n"
+           f'2026-10-22T08:51:43.568100000Z {LAB_IP} - - [22/Oct/2026:08:51:43 +0000] "GET /v1/whoami HTTP/1.1" 401 97 "-" "python-requests/2.34.2"\n')
+
 
 class FakeSystem:
     """Answers docker, token-inspector and rate-limit-probe; records every command."""
@@ -46,13 +56,15 @@ class FakeSystem:
             return ok("identity-lab-keycloak-1\tkeycloak\nidentity-lab-ldap-1\tldap\n"
                       "identity-lab-nas-1\tnas\nidentity-lab-postgres-1\tpostgres\n"
                       "identity-lab-proxy-1\tproxy\nidentity-lab-saml-sp-proxied-1\tsaml-sp-proxied\n"
-                      "identity-lab-squid-1\tsquid\nidentity-lab-oidc-rp-egress-1\toidc-rp-egress\n")
+                      "identity-lab-squid-1\tsquid\nidentity-lab-oidc-rp-egress-1\toidc-rp-egress\n"
+                      "identity-lab-oidc-rp-edge-1\toidc-rp-edge\nidentity-lab-api-1\tapi\n")
         if cmd[:2] == ["docker", "logs"] and cmd[-1] == "identity-lab-proxy-1":
             return ok(PROXY_OUT, PROXY_ERR)
         if cmd[:2] == ["docker", "logs"] and cmd[-1] == "identity-lab-squid-1":
             return ok(SQUID_OUT, SQUID_ERR)
         if cmd[:2] == ["docker", "logs"]:
-            return ok({"identity-lab-keycloak-1": KEYCLOAK_LOG, "identity-lab-ldap-1": LDAP_LOG}.get(cmd[-1], ""))
+            return ok({"identity-lab-keycloak-1": KEYCLOAK_LOG, "identity-lab-ldap-1": LDAP_LOG,
+                       "identity-lab-oidc-rp-edge-1": EDGE_LOG, "identity-lab-api-1": API_LOG}.get(cmd[-1], ""))
         if cmd[0].endswith("token-inspector"):
             return subprocess.CompletedProcess(cmd, 1, json.dumps({"tool": "token-inspector", "args": cmd[2:]}), "")
         if cmd[0].endswith("rate-limit-probe"):
@@ -131,6 +143,16 @@ def test_squid_logs_both_streams_in_time_order(setup):
     assert LAB_IP not in "".join(squid)
     meta = json.loads((setup["tmp"] / "samples/capture.json").read_text())
     assert meta["lines"]["squid"] == 3 and meta["lines"]["oidc-rp-egress"] == 0
+
+
+def test_edge_rp_and_api_are_collected(setup):
+    capture.main(setup["argv"] + ["--since", "2026-10-19T18:00:00Z", "--no-tools"], out=io.StringIO(), runner=FakeSystem())
+    edge = (setup["tmp"] / "samples/logs/oidc-rp-edge.log").read_text()
+    api = (setup["tmp"] / "samples/logs/api.log").read_text()
+    assert "event=force_https" in edge and "event=api_token_rejected" in api
+    assert LAB_IP not in edge + api
+    meta = json.loads((setup["tmp"] / "samples/capture.json").read_text())
+    assert meta["lines"]["oidc-rp-edge"] == 2 and meta["lines"]["api"] == 2
 
 
 def test_tool_reports_with_their_arguments_and_time(setup):

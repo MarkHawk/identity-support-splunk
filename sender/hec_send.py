@@ -59,6 +59,10 @@ SERVICES = {
     "saml-sp-proxied": "idlab:sp",
     "oidc-rp-proxied": "idlab:sp",
     "oidc-rp-egress": "idlab:sp",
+    # The RP behind the proxy's :8187 route, plain HTTP and forcing HTTPS.
+    "oidc-rp-edge": "idlab:sp",
+    # The API (resource server) that checks Keycloak access tokens.
+    "api": "idlab:api",
     # nginx access and error logs in one stream; props.conf types each line.
     "proxy": "idlab:nginx",
     # Squid's access log (stdout) and cache.log (stderr); props.conf types each event.
@@ -81,6 +85,8 @@ _DOCKER_TS = re.compile(r"^(\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2})\.(\d{9})Z ")
 EVENT_START = {
     "idlab:keycloak": DOCKER_TS + r"\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} ",
     "idlab:sp": DOCKER_TS + r"(?:\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} |\[\d{4}-\d{2}-\d{2} |\S+ - \S+ \[)",
+    # The API logs as the RP does: Python logging, gunicorn and access lines.
+    "idlab:api": DOCKER_TS + r"(?:\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2},\d{3} |\[\d{4}-\d{2}-\d{2} |\S+ - \S+ \[)",
     "idlab:radius": DOCKER_TS,
     "idlab:nas": DOCKER_TS,
     "idlab:slapd": DOCKER_TS,
