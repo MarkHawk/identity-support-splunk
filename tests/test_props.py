@@ -169,9 +169,23 @@ def test_proxy_access_fields():
     f = fields("proxy", '" 504 ')
     assert (f["src"], f["http_method"], f["uri_path"], f["status"], f["bytes"]) == (
         "192.0.2.10", "GET", "/auth/callback", "504", "562")
-    assert f["request"] == "GET /auth/callback?state=masked-state-1&code=masked-code-1 HTTP/1.1"
+    # identity-lab masks state, session_state and code itself, as ***
+    assert f["request"] == ("GET /auth/callback?state=***&session_state=***"
+                            "&iss=https%3A%2F%2Fidp.idlab.example%3A8183%2Frealms%2Fidlab&code=*** HTTP/1.1")
     assert (f["site"], f["upstream"], f["upstream_status"]) == ("rp.idlab.example:8185", "192.0.2.32:8182", "504")
     assert (f["request_time"], f["upstream_time"]) == ("5.005", "5.004")
+
+
+@pytest.mark.parametrize("contains, uri_path, status", [
+    ("SAMLRequest=***", "/realms/idlab/protocol/saml", "502"),         # masked by the lab
+    ("SAMLRequest=masked-", "/realms/idlab/protocol/saml", "400"),     # masked by sanitise.py
+    ("session_code=masked-", "/realms/idlab/login-actions/authenticate", "429"),
+])
+def test_proxy_access_with_masked_values(contains, uri_path, status):
+    access = [e for e in events("proxy") if contains in e and "[error]" not in e]
+    assert len(access) == 1
+    f = extract(props["idlab:nginx:access"], transforms, access[0])
+    assert (f["uri_path"], f["status"], f["site"]) == (uri_path, status, "idp.idlab.example:8183")
 
 
 def test_proxy_access_answered_by_nginx_itself():
@@ -212,6 +226,13 @@ def test_proxy_error_line_cut_short_by_nginx():
     f = fields("proxy", "too big header")
     assert f["uri_path"] == "/realms/idlab/protocol/saml"
     assert f["upstream"].endswith("&Signature=masked-Signa") and "site" not in f
+    assert f["request"].startswith("GET /realms/idlab/protocol/saml?SAMLRequest=***&RelayState=%2Fdebug&")
+
+
+def test_proxy_error_with_values_masked_by_the_lab():
+    f = fields("proxy", "timed out")
+    assert (f["uri_path"], f["site"]) == ("/auth/callback", "rp.idlab.example:8185")
+    assert f["upstream"].startswith("https://192.0.2.32:8182/auth/callback?state=***&session_state=***&")
 
 
 def test_proxy_notice_lines():
@@ -330,6 +351,16 @@ def test_calculated_fields_never_use_each_other():
             if key.startswith("EVAL-"):
                 used = set(re.findall(r"(?<![\w.\"'])([A-Za-z_][\w.]*)\b(?!\s*\()", re.sub(r'"[^"]*"', '""', expr)))
                 assert not (used & calculated) - {key.removeprefix("EVAL-")}, (sourcetype, key)
+
+
+
+def test_app_lines_with_values_masked_by_the_lab():
+    f = fields("oidc-rp", "detail='state=***'")
+    assert (f["event"], f["reason"], f["error"], f["detail"]) == (
+        "oidc_login_failed", "access_denied", "User denied consent", "state=***")
+    assert "state" not in f, "the quoted detail is one value, not a field of its own"
+    f = fields("oidc-rp-egress", "/auth/callback?state=***")
+    assert (f["src"], f["http_method"], f["uri_path"], f["status"]) == ("192.0.2.30", "GET", "/auth/callback", "502")
 
 
 # --- the egress proxy (Squid) ------------------------------------------------

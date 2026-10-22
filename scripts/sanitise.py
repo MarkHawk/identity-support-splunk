@@ -67,6 +67,10 @@ ONE_TIME_PARAMS = ("code", "session_code", "session_state", "state", "nonce", "c
                    "SAMLRequest", "SAMLResponse", "Signature")
 ONE_TIME_VALUE = re.compile(r"(?<=[?&])(" + "|".join(ONE_TIME_PARAMS) + r")=([^&\s\"]+)")
 MASKED = "masked-"
+# identity-lab masks code, state, session_state and the SAML messages
+# itself, as ***; those stay as they are (numbering them would claim every
+# *** was the same value).
+LAB_MASKED = "***"
 # What the checker counts as unmasked: a value long enough to be real.
 UNMASKED_VALUE = re.compile(r"(?<=[?&])(?:" + "|".join(ONE_TIME_PARAMS) + r")=(?!" + MASKED + r")[^&\s\"]{8,}")
 
@@ -179,7 +183,7 @@ class Sanitiser:
 
     def _one_time(self, match):
         name, value = match.groups()
-        if value.startswith(MASKED):
+        if value.startswith(MASKED) or value == LAB_MASKED:
             return match.group(0)
         if (name, value) not in self.one_time:
             n = sum(1 for k in self.one_time if k[0] == name) + 1

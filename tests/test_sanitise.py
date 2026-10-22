@@ -101,6 +101,20 @@ def test_single_use_login_values_are_masked_consistently():
     assert s.text(callback) == callback
 
 
+def test_values_the_lab_masked_stay_as_they_are():
+    s = sanitise.Sanitiser()
+    # the lab leaves nonce, code_challenge and Signature as they are
+    nonce, challenge = "B1F2" + "XynaUbcwdnLLszVc", "4Vrz" + "pRRXfIqKCe0X"
+    line = '"GET /auth?response_type=code&state=***&nonce=' + nonce + "&code_challenge=" + challenge + ' HTTP/1.1"'
+    assert s.text(line) == ('"GET /auth?response_type=code&state=***&nonce=masked-nonce-1'
+                            '&code_challenge=masked-code_challenge-1 HTTP/1.1"')
+    assert s.text("/auth/callback?state=***&session_state=***&code=***") == (
+        "/auth/callback?state=***&session_state=***&code=***")
+    assert s.text("/protocol/saml?SAMLRequest=***&Signature=" + "dAqUfr%2Fu9ES") == (
+        "/protocol/saml?SAMLRequest=***&Signature=masked-Signature-1")
+    assert sanitise.find_problems("/auth/callback?state=***&code=***") == []
+
+
 def test_check_finds_unmasked_single_use_values(tmp_path):
     # built at run time, so the hygiene test never sees an unmasked value here
     (tmp_path / "a.log").write_text("GET /realms/idlab/login-actions/authenticate?session_code=" + "E4Q6cUOsih3eHTtVX\n")
