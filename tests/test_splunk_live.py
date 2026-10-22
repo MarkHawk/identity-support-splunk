@@ -68,9 +68,17 @@ def host():
     while time.time() < deadline:
         rows = search(f"`support_index` host={name} | stats count by sourcetype")
         if {r["sourcetype"]: int(r["count"]) for r in rows} == EXPECTED:
+            break
+        time.sleep(3)
+    else:
+        pytest.fail(f"indexed events never matched {EXPECTED}: {rows}")
+    # Just after Splunk starts, events are searchable before the app's
+    # search-time fields apply to them: wait for a calculated field too.
+    while time.time() < deadline:
+        if search(f"`support_index` host={name} signature=egress_proxy_tls_untrusted | stats count") == [{"count": "1"}]:
             return name
         time.sleep(3)
-    pytest.fail(f"indexed events never matched {EXPECTED}: {rows}")
+    pytest.fail("the app's search-time fields never applied to the replayed events")
 
 
 def one(host, spl):
