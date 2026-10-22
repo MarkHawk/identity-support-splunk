@@ -149,6 +149,15 @@ def test_edge_rp_force_https_fields(host):
     assert {(r["scheme"], r["x_forwarded_proto"]): r["count"] for r in rows} == {("http", "-"): "7", ("http", "https"): "5"}
 
 
+def test_redirect_loops_are_bursts(host):
+    rows = search(f"`support_redirect_loops` | search host={host} app=oidc-rp-edge | eval t=strftime(_time, \"%H:%M:%S\") "
+                  "| table t redirects route signature runbook")
+    # the lone /login redirect at 18:41 is not a loop
+    assert [(r["t"], r["redirects"], r["route"], r["signature"], r["runbook"]) for r in rows] == [
+        ("18:40:00", "6", "/", "redirect_loop_no_forwarded_proto", "15-redirect-loop"),
+        ("18:42:00", "5", "/debug", "redirect_loop_proxy_hops", "15-redirect-loop")]
+
+
 def test_api_calls_are_cim_authentication(host):
     rows = search(f"`support_index` host={host} tag=authentication sourcetype=idlab:api "
                   "| fillnull value=- user | stats count by action app dest status user")

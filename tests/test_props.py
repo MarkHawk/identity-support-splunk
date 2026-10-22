@@ -572,3 +572,19 @@ def test_api_causes_point_at_runbook_16():
     assert set(rows) == {s for s in eval_signatures() if s.startswith("api_bearer_")}
     assert {r["runbook"] for r in rows.values()} == {"16-api-bearer-401"}
     assert "audience" in rows["api_bearer_wrong_audience"]["cause"] and "azp" in rows["api_bearer_wrong_audience"]["cause"]
+
+
+def test_redirect_loop_signatures_have_causes():
+    macro = read_conf("macros.conf")["support_redirect_loops"]["definition"]
+    signatures = set(re.findall(r'"(redirect_loop_[a-z_]+)"', macro))
+    rows = {r["signature"]: r for r in causes() if r["signature"].startswith("redirect_loop_")}
+    assert signatures == set(rows) == {
+        "redirect_loop_no_forwarded_proto", "redirect_loop_proxy_hops", "redirect_loop_forwarded_not_https"}
+    assert {r["runbook"] for r in rows.values()} == {"15-redirect-loop"}
+
+
+def test_a_redirect_loop_is_a_burst_not_one_redirect():
+    macro = read_conf("macros.conf")["support_redirect_loops"]["definition"]
+    assert "_time - loop_prev > 2" in macro and "where redirects >= 5" in macro
+    # the same grouping as the app's own app field for the RP copies
+    assert 'replace(source, "^.*(-proxied|-egress|-edge)$", "\\1")' in macro
