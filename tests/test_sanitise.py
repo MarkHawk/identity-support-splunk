@@ -122,6 +122,54 @@ def test_check_finds_unmasked_single_use_values(tmp_path):
     assert sanitise.check_paths([tmp_path], personal=[]) == [(str(tmp_path / "a.log"), "single-use login value")]
 
 
+# A JWT and an opaque token, built at run time so the hygiene test never sees one here.
+def b64url(data):
+    return base64.urlsafe_b64encode(json.dumps(data).encode()).rstrip(b"=").decode()
+
+
+JWT = b64url({"alg": "RS256", "kid": "k1"}) + "." + b64url({"sub": "u1", "aud": "idlab-api"}) + "." + "c2lnbmF0dXJl" * 3
+OTHER_JWT = b64url({"alg": "none"}) + "." + b64url({"sub": "u2"}) + "."
+OPAQUE = "8xLOxBtZp8" + "Q2ZmFsc2Vfa2V5"
+
+
+def test_oauth_token_parameters_are_masked_consistently():
+    s = sanitise.Sanitiser()
+    assert s.text(f"GET /cb#access_token={OPAQUE}&token_type=Bearer&expires_in=300 HTTP/1.1") == (
+        "GET /cb#access_token=masked-access_token-1&token_type=Bearer&expires_in=300 HTTP/1.1")
+    assert s.text(f"POST body grant_type=refresh_token&refresh_token={OPAQUE}") == (
+        "POST body grant_type=refresh_token&refresh_token=masked-refresh_token-1")
+    assert s.text(f"/logout?id_token_hint={OPAQUE}&post_logout_redirect_uri=x") == (
+        "/logout?id_token_hint=masked-id_token_hint-1&post_logout_redirect_uri=x")
+    # the same token again is the same mask; grant_type=refresh_token is a name, not a token
+    assert s.text(f"?access_token={OPAQUE}") == "?access_token=masked-access_token-1"
+    assert s.text("?access_token=***&id_token=masked-id_token-4") == "?access_token=***&id_token=masked-id_token-4"
+
+
+def test_anything_jwt_shaped_is_masked():
+    s = sanitise.Sanitiser()
+    line = f"api event=x authorization='Bearer {JWT}' other={OTHER_JWT} again={JWT}"
+    assert s.text(line) == "api event=x authorization='Bearer masked-jwt-1' other=masked-jwt-2 again=masked-jwt-1"
+    # a JWT as a token parameter is masked under the parameter's name
+    assert s.text(f"?id_token={JWT}") == "?id_token=masked-id_token-1"
+    assert s.text(f"session={JWT}.extra") == "session=masked-jwt-1.extra"
+
+
+def test_tokens_in_json_are_masked_by_key_and_shape():
+    s = sanitise.Sanitiser()
+    out = s.json_value({"access_token": OPAQUE, "token_type": "Bearer", "raw": f"Bearer {JWT}",
+                        "refresh_token": "", "nested": [{"id_token": JWT}]})
+    assert out == {"access_token": "masked-access_token-1", "token_type": "Bearer", "raw": "Bearer masked-jwt-1",
+                   "refresh_token": "", "nested": [{"id_token": "masked-id_token-1"}]}
+
+
+def test_check_finds_tokens_and_jwts(tmp_path):
+    (tmp_path / "a.log").write_text(f"GET /cb?access_token={OPAQUE}\n")
+    (tmp_path / "b.log").write_text(f"Authorization: Bearer {OTHER_JWT}\n")
+    (tmp_path / "c.log").write_text("GET /cb?access_token=masked-access_token-1&id_token=*** grant_type=refresh_token\n")
+    assert sanitise.check_paths([tmp_path], personal=[]) == [
+        (str(tmp_path / "a.log"), "OAuth token parameter"), (str(tmp_path / "b.log"), "JWT")]
+
+
 def test_json_reports_are_sanitised_value_by_value(tmp_path):
     raw = tmp_path / "raw"
     raw.mkdir()

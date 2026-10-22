@@ -24,7 +24,11 @@ github.com URL is kept, as the hygiene test allows). Single-use login values
 in URLs (authorisation codes, state, nonce, Keycloak's session codes, SAML
 requests and responses, signatures) become masked-<name>-N, again the same
 value the same way everywhere, so a state still links the authorisation
-request to its callback. A private key anywhere
+request to its callback. Tokens are credentials until they expire:
+access_token, id_token, refresh_token and id_token_hint values (in a query,
+a fragment, a form body or as a JSON key) become masked-<name>-N, and
+anything shaped like a JWT (eyJ....eyJ...., signed or not) masked-jwt-N.
+A private key anywhere
 stops the run. Noise is trimmed: health-check requests, and directory
 connections that only made an anonymous bind (the lab's health check).
 The output is checked again before the run reports success.
@@ -74,6 +78,18 @@ LAB_MASKED = "***"
 # What the checker counts as unmasked: a value long enough to be real.
 UNMASKED_VALUE = re.compile(r"(?<=[?&])(?:" + "|".join(ONE_TIME_PARAMS) + r")=(?!" + MASKED + r")[^&\s\"]{8,}")
 
+# OAuth tokens: in a query or fragment (#access_token=... in the implicit
+# flow), a form body, or after a space. id_token_hint carries a whole ID
+# token on logout.
+TOKEN_PARAMS = ("access_token", "id_token", "refresh_token", "id_token_hint")
+TOKEN_VALUE = re.compile(r"(?<![\w-])(" + "|".join(TOKEN_PARAMS) + r")=([^&\s\"'#]+)")
+# Tokens are base64url, base64 or form-encoded; the checker counts a value of
+# 8 or more of those characters.
+UNMASKED_TOKEN = re.compile(r"(?<![\w-])(?:" + "|".join(TOKEN_PARAMS) + r")=(?!" + MASKED + r")[A-Za-z0-9._~+/%=-]{8,}")
+# A JWT: a base64url JSON header and payload (both start {" so eyJ), and a
+# signature, empty for an unsigned token.
+JWT = re.compile(r"(?<![A-Za-z0-9_-])eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]*)?")
+
 _B64_BLOB = re.compile(r"[A-Za-z0-9+/_-]{40,}={0,2}")
 
 HOME_REPLACEMENT = "~"
@@ -119,6 +135,10 @@ def find_problems(text, personal=()):
         found.append("private key")
     if UNMASKED_VALUE.search(text):
         found.append("single-use login value")
+    if UNMASKED_TOKEN.search(text):
+        found.append("OAuth token parameter")
+    if JWT.search(text):
+        found.append("JWT")
     if any(p.search(text) for p in personal):
         found.append("personal pattern from .personal-patterns")
     return found
@@ -185,10 +205,19 @@ class Sanitiser:
         name, value = match.groups()
         if value.startswith(MASKED) or value == LAB_MASKED:
             return match.group(0)
+        return f"{name}={self._masked(name, value)}"
+
+    def _masked(self, name, value):
         if (name, value) not in self.one_time:
             n = sum(1 for k in self.one_time if k[0] == name) + 1
             self.one_time[(name, value)] = f"{MASKED}{name}-{n}"
-        return f"{name}={self.one_time[(name, value)]}"
+        return self.one_time[(name, value)]
+
+    def _token(self, match):
+        name, value = match.groups()
+        if value.startswith(MASKED) or value == LAB_MASKED:
+            return match.group(0)
+        return f"{name}={self._masked(name, value)}"
 
     def _email(self, match):
         address = match.group(0)
@@ -204,6 +233,8 @@ class Sanitiser:
         text = EMAIL.sub(self._email, text)
         text = HOME_DIR.sub(HOME_REPLACEMENT, text)
         text = ONE_TIME_VALUE.sub(self._one_time, text)
+        text = TOKEN_VALUE.sub(self._token, text)
+        text = JWT.sub(lambda m: self._masked("jwt", m.group(0)), text)
         if self.personal:
             # Keep github.com/<account> as it is; mask personal strings elsewhere.
             pieces, last = [], 0
@@ -225,8 +256,14 @@ class Sanitiser:
         if isinstance(value, list):
             return [self.json_value(v) for v in value]
         if isinstance(value, dict):
-            return {self.text(k): self.json_value(v) for k, v in value.items()}
+            return {self.text(k): self._json_item(k, v) for k, v in value.items()}
         return value
+
+    def _json_item(self, key, value):
+        """A token under its own key ({"access_token": "..."}) is masked whatever its shape."""
+        if key in TOKEN_PARAMS and isinstance(value, str) and value not in ("", LAB_MASKED) and not value.startswith(MASKED):
+            return self._masked(key, value)
+        return self.json_value(value)
 
 
 def trim_log(name, lines):
