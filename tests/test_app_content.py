@@ -154,6 +154,10 @@ def test_proxy_panels():
     colours = d["visualizations"]["viz_proxy_status"]["options"]["seriesColorsByField"]
     assert {"429", "502", "504"} <= set(colours)
     assert "eventtype=idlab_proxy_error" in read_conf("macros.conf")["support_failures"]["definition"]
+    # proxy rows: app "proxy", the route in a column of its own
+    assert "values(route) as routes" in d["dataSources"]["ds_by_cause"]["options"]["query"]
+    assert d["dataSources"]["ds_by_cause"]["options"]["query"].endswith("affected apps routes runbook _runbook_url")
+    assert "has no route: nginx cuts that error line short" in d["visualizations"]["viz_proxy_causes"]["description"]
 
 
 @pytest.mark.parametrize("name, runbooks", [

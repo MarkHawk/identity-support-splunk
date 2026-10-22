@@ -304,8 +304,9 @@ def test_proxy_error_signature(contains, signature, runbook):
     reason = fields("proxy", contains)["nginx_reason"]
     found = [sig for pattern, sig in rules if pcre(pattern).search(reason)]
     assert found == ([signature] if signature else [])
-    app_rule = re.search(r'match\(nginx_reason, "([^"]+)"\)', props["idlab:nginx:error"]["EVAL-app"]).group(1)
-    assert bool(pcre(app_rule).search(reason)) == bool(signature)
+    for field in ("app", "route"):
+        rule = re.search(r'match\(nginx_reason, "([^"]+)"\)', props["idlab:nginx:error"][f"EVAL-{field}"]).group(1)
+        assert bool(pcre(rule).search(reason)) == bool(signature)
     if signature:
         assert {row["signature"]: row["runbook"] for row in causes()}[signature] == runbook
 
@@ -316,6 +317,14 @@ def test_forwarded_headers_cause_names_the_proxy():
     row = {r["signature"]: r for r in causes()}["kc_invalid_destination"]
     assert row["runbook"] == "09-proxy-forwarded-headers"
     assert row["cause"].startswith("Reverse proxy is the likely cause") and "nginx logs nothing" in row["cause"]
+    assert props["idlab:keycloak"]["EVAL-app"].startswith(
+        'case(kc_error=="invalid_authn_request" AND kc_reason=="invalid_destination", "keycloak (via proxy)", ')
+
+
+def test_proxy_rows_are_app_proxy_with_their_route():
+    s = props["idlab:nginx:error"]
+    assert re.fullmatch(r'if\(match\(nginx_reason, "[^"]+"\), "proxy", null\(\)\)', s["EVAL-app"])
+    assert s["EVAL-route"] == s["EVAL-app"].replace('"proxy"', "site")
 
 
 def test_eventtypes_and_tags_line_up():

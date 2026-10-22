@@ -42,7 +42,7 @@
     "ds_by_cause": {
       "type": "ds.chain",
       "name": "When did it start, by cause",
-      "options": {"extend": "ds_failures", "query": "| stats min(_time) as first_seen max(_time) as last_seen count dc(user) as n_users values(who) as who values(signature) as signatures values(app) as apps latest(runbook) as runbook latest(runbook_url) as runbook_url by cause | eval accounts=mvfilter(match(who, \"^service account\")), users=case(n_users==1, \"1 user\", n_users>1, n_users . \" users\"), affected=coalesce(mvjoin(mvappend(users, accounts), \", \"), if(isnotnull(mvfind(signatures, \"^ldap_bind_\")), \"service account\", null()), \"not in log\") | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\") | eval _runbook_url=runbook_url | table first_seen last_seen cause count affected apps runbook _runbook_url"}
+      "options": {"extend": "ds_failures", "query": "| stats min(_time) as first_seen max(_time) as last_seen count dc(user) as n_users values(who) as who values(signature) as signatures values(app) as apps values(route) as routes latest(runbook) as runbook latest(runbook_url) as runbook_url by cause | eval accounts=mvfilter(match(who, \"^service account\")), users=case(n_users==1, \"1 user\", n_users>1, n_users . \" users\"), affected=coalesce(mvjoin(mvappend(users, accounts), \", \"), if(isnotnull(mvfind(signatures, \"^ldap_bind_\")), \"service account\", null()), \"not in log\") | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\") | eval _runbook_url=runbook_url | table first_seen last_seen cause count affected apps routes runbook _runbook_url"}
     },
     "ds_who": {
       "type": "ds.chain",
@@ -114,7 +114,7 @@
     "viz_proxy_causes": {
       "type": "splunk.table",
       "title": "Reverse proxy: 5xx and 429 by likely cause (select a row for its runbook)",
-      "description": "One row per reason in the proxy's error log. Wrong X-Forwarded headers (runbook 09) leave nothing there: they show as a Keycloak error in When did it start?",
+      "description": "One row per reason in the proxy's error log. Wrong X-Forwarded headers (runbook 09) leave nothing there: they show as a Keycloak error in When did it start? The header-too-large row (runbook 10) has no route: nginx cuts that error line short, before its host.",
       "options": {"showInternalFields": false},
       "dataSources": {"primary": "ds_proxy_causes"},
       "eventHandlers": [{"type": "drilldown.customUrl", "options": {"url": "$row._runbook_url.value|n$", "newTab": true}}]

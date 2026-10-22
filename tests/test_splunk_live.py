@@ -185,14 +185,15 @@ def test_proxy_upstream_time_is_the_last_upstream_tried(host):
 
 
 def test_proxy_error_causes(host):
-    rows = search(f"`support_index` host={host} eventtype=idlab_proxy_error | stats count by signature runbook app")
-    got = {r["signature"]: (r["runbook"], r["app"]) for r in rows}
+    rows = search(f"`support_index` host={host} eventtype=idlab_proxy_error | fillnull value=- route "
+                  "| stats count by signature runbook app route")
+    got = {r["signature"]: (r["runbook"], r["app"], r["route"]) for r in rows}
     assert got == {
-        "proxy_upstream_closed": ("06-proxy-bad-gateway", "proxy rp.idlab.example:8185"),
-        "proxy_upstream_timeout": ("07-proxy-gateway-timeout", "proxy rp.idlab.example:8185"),
-        "proxy_rate_limited": ("08-proxy-rate-limit", "proxy idp.idlab.example:8183"),
+        "proxy_upstream_closed": ("06-proxy-bad-gateway", "proxy", "rp.idlab.example:8185"),
+        "proxy_upstream_timeout": ("07-proxy-gateway-timeout", "proxy", "rp.idlab.example:8185"),
+        "proxy_rate_limited": ("08-proxy-rate-limit", "proxy", "idp.idlab.example:8183"),
         # nginx cut this line before its host
-        "proxy_header_too_large": ("10-proxy-header-too-large", "proxy"),
+        "proxy_header_too_large": ("10-proxy-header-too-large", "proxy", "-"),
     }
     assert all(r["count"] == "1" for r in rows)
 
@@ -206,7 +207,7 @@ def test_forwarded_headers_point_at_the_proxy(host):
     row = one(host, "signature=kc_invalid_destination")
     assert (row["action"], row["kc_reason"], row["runbook"]) == ("failure", "invalid_destination", "09-proxy-forwarded-headers")
     assert row["cause"].startswith("Reverse proxy is the likely cause")
-    assert "app" not in row, "Keycloak's clientId=\"null\" is not an app"
+    assert row["app"] == "keycloak (via proxy)", "Keycloak's clientId=\"null\" is not an app"
 
 
 def test_masked_detail_is_one_value(host):
