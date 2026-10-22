@@ -280,7 +280,7 @@ def test_causes_link_identity_lab_runbooks():
     for row in causes():
         if row["signature"] == "egress_app_proxy_unreachable":
             continue  # no runbook covers it; see the next test
-        assert row["cause"] and re.fullmatch(r"(?:0[1-9]|1[0-4])-[a-z-]+", row["runbook"]), row
+        assert row["cause"] and re.fullmatch(r"(?:0[1-9]|1[0-6])-[a-z0-9-]+", row["runbook"]), row
         assert row["runbook_url"] == (
             f"https://github.com/MarkHawk/identity-lab/blob/main/runbooks/{row['runbook']}.md")
 
@@ -555,3 +555,20 @@ def test_api_is_cim_authentication():
     et = read_conf("eventtypes.conf")["idlab_api_auth"]["search"]
     assert et == "sourcetype=idlab:api (event=api_request_ok OR event=api_token_rejected)"
     assert read_conf("tags.conf")["eventtype=idlab_api_auth"]["authentication"] == "enabled"
+
+
+def test_api_reason_and_signature_agree():
+    """signature is api_bearer_<reason>, spelt out (a calculated field cannot use another)."""
+    a = props["idlab:api"]
+    literals = lambda expr: [x for x in re.findall(r'(?<![=!]=)"([a-z_]+)"', expr) if not x.endswith("_")]  # noqa: E731
+    reasons, signatures = literals(a["EVAL-reason"]), literals(a["EVAL-signature"])
+    assert signatures == [f"api_bearer_{r}" for r in reasons]
+    assert {"wrong_audience", "expired", "no_token", "not_jwt", "not_bearer"} <= set(reasons)
+    assert a["LOOKUP-support_causes"] == "support_causes signature OUTPUT cause runbook runbook_url"
+
+
+def test_api_causes_point_at_runbook_16():
+    rows = {r["signature"]: r for r in causes() if r["signature"].startswith("api_bearer_")}
+    assert set(rows) == {s for s in eval_signatures() if s.startswith("api_bearer_")}
+    assert {r["runbook"] for r in rows.values()} == {"16-api-bearer-401"}
+    assert "audience" in rows["api_bearer_wrong_audience"]["cause"] and "azp" in rows["api_bearer_wrong_audience"]["cause"]

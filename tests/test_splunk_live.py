@@ -171,6 +171,14 @@ def test_api_rejection_reasons_and_lifetime(host):
         ("expired", "-", "idlab-api account")}
 
 
+def test_api_rejection_causes(host):
+    rows = search(f"`support_failures` host={host} sourcetype=idlab:api | stats count by signature runbook")
+    assert {r["signature"]: (r["count"], r["runbook"]) for r in rows} == {
+        "api_bearer_no_token": ("1", "16-api-bearer-401"), "api_bearer_not_jwt": ("1", "16-api-bearer-401"),
+        "api_bearer_not_bearer": ("1", "16-api-bearer-401"), "api_bearer_wrong_audience": ("1", "16-api-bearer-401"),
+        "api_bearer_expired": ("2", "16-api-bearer-401")}
+
+
 def test_api_access_lines_keep_their_status(host):
     rows = search(f"`support_index` host={host} sourcetype=idlab:api uri_path=/v1/whoami | stats count by status")
     assert {r["status"]: r["count"] for r in rows} == {"200": "1", "400": "1", "401": "5"}
@@ -212,7 +220,9 @@ def test_failures_macro(host):
         "proxy_rate_limited", "proxy_header_too_large", "oidc-rp:access_denied",
         "egress_proxy_auth_required", "egress_proxy_policy_block", "egress_proxy_tls_untrusted",
         "egress_app_proxy_auth_required", "egress_app_proxy_policy_block", "egress_app_tls_untrusted",
-        "egress_app_proxy_bypassed", "egress_app_proxy_unreachable"}
+        "egress_app_proxy_bypassed", "egress_app_proxy_unreachable",
+        "api_bearer_no_token", "api_bearer_not_jwt", "api_bearer_not_bearer", "api_bearer_wrong_audience",
+        "api_bearer_expired"}
 
 
 def test_proxy_access_is_cim_web(host):
