@@ -60,9 +60,27 @@ def test_every_runbook_scenario_is_in_the_samples():
                 seen[scenario] += 1
         if f.get("kc_reason") == "invalid_destination":
             seen["09 proxy forwarded headers"] += 1
+        if f.get("result_code", "").startswith("TCP_DENIED"):
+            seen[{"407": "11 proxy auth (Squid)", "403": "12 proxy policy (Squid)"}[f["status"]]] += 1
+        if f.get("tls_lib_err") == "A000418":
+            seen["13 TLS interception (Squid)"] += 1
+        if f.get("reason") == "backchannel_failed":
+            for text, scenario in EGRESS_APP_ERRORS.items():
+                if text in f["error"]:
+                    seen[scenario] += 1
+    # 14 (NO_PROXY) leaves nothing in Squid's log, and its app-side line goes
+    # with the container that break.sh and fix.sh recreate.
     assert set(seen) == {"01 signing certificate", "02 clock skew", "03 redirect URI", "04 LDAP 49",
                          "05 RADIUS no reply", "RADIUS Access-Reject", *PROXY_REASONS.values(),
-                         "09 proxy forwarded headers"}, seen
+                         "09 proxy forwarded headers", "11 proxy auth (Squid)", "12 proxy policy (Squid)",
+                         "13 TLS interception (Squid)", *EGRESS_APP_ERRORS.values()}, seen
+
+
+EGRESS_APP_ERRORS = {
+    "Tunnel connection failed: 407": "11 proxy auth (app)",
+    "Tunnel connection failed: 403": "12 proxy policy (app)",
+    "CERTIFICATE_VERIFY_FAILED": "13 TLS interception (app)",
+}
 
 
 PROXY_REASONS = {

@@ -167,7 +167,10 @@ def test_failures_macro(host):
         "saml_idp_cert_expired", "saml_clock_skew", "oidc-rp:token_validation_failed",
         "radius_reject_bad_password", "radius_bad_shared_secret", "radius_unknown_client", "nas_no_reply",
         "oidc-rp:token_exchange_failed", "kc_invalid_destination", "proxy_upstream_closed", "proxy_upstream_timeout",
-        "proxy_rate_limited", "proxy_header_too_large", "oidc-rp:access_denied", "oidc-rp:backchannel_failed"}
+        "proxy_rate_limited", "proxy_header_too_large", "oidc-rp:access_denied",
+        "egress_proxy_auth_required", "egress_proxy_policy_block", "egress_proxy_tls_untrusted",
+        "egress_app_proxy_auth_required", "egress_app_proxy_policy_block", "egress_app_tls_untrusted",
+        "egress_app_proxy_bypassed", "egress_app_proxy_unreachable"}
 
 
 def test_proxy_access_is_cim_web(host):
@@ -230,6 +233,35 @@ def test_squid_tls_error_is_decoded(host):
     row = one(host, "sourcetype=idlab:squid:cache tls_lib_err=*")
     assert (row["log_level"], row["tls_squid_err"], row["tls_lib_err"], row["tls_error"]) == (
         "ERROR", "SQUID_TLS_ERR_ACCEPT", "A000418", "tlsv1 alert unknown ca")
+
+
+def test_egress_causes(host):
+    rows = search(f"`support_failures` host={host} signature=egress_* | fillnull value=- app route runbook "
+                  "| stats count by signature runbook app route")
+    got = {(r["signature"], r["route"]): (r["runbook"], r["app"], r["count"]) for r in rows}
+    assert got == {
+        ("egress_proxy_auth_required", "keycloak:8180"): ("11-proxy-auth-required", "egress proxy", "1"),
+        ("egress_app_proxy_auth_required", "-"): ("11-proxy-auth-required", "oidc-rp-egress", "1"),
+        ("egress_proxy_policy_block", "keycloak:8180"): ("12-proxy-policy-block", "egress proxy", "2"),
+        # the app's own healthcheck refused by policy: a route other than the IdP
+        ("egress_proxy_policy_block", "localhost:8182"): ("12-proxy-policy-block", "egress proxy", "1"),
+        ("egress_app_proxy_policy_block", "-"): ("12-proxy-policy-block", "oidc-rp-egress", "1"),
+        ("egress_proxy_tls_untrusted", "-"): ("13-proxy-tls-interception", "egress proxy", "1"),
+        ("egress_app_tls_untrusted", "-"): ("13-proxy-tls-interception", "oidc-rp-egress", "1"),
+        ("egress_app_proxy_bypassed", "-"): ("14-proxy-bypass", "oidc-rp-egress", "1"),
+        ("egress_app_proxy_unreachable", "-"): ("-", "oidc-rp-egress", "1"),
+    }, got
+
+
+def test_egress_scenario_is_one_cause_on_both_sides(host):
+    rows = search(f"`support_failures` host={host} signature=egress_*_auth_required | stats values(app) as apps by cause")
+    assert len(rows) == 1 and sorted(rows[0]["apps"]) == ["egress proxy", "oidc-rp-egress"]
+
+
+def test_quoted_error_is_kept_whole(host):
+    row = one(host, 'sourcetype=idlab:sp reason=backchannel_failed "Tunnel connection failed: 407"')
+    assert row["error"].endswith("Tunnel connection failed: 407 Proxy Authentication Required'\"'\"')))")
+    assert row["detail"] == "ProxyError" and "port" not in row
 
 
 def alert_query(host, name, threshold=None):

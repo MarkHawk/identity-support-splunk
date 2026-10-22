@@ -89,7 +89,7 @@
     "viz_by_cause": {
       "type": "splunk.table",
       "title": "When did it start? (select a row for its runbook)",
-      "options": {"showInternalFields": false, "count": 20},
+      "options": {"showInternalFields": false, "count": 25},
       "description": "affected: end users where the logs name them, the service account for directory binds, otherwise not in log",
       "dataSources": {"primary": "ds_by_cause"},
       "eventHandlers": [{"type": "drilldown.customUrl", "options": {"url": "$row._runbook_url.value|n$", "newTab": true}}]

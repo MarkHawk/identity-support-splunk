@@ -278,9 +278,27 @@ def test_every_signature_has_a_cause_and_runbook():
 
 def test_causes_link_identity_lab_runbooks():
     for row in causes():
-        assert row["cause"] and re.fullmatch(r"(?:0[1-9]|10)-[a-z-]+", row["runbook"]), row
+        if row["signature"] == "egress_app_proxy_unreachable":
+            continue  # no runbook covers it; see the next test
+        assert row["cause"] and re.fullmatch(r"(?:0[1-9]|1[0-4])-[a-z-]+", row["runbook"]), row
         assert row["runbook_url"] == (
             f"https://github.com/MarkHawk/identity-lab/blob/main/runbooks/{row['runbook']}.md")
+
+
+def test_unreachable_egress_proxy_has_no_runbook_link():
+    row = {r["signature"]: r for r in causes()}["egress_app_proxy_unreachable"]
+    assert (row["runbook"], row["runbook_url"]) == ("", "")
+    assert "no runbook covers this: see Where to look in runbooks 11 to 14" in row["cause"]
+
+
+def test_each_egress_scenario_is_one_cause_from_both_sides():
+    by_sig = {r["signature"]: r for r in causes()}
+    for squid, app in [("egress_proxy_auth_required", "egress_app_proxy_auth_required"),
+                       ("egress_proxy_policy_block", "egress_app_proxy_policy_block"),
+                       ("egress_proxy_tls_untrusted", "egress_app_tls_untrusted")]:
+        assert by_sig[squid]["cause"] == by_sig[app]["cause"] and by_sig[squid]["runbook"] == by_sig[app]["runbook"]
+    assert by_sig["egress_app_proxy_bypassed"]["cause"].startswith(
+        "Forward proxy is bypassed or misconfigured, even though Squid logs nothing")
 
 
 def test_every_log_sourcetype_looks_up_causes():
@@ -372,6 +390,7 @@ def test_app_lines_with_values_masked_by_the_lab():
     assert (f["src"], f["http_method"], f["uri_path"], f["status"]) == ("192.0.2.30", "GET", "/auth/callback", "502")
 
 
+
 def test_app_quoted_value_with_quotes_inside_is_kept_whole():
     """shlex.quote writes a ' inside a quoted value as '"'"'."""
     f = fields("oidc-rp-egress", "Tunnel connection failed: 407")
@@ -431,3 +450,61 @@ def test_squid_tls_lib_errors_lookup_decodes_unknown_ca():
         rows = {r["tls_lib_err"]: r["tls_error"] for r in csv.DictReader(f)}
     assert rows["A000418"] == "tlsv1 alert unknown ca"
     assert all(re.fullmatch(r"A000[0-9A-F]{3}", code) and text for code, text in rows.items())
+
+
+def eval_case(expr, f, source):
+    """Evaluate the egress rules of an EVAL-signature case(): ANDs of field=="x", match(field, "re")."""
+    for cond, sig in re.findall(r'((?:(?:\w+=="[^"]*"|match\(\w+, "(?:[^"\\]|\\.)*"\))(?: AND )?)+), "([a-z_]+)"', expr):
+        ok = True
+        for name, value in re.findall(r'(\w+)=="([^"]*)"', cond):
+            ok &= f.get(name) == value
+        for name, pattern in re.findall(r'match\((\w+), "((?:[^"\\]|\\.)*)"\)', cond):
+            value = source if name == "source" else f.get(name, "")
+            ok &= bool(pcre(pattern.replace("\\\\", "\\")).search(value))
+        if ok:
+            return sig
+    return None
+
+
+@pytest.mark.parametrize("contains, signature", [
+    ("TCP_DENIED/407", "egress_proxy_auth_required"),
+    ("TCP_DENIED/403 3331", "egress_proxy_policy_block"),
+    ("TCP_DENIED_ABORTED/403", "egress_proxy_policy_block"),
+    ("localhost:8182", "egress_proxy_policy_block"),
+    ("egress-svc", None),
+    ("NONE_NONE/200", None),
+])
+def test_squid_access_signature(contains, signature):
+    f = fields("squid", contains)
+    assert eval_case(props["idlab:squid:access"]["EVAL-signature"], f, "docker:squid") == signature
+
+
+def test_squid_tls_error_signature():
+    s = props["idlab:squid:cache"]
+    f = fields("squid", "Cannot accept a TLS connection")
+    assert pcre(re.search(r'match\(squid_error_detail, "([^"]+)"\)', s["EVAL-signature"]).group(1)).search(
+        f["squid_error_detail"])
+    assert "egress_proxy_tls_untrusted" in s["EVAL-signature"] and '"egress proxy"' in s["EVAL-app"]
+
+
+@pytest.mark.parametrize("contains, signature", [
+    ("Tunnel connection failed: 407", "egress_app_proxy_auth_required"),
+    ("Tunnel connection failed: 403", "egress_app_proxy_policy_block"),
+    ("CERTIFICATE_VERIFY_FAILED", "egress_app_tls_untrusted"),
+    ("Failed to resolve '\"'\"'keycloak", "egress_app_proxy_bypassed"),
+    ("Failed to resolve '\"'\"'squid", "egress_app_proxy_unreachable"),
+])
+def test_egress_app_signature(contains, signature):
+    f = fields("oidc-rp-egress", contains)
+    assert f["reason"] == "backchannel_failed"
+    assert eval_case(props["idlab:sp"]["EVAL-signature"], f, "docker:oidc-rp-egress") == signature
+
+
+def test_bypass_and_tls_rules_only_apply_to_the_app_behind_the_proxy():
+    f = fields("oidc-rp-egress", "CERTIFICATE_VERIFY_FAILED")
+    assert eval_case(props["idlab:sp"]["EVAL-signature"], f, "docker:oidc-rp") is None
+
+
+def test_egress_app_name():
+    expr = props["idlab:sp"]["EVAL-app"]
+    assert 'replace(source, "^.*(-proxied|-egress)$", "\\1")' in expr
