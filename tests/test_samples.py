@@ -77,7 +77,8 @@ def test_proxy_statuses_in_the_samples():
     statuses = collections.Counter(f["status"] for service, _, f in sample_events()
                                    if service == "proxy" and "status" in f)
     assert {"200", "302", "429", "502", "504"} <= set(statuses)
-    assert statuses["502"] == 2 and statuses["504"] == 1 and statuses["429"] == 1
+    # 502 from scenarios 06 and 10; a run may go through the scenarios more than once
+    assert statuses["502"] >= 2 and statuses["504"] >= 1 and statuses["429"] >= 1
 
 
 def test_proxied_apps_logged_logins():

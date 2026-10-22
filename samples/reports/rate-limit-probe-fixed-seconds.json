@@ -2,7 +2,7 @@
   "tool": "rate-limit-probe",
   "version": "0.1.0",
   "target": {
-    "url": "http://127.0.0.1:46185/s/fixed-seconds",
+    "url": "http://127.0.0.1:36279/s/fixed-seconds",
     "local": true,
     "method": "GET"
   },
@@ -200,7 +200,7 @@
       "type": "request",
       "n": 12,
       "phase": "refill",
-      "at": 2.904,
+      "at": 2.903,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -214,7 +214,7 @@
       "type": "request",
       "n": 13,
       "phase": "refill",
-      "at": 3.004,
+      "at": 3.003,
       "status": 429,
       "rate_headers": [
         [
@@ -286,8 +286,8 @@
       "title": "Early retry",
       "summary": "A request sent 1 s early was refused, and did not extend the wait.",
       "details": {
-        "delay": 1.001,
-        "expected": 0.999,
+        "delay": 1.002,
+        "expected": 0.998,
         "new_hint": 1.0,
         "penalised": false
       }

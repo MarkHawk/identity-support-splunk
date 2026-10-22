@@ -2,7 +2,7 @@
   "tool": "rate-limit-probe",
   "version": "0.1.0",
   "target": {
-    "url": "http://127.0.0.1:34431/s/lying",
+    "url": "http://127.0.0.1:42647/s/lying",
     "local": true,
     "method": "GET"
   },
@@ -15,7 +15,7 @@
     "demo window shortened to 5 s"
   ],
   "sent": 16,
-  "duration": 5.509,
+  "duration": 5.508,
   "stop": null,
   "timeline": [
     {
@@ -50,7 +50,7 @@
       "type": "request",
       "n": 3,
       "phase": "discover",
-      "at": 0.201,
+      "at": 0.2,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -64,7 +64,7 @@
       "type": "request",
       "n": 4,
       "phase": "discover",
-      "at": 0.301,
+      "at": 0.3,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -78,7 +78,7 @@
       "type": "request",
       "n": 5,
       "phase": "discover",
-      "at": 0.401,
+      "at": 0.4,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -92,7 +92,7 @@
       "type": "request",
       "n": 6,
       "phase": "discover",
-      "at": 0.502,
+      "at": 0.501,
       "status": 429,
       "rate_headers": [
         [
@@ -109,7 +109,7 @@
     },
     {
       "type": "wait",
-      "at": 0.503,
+      "at": 0.502,
       "seconds": 0.5,
       "source": "early",
       "purpose": "early"
@@ -118,7 +118,7 @@
       "type": "request",
       "n": 7,
       "phase": "early",
-      "at": 1.003,
+      "at": 1.002,
       "status": 429,
       "rate_headers": [
         [
@@ -135,7 +135,7 @@
     },
     {
       "type": "wait",
-      "at": 1.004,
+      "at": 1.003,
       "seconds": 1.0,
       "source": "Retry-After",
       "purpose": "honour"
@@ -144,7 +144,7 @@
       "type": "request",
       "n": 8,
       "phase": "honour",
-      "at": 2.005,
+      "at": 2.003,
       "status": 429,
       "rate_headers": [
         [
@@ -161,7 +161,7 @@
     },
     {
       "type": "wait",
-      "at": 2.005,
+      "at": 2.004,
       "seconds": 1.0,
       "source": "Retry-After",
       "purpose": "honour"
@@ -170,7 +170,7 @@
       "type": "request",
       "n": 9,
       "phase": "honour",
-      "at": 3.005,
+      "at": 3.004,
       "status": 429,
       "rate_headers": [
         [
@@ -187,7 +187,7 @@
     },
     {
       "type": "wait",
-      "at": 3.007,
+      "at": 3.005,
       "seconds": 1.0,
       "source": "Retry-After",
       "purpose": "honour"
@@ -196,7 +196,7 @@
       "type": "request",
       "n": 10,
       "phase": "honour",
-      "at": 4.007,
+      "at": 4.005,
       "status": 429,
       "rate_headers": [
         [
@@ -213,7 +213,7 @@
     },
     {
       "type": "wait",
-      "at": 4.008,
+      "at": 4.006,
       "seconds": 1.0,
       "source": "Retry-After",
       "purpose": "honour"
@@ -222,7 +222,7 @@
       "type": "request",
       "n": 11,
       "phase": "honour",
-      "at": 5.008,
+      "at": 5.006,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -236,7 +236,7 @@
       "type": "request",
       "n": 12,
       "phase": "refill",
-      "at": 5.108,
+      "at": 5.106,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -250,7 +250,7 @@
       "type": "request",
       "n": 13,
       "phase": "refill",
-      "at": 5.208,
+      "at": 5.206,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -264,7 +264,7 @@
       "type": "request",
       "n": 14,
       "phase": "refill",
-      "at": 5.308,
+      "at": 5.306,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -278,7 +278,7 @@
       "type": "request",
       "n": 15,
       "phase": "refill",
-      "at": 5.408,
+      "at": 5.406,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -292,7 +292,7 @@
       "type": "request",
       "n": 16,
       "phase": "refill",
-      "at": 5.508,
+      "at": 5.506,
       "status": 429,
       "rate_headers": [
         [
@@ -316,7 +316,7 @@
       "summary": "Request 6, 0.5 s in: 5 requests were accepted first.",
       "details": {
         "request": 6,
-        "at": 0.502,
+        "at": 0.501,
         "burst": 5
       }
     },
@@ -329,7 +329,7 @@
         "burst": 5,
         "policy_limit": null,
         "policy_window": null,
-        "window": 5.008,
+        "window": 5.006,
         "window_nice": 5,
         "window_source": "observed",
         "refill_accepted": 5,
@@ -349,7 +349,7 @@
         ],
         "too_short": true,
         "said": 1.0,
-        "actual": 4.506
+        "actual": 4.505
       }
     },
     {
@@ -380,7 +380,7 @@
       "summary": "A client that keeps waiting as told does get back in, but only at the 4th try, 4.5 s after the first 429.",
       "details": {
         "recovered": true,
-        "after": 4.506,
+        "after": 4.505,
         "attempts": 4
       }
     },

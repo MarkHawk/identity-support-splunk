@@ -1,0 +1,262 @@
+2026-10-22T06:48:34.263893804Z 2026/10/22 06:48:34| Processing Configuration File: /etc/squid/squid.conf (depth 0)
+2026-10-22T06:48:34.267952126Z 2026/10/22 06:48:34| Processing Configuration File: /etc/squid/idlab/policy.conf (depth 1)
+2026-10-22T06:48:34.268031641Z 2026/10/22 06:48:34| Processing Configuration File: /etc/squid/idlab/auth.conf (depth 1)
+2026-10-22T06:48:34.268039022Z 2026/10/22 06:48:34| Processing Configuration File: /etc/squid/idlab/tls.conf (depth 1)
+2026-10-22T06:48:34.268064400Z 2026/10/22 06:48:34| Created PID file (/tmp/squid.pid)
+2026-10-22T06:48:34.268260561Z 2026/10/22 06:48:34| Set Current Directory to /tmp
+2026-10-22T06:48:34.271190585Z 2026/10/22 06:48:34| Starting Squid Cache version 7.7 for x86_64-pc-linux-gnu...
+2026-10-22T06:48:34.271210340Z 2026/10/22 06:48:34| Service Name: squid
+2026-10-22T06:48:34.271213685Z 2026/10/22 06:48:34| Process ID 1
+2026-10-22T06:48:34.271216280Z 2026/10/22 06:48:34| Process Roles: master worker
+2026-10-22T06:48:34.271218729Z 2026/10/22 06:48:34| With 1024 file descriptors available
+2026-10-22T06:48:34.271224780Z 2026/10/22 06:48:34| Initializing IP Cache...
+2026-10-22T06:48:34.271227527Z 2026/10/22 06:48:34| DNS IPv6 socket created at [::], FD 8
+2026-10-22T06:48:34.271230027Z 2026/10/22 06:48:34| DNS IPv4 socket created at 0.0.0.0, FD 9
+2026-10-22T06:48:34.271232380Z 2026/10/22 06:48:34| Adding nameserver 127.0.0.11 from /etc/resolv.conf
+2026-10-22T06:48:34.271234880Z 2026/10/22 06:48:34| Adding domain . from /etc/resolv.conf
+2026-10-22T06:48:34.271237234Z 2026/10/22 06:48:34| Adding ndots 1 from /etc/resolv.conf
+2026-10-22T06:48:34.273880122Z 2026/10/22 06:48:34| Logfile: opening log stdio:/dev/stdout
+2026-10-22T06:48:34.276880150Z 2026/10/22 06:48:34| Store logging disabled
+2026-10-22T06:48:34.277924943Z 2026/10/22 06:48:34| Swap maxSize 0 + 8192 KB, estimated 630 objects
+2026-10-22T06:48:34.277941264Z 2026/10/22 06:48:34| Target number of buckets: 31
+2026-10-22T06:48:34.277990450Z 2026/10/22 06:48:34| Using 8192 Store buckets
+2026-10-22T06:48:34.278046512Z 2026/10/22 06:48:34| Max Mem  size: 8192 KB
+2026-10-22T06:48:34.278088583Z 2026/10/22 06:48:34| Max Swap size: 0 KB
+2026-10-22T06:48:34.278916908Z 2026/10/22 06:48:34| Using Least Load store dir selection
+2026-10-22T06:48:34.278931102Z 2026/10/22 06:48:34| Set Current Directory to /tmp
+2026-10-22T06:48:34.292921720Z 2026/10/22 06:48:34| Finished loading MIME types and icons.
+2026-10-22T06:48:34.292945807Z 2026/10/22 06:48:34| Squid plugin modules loaded: 0
+2026-10-22T06:48:34.292949162Z 2026/10/22 06:48:34| Accepting HTTP Socket connections at conn3 local=[::]:3128 remote=[::] FD 11 flags=9
+2026-10-22T06:48:34.292952354Z     listening port: 3128
+2026-10-22T06:48:35.277132921Z 2026/10/22 06:48:35| storeLateRelease: released 0 objects
+2026-10-22T06:49:13.011029347Z 1792651753.010      9 192.0.2.21 TCP_TUNNEL/200 9936 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:49:13.321728740Z 1792651753.321     19 192.0.2.21 TCP_TUNNEL/200 7065 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:49:13.334884055Z 1792651753.334     11 192.0.2.21 TCP_TUNNEL/200 6594 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:49:13.355933543Z 1792651753.355     15 192.0.2.21 TCP_TUNNEL/200 3646 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:49:15.801624769Z 1792651755.801     16 192.0.2.21 TCP_TUNNEL/200 6995 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:49:15.811843846Z 1792651755.811      9 192.0.2.21 TCP_TUNNEL/200 3626 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:50:26.500926898Z 2026/10/22 06:50:26| Reconfiguring Squid Cache (version 7.7)...
+2026-10-22T06:50:26.500956233Z 2026/10/22 06:50:26| Closing HTTP(S) port [::]:3128
+2026-10-22T06:50:26.500960546Z     listening port: 3128
+2026-10-22T06:50:26.500964019Z 2026/10/22 06:50:26| Logfile: closing log stdio:/dev/stdout
+2026-10-22T06:50:26.501565758Z 2026/10/22 06:50:26| Processing Configuration File: /etc/squid/squid.conf (depth 0)
+2026-10-22T06:50:26.505330211Z 2026/10/22 06:50:26| Processing Configuration File: /etc/squid/idlab/policy.conf (depth 1)
+2026-10-22T06:50:26.505356351Z 2026/10/22 06:50:26| Processing Configuration File: /etc/squid/idlab/auth.conf (depth 1)
+2026-10-22T06:50:26.505360756Z 2026/10/22 06:50:26| Processing Configuration File: /etc/squid/idlab/tls.conf (depth 1)
+2026-10-22T06:50:26.516069024Z 2026/10/22 06:50:26| Logfile: opening log stdio:/dev/stdout
+2026-10-22T06:50:26.516189594Z 2026/10/22 06:50:26| Squid plugin modules loaded: 0
+2026-10-22T06:50:26.517780761Z 2026/10/22 06:50:26| Store logging disabled
+2026-10-22T06:50:26.517788339Z 2026/10/22 06:50:26| DNS IPv6 socket created at [::], FD 9
+2026-10-22T06:50:26.517791964Z 2026/10/22 06:50:26| DNS IPv4 socket created at 0.0.0.0, FD 10
+2026-10-22T06:50:26.517795353Z 2026/10/22 06:50:26| Adding nameserver 127.0.0.11 from /etc/resolv.conf
+2026-10-22T06:50:26.517798616Z 2026/10/22 06:50:26| Adding domain . from /etc/resolv.conf
+2026-10-22T06:50:26.517801763Z 2026/10/22 06:50:26| Adding ndots 1 from /etc/resolv.conf
+2026-10-22T06:50:26.517805069Z 2026/10/22 06:50:26| helperOpenServers: Starting 0/20 'basic_ncsa_auth' processes
+2026-10-22T06:50:26.517808328Z 2026/10/22 06:50:26| helperOpenServers: No 'basic_ncsa_auth' processes needed.
+2026-10-22T06:50:26.520743953Z 2026/10/22 06:50:26| Finished loading MIME types and icons.
+2026-10-22T06:50:26.520764164Z 2026/10/22 06:50:26| Accepting HTTP Socket connections at conn37 local=[::]:3128 remote=[::] FD 11 flags=9
+2026-10-22T06:50:26.520768025Z     listening port: 3128
+2026-10-22T06:50:31.147745014Z 1792651831.147      0 192.0.2.21 TCP_DENIED/407 3413 CONNECT keycloak:8180 - HIER_NONE/- text/html
+2026-10-22T06:50:34.130165833Z 2026/10/22 06:50:34| helperOpenServers: Starting 1/20 'basic_ncsa_auth' processes
+2026-10-22T06:50:34.130229844Z     current master transaction: master67
+2026-10-22T06:50:34.131060174Z 2026/10/22 06:50:34| WARNING: no_suid: setuid(0): (1) Operation not permitted
+2026-10-22T06:50:34.131074708Z     current master transaction: master67
+2026-10-22T06:50:34.158257365Z 1792651834.158     28 192.0.2.21 TCP_TUNNEL/200 3913 CONNECT keycloak:8180 egress-svc HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:50:34.691856927Z 2026/10/22 06:50:34| Reconfiguring Squid Cache (version 7.7)...
+2026-10-22T06:50:34.691880976Z 2026/10/22 06:50:34| Closing HTTP(S) port [::]:3128
+2026-10-22T06:50:34.691884371Z     listening port: 3128
+2026-10-22T06:50:34.691886873Z 2026/10/22 06:50:34| Logfile: closing log stdio:/dev/stdout
+2026-10-22T06:50:34.693342704Z 2026/10/22 06:50:34| Processing Configuration File: /etc/squid/squid.conf (depth 0)
+2026-10-22T06:50:34.693662461Z 2026/10/22 06:50:34| Processing Configuration File: /etc/squid/idlab/policy.conf (depth 1)
+2026-10-22T06:50:34.693670229Z 2026/10/22 06:50:34| Processing Configuration File: /etc/squid/idlab/auth.conf (depth 1)
+2026-10-22T06:50:34.693673428Z 2026/10/22 06:50:34| Processing Configuration File: /etc/squid/idlab/tls.conf (depth 1)
+2026-10-22T06:50:34.704974178Z 2026/10/22 06:50:34| Logfile: opening log stdio:/dev/stdout
+2026-10-22T06:50:34.705001927Z 2026/10/22 06:50:34| Squid plugin modules loaded: 0
+2026-10-22T06:50:34.705005643Z 2026/10/22 06:50:34| Store logging disabled
+2026-10-22T06:50:34.705008165Z 2026/10/22 06:50:34| DNS IPv6 socket created at [::], FD 9
+2026-10-22T06:50:34.705010512Z 2026/10/22 06:50:34| DNS IPv4 socket created at 0.0.0.0, FD 10
+2026-10-22T06:50:34.705012944Z 2026/10/22 06:50:34| Adding nameserver 127.0.0.11 from /etc/resolv.conf
+2026-10-22T06:50:34.705015337Z 2026/10/22 06:50:34| Adding domain . from /etc/resolv.conf
+2026-10-22T06:50:34.705017651Z 2026/10/22 06:50:34| Adding ndots 1 from /etc/resolv.conf
+2026-10-22T06:50:34.709285245Z 2026/10/22 06:50:34| Finished loading MIME types and icons.
+2026-10-22T06:50:34.709295242Z 2026/10/22 06:50:34| Accepting HTTP Socket connections at conn49 local=[::]:3128 remote=[::] FD 11 flags=9
+2026-10-22T06:50:34.709298595Z     listening port: 3128
+2026-10-22T06:50:39.391907921Z 1792651839.391     21 192.0.2.21 TCP_TUNNEL/200 7065 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:50:39.405343326Z 1792651839.405     11 192.0.2.21 TCP_TUNNEL/200 6594 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:50:39.424628752Z 1792651839.424     16 192.0.2.21 TCP_TUNNEL/200 3646 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:51:13.039039301Z 1792651873.038     10 192.0.2.21 TCP_TUNNEL/200 9936 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:51:13.324195356Z 1792651873.323     17 192.0.2.21 TCP_TUNNEL/200 7065 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:51:13.341418397Z 1792651873.341     14 192.0.2.21 TCP_TUNNEL/200 6594 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:51:13.362642405Z 1792651873.362     15 192.0.2.21 TCP_TUNNEL/200 3646 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:51:52.970545293Z 2026/10/22 06:51:52| Reconfiguring Squid Cache (version 7.7)...
+2026-10-22T06:51:52.970580608Z 2026/10/22 06:51:52| Closing HTTP(S) port [::]:3128
+2026-10-22T06:51:52.970585110Z     listening port: 3128
+2026-10-22T06:51:52.970588580Z 2026/10/22 06:51:52| Logfile: closing log stdio:/dev/stdout
+2026-10-22T06:51:52.971879202Z 2026/10/22 06:51:52| Processing Configuration File: /etc/squid/squid.conf (depth 0)
+2026-10-22T06:51:52.972207481Z 2026/10/22 06:51:52| Processing Configuration File: /etc/squid/idlab/policy.conf (depth 1)
+2026-10-22T06:51:52.972409442Z 2026/10/22 06:51:52| Processing Configuration File: /etc/squid/idlab/auth.conf (depth 1)
+2026-10-22T06:51:52.972418537Z 2026/10/22 06:51:52| Processing Configuration File: /etc/squid/idlab/tls.conf (depth 1)
+2026-10-22T06:51:52.987042660Z 2026/10/22 06:51:52| Logfile: opening log stdio:/dev/stdout
+2026-10-22T06:51:52.987070324Z 2026/10/22 06:51:52| Squid plugin modules loaded: 0
+2026-10-22T06:51:52.987074465Z 2026/10/22 06:51:52| Store logging disabled
+2026-10-22T06:51:52.987077901Z 2026/10/22 06:51:52| DNS IPv6 socket created at [::], FD 9
+2026-10-22T06:51:52.987084127Z 2026/10/22 06:51:52| DNS IPv4 socket created at 0.0.0.0, FD 10
+2026-10-22T06:51:52.987087914Z 2026/10/22 06:51:52| Adding nameserver 127.0.0.11 from /etc/resolv.conf
+2026-10-22T06:51:52.987091311Z 2026/10/22 06:51:52| Adding domain . from /etc/resolv.conf
+2026-10-22T06:51:52.987094507Z 2026/10/22 06:51:52| Adding ndots 1 from /etc/resolv.conf
+2026-10-22T06:51:52.996088481Z 2026/10/22 06:51:52| Finished loading MIME types and icons.
+2026-10-22T06:51:52.996118887Z 2026/10/22 06:51:52| Accepting HTTP Socket connections at conn88 local=[::]:3128 remote=[::] FD 11 flags=9
+2026-10-22T06:51:52.996130047Z     listening port: 3128
+2026-10-22T06:51:57.677306398Z 1792651917.677      0 192.0.2.21 TCP_DENIED/403 3331 CONNECT keycloak:8180 - HIER_NONE/- text/html
+2026-10-22T06:52:01.234258666Z 2026/10/22 06:52:01| Reconfiguring Squid Cache (version 7.7)...
+2026-10-22T06:52:01.234294786Z 2026/10/22 06:52:01| Closing HTTP(S) port [::]:3128
+2026-10-22T06:52:01.234306427Z     listening port: 3128
+2026-10-22T06:52:01.234310022Z 2026/10/22 06:52:01| Logfile: closing log stdio:/dev/stdout
+2026-10-22T06:52:01.234975437Z 2026/10/22 06:52:01| Processing Configuration File: /etc/squid/squid.conf (depth 0)
+2026-10-22T06:52:01.235474210Z 2026/10/22 06:52:01| Processing Configuration File: /etc/squid/idlab/policy.conf (depth 1)
+2026-10-22T06:52:01.235486823Z 2026/10/22 06:52:01| Processing Configuration File: /etc/squid/idlab/auth.conf (depth 1)
+2026-10-22T06:52:01.235491103Z 2026/10/22 06:52:01| Processing Configuration File: /etc/squid/idlab/tls.conf (depth 1)
+2026-10-22T06:52:01.249740999Z 2026/10/22 06:52:01| Logfile: opening log stdio:/dev/stdout
+2026-10-22T06:52:01.249777839Z 2026/10/22 06:52:01| Squid plugin modules loaded: 0
+2026-10-22T06:52:01.249781429Z 2026/10/22 06:52:01| Store logging disabled
+2026-10-22T06:52:01.249824908Z 2026/10/22 06:52:01| DNS IPv6 socket created at [::], FD 9
+2026-10-22T06:52:01.249849820Z 2026/10/22 06:52:01| DNS IPv4 socket created at 0.0.0.0, FD 10
+2026-10-22T06:52:01.249853660Z 2026/10/22 06:52:01| Adding nameserver 127.0.0.11 from /etc/resolv.conf
+2026-10-22T06:52:01.249856246Z 2026/10/22 06:52:01| Adding domain . from /etc/resolv.conf
+2026-10-22T06:52:01.249858700Z 2026/10/22 06:52:01| Adding ndots 1 from /etc/resolv.conf
+2026-10-22T06:52:01.255429362Z 2026/10/22 06:52:01| Finished loading MIME types and icons.
+2026-10-22T06:52:01.255462741Z 2026/10/22 06:52:01| Accepting HTTP Socket connections at conn93 local=[::]:3128 remote=[::] FD 11 flags=9
+2026-10-22T06:52:01.255466295Z     listening port: 3128
+2026-10-22T06:52:05.990132145Z 1792651925.989     18 192.0.2.21 TCP_TUNNEL/200 7065 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:52:06.004319082Z 1792651926.004     11 192.0.2.21 TCP_TUNNEL/200 3646 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:52:43.747560715Z 2026/10/22 06:52:43| Reconfiguring Squid Cache (version 7.7)...
+2026-10-22T06:52:43.747593395Z 2026/10/22 06:52:43| Closing HTTP(S) port [::]:3128
+2026-10-22T06:52:43.747597661Z     listening port: 3128
+2026-10-22T06:52:43.747601002Z 2026/10/22 06:52:43| Logfile: closing log stdio:/dev/stdout
+2026-10-22T06:52:43.749020883Z 2026/10/22 06:52:43| Processing Configuration File: /etc/squid/squid.conf (depth 0)
+2026-10-22T06:52:43.749296668Z 2026/10/22 06:52:43| Processing Configuration File: /etc/squid/idlab/policy.conf (depth 1)
+2026-10-22T06:52:43.749306460Z 2026/10/22 06:52:43| Processing Configuration File: /etc/squid/idlab/auth.conf (depth 1)
+2026-10-22T06:52:43.749311336Z 2026/10/22 06:52:43| Processing Configuration File: /etc/squid/idlab/tls.conf (depth 1)
+2026-10-22T06:52:43.772906330Z 2026/10/22 06:52:43| Logfile: opening log stdio:/dev/stdout
+2026-10-22T06:52:43.772939012Z 2026/10/22 06:52:43| Squid plugin modules loaded: 0
+2026-10-22T06:52:43.772945758Z 2026/10/22 06:52:43| Store logging disabled
+2026-10-22T06:52:43.772949383Z 2026/10/22 06:52:43| DNS IPv6 socket created at [::], FD 9
+2026-10-22T06:52:43.772952705Z 2026/10/22 06:52:43| DNS IPv4 socket created at 0.0.0.0, FD 10
+2026-10-22T06:52:43.772956003Z 2026/10/22 06:52:43| Adding nameserver 127.0.0.11 from /etc/resolv.conf
+2026-10-22T06:52:43.772959312Z 2026/10/22 06:52:43| Adding domain . from /etc/resolv.conf
+2026-10-22T06:52:43.772962669Z 2026/10/22 06:52:43| Adding ndots 1 from /etc/resolv.conf
+2026-10-22T06:52:43.772968358Z 2026/10/22 06:52:43| helperOpenServers: Starting 1/3 'security_file_certgen' processes
+2026-10-22T06:52:43.773844078Z 2026/10/22 06:52:43| WARNING: no_suid: setuid(0): (1) Operation not permitted
+2026-10-22T06:52:43.779525694Z 2026/10/22 06:52:43| Finished loading MIME types and icons.
+2026-10-22T06:52:43.779547002Z 2026/10/22 06:52:43| Accepting SSL bumped HTTP Socket connections at conn109 local=[::]:3128 remote=[::] FD 13 flags=9
+2026-10-22T06:52:43.779551796Z     listening port: 3128
+2026-10-22T06:52:48.525029721Z 1792651968.524     19 192.0.2.21 NONE_NONE/200 0 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:52:48.525034673Z 2026/10/22 06:52:48| ERROR: Cannot accept a TLS connection
+2026-10-22T06:52:48.525070978Z     problem: failure
+2026-10-22T06:52:48.525075153Z     error detail: SQUID_TLS_ERR_ACCEPT+TLS_LIB_ERR=A000418+TLS_IO_ERR=1
+2026-10-22T06:52:48.525078649Z     current master transaction: master89
+2026-10-22T06:52:51.747256068Z 1792651971.746     48 192.0.2.21 NONE_NONE/200 0 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:52:52.266753165Z 2026/10/22 06:52:52| Reconfiguring Squid Cache (version 7.7)...
+2026-10-22T06:52:52.266778089Z 2026/10/22 06:52:52| Closing HTTP(S) port [::]:3128
+2026-10-22T06:52:52.266782222Z     listening port: 3128
+2026-10-22T06:52:52.266785644Z 2026/10/22 06:52:52| Logfile: closing log stdio:/dev/stdout
+2026-10-22T06:52:52.268347324Z 2026/10/22 06:52:52| Processing Configuration File: /etc/squid/squid.conf (depth 0)
+2026-10-22T06:52:52.268826445Z 2026/10/22 06:52:52| Processing Configuration File: /etc/squid/idlab/policy.conf (depth 1)
+2026-10-22T06:52:52.268847264Z 2026/10/22 06:52:52| Processing Configuration File: /etc/squid/idlab/auth.conf (depth 1)
+2026-10-22T06:52:52.268940030Z 2026/10/22 06:52:52| Processing Configuration File: /etc/squid/idlab/tls.conf (depth 1)
+2026-10-22T06:52:52.282607117Z 2026/10/22 06:52:52| Logfile: opening log stdio:/dev/stdout
+2026-10-22T06:52:52.282644233Z 2026/10/22 06:52:52| Squid plugin modules loaded: 0
+2026-10-22T06:52:52.282648508Z 2026/10/22 06:52:52| Store logging disabled
+2026-10-22T06:52:52.282651891Z 2026/10/22 06:52:52| DNS IPv6 socket created at [::], FD 9
+2026-10-22T06:52:52.282655124Z 2026/10/22 06:52:52| DNS IPv4 socket created at 0.0.0.0, FD 10
+2026-10-22T06:52:52.282658383Z 2026/10/22 06:52:52| Adding nameserver 127.0.0.11 from /etc/resolv.conf
+2026-10-22T06:52:52.282661658Z 2026/10/22 06:52:52| Adding domain . from /etc/resolv.conf
+2026-10-22T06:52:52.282672760Z 2026/10/22 06:52:52| Adding ndots 1 from /etc/resolv.conf
+2026-10-22T06:52:52.290774580Z 2026/10/22 06:52:52| Finished loading MIME types and icons.
+2026-10-22T06:52:52.290804942Z 2026/10/22 06:52:52| Accepting HTTP Socket connections at conn123 local=[::]:3128 remote=[::] FD 12 flags=9
+2026-10-22T06:52:52.290813367Z     listening port: 3128
+2026-10-22T06:52:57.120085828Z 1792651977.119     13 192.0.2.21 TCP_TUNNEL/200 7065 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:52:57.130809795Z 1792651977.130      8 192.0.2.21 TCP_TUNNEL/200 3646 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:53:15.460455788Z 2026/10/22 06:53:15| Preparing for shutdown after 22 requests
+2026-10-22T06:53:15.460482913Z 2026/10/22 06:53:15| Waiting 30 seconds for active connections to finish
+2026-10-22T06:53:15.460487657Z 2026/10/22 06:53:15| Closing HTTP(S) port [::]:3128
+2026-10-22T06:53:15.460491400Z     listening port: 3128
+2026-10-22T06:53:25.869884490Z 2026/10/22 06:53:25| Processing Configuration File: /etc/squid/squid.conf (depth 0)
+2026-10-22T06:53:25.869908642Z 2026/10/22 06:53:25| Processing Configuration File: /etc/squid/idlab/policy.conf (depth 1)
+2026-10-22T06:53:25.869912850Z 2026/10/22 06:53:25| Processing Configuration File: /etc/squid/idlab/auth.conf (depth 1)
+2026-10-22T06:53:25.869916412Z 2026/10/22 06:53:25| Processing Configuration File: /etc/squid/idlab/tls.conf (depth 1)
+2026-10-22T06:53:25.869919842Z 2026/10/22 06:53:25| Created PID file (/tmp/squid.pid)
+2026-10-22T06:53:25.869923203Z 2026/10/22 06:53:25| Set Current Directory to /tmp
+2026-10-22T06:53:25.869926447Z 2026/10/22 06:53:25| Starting Squid Cache version 7.7 for x86_64-pc-linux-gnu...
+2026-10-22T06:53:25.869929890Z 2026/10/22 06:53:25| Service Name: squid
+2026-10-22T06:53:25.869933118Z 2026/10/22 06:53:25| Process ID 1
+2026-10-22T06:53:25.869936261Z 2026/10/22 06:53:25| Process Roles: master worker
+2026-10-22T06:53:25.869939408Z 2026/10/22 06:53:25| With 1024 file descriptors available
+2026-10-22T06:53:25.869942594Z 2026/10/22 06:53:25| Initializing IP Cache...
+2026-10-22T06:53:25.869945769Z 2026/10/22 06:53:25| DNS IPv6 socket created at [::], FD 8
+2026-10-22T06:53:25.869948957Z 2026/10/22 06:53:25| DNS IPv4 socket created at 0.0.0.0, FD 9
+2026-10-22T06:53:25.869952207Z 2026/10/22 06:53:25| Adding nameserver 127.0.0.11 from /etc/resolv.conf
+2026-10-22T06:53:25.869955575Z 2026/10/22 06:53:25| Adding domain . from /etc/resolv.conf
+2026-10-22T06:53:25.869958888Z 2026/10/22 06:53:25| Adding ndots 1 from /etc/resolv.conf
+2026-10-22T06:53:25.869962319Z 2026/10/22 06:53:25| Logfile: opening log stdio:/dev/stdout
+2026-10-22T06:53:25.871152353Z 2026/10/22 06:53:25| Store logging disabled
+2026-10-22T06:53:25.871188357Z 2026/10/22 06:53:25| Swap maxSize 0 + 8192 KB, estimated 630 objects
+2026-10-22T06:53:25.871193536Z 2026/10/22 06:53:25| Target number of buckets: 31
+2026-10-22T06:53:25.871197127Z 2026/10/22 06:53:25| Using 8192 Store buckets
+2026-10-22T06:53:25.871205342Z 2026/10/22 06:53:25| Max Mem  size: 8192 KB
+2026-10-22T06:53:25.871244291Z 2026/10/22 06:53:25| Max Swap size: 0 KB
+2026-10-22T06:53:25.871254206Z 2026/10/22 06:53:25| Using Least Load store dir selection
+2026-10-22T06:53:25.871284158Z 2026/10/22 06:53:25| Set Current Directory to /tmp
+2026-10-22T06:53:25.878876288Z 2026/10/22 06:53:25| Finished loading MIME types and icons.
+2026-10-22T06:53:25.879862635Z 2026/10/22 06:53:25| Squid plugin modules loaded: 0
+2026-10-22T06:53:25.879884885Z 2026/10/22 06:53:25| Accepting HTTP Socket connections at conn3 local=[::]:3128 remote=[::] FD 11 flags=9
+2026-10-22T06:53:25.879888442Z     listening port: 3128
+2026-10-22T06:53:26.873323152Z 2026/10/22 06:53:26| storeLateRelease: released 0 objects
+2026-10-22T06:53:31.545609441Z 2026/10/22 06:53:31| Reconfiguring Squid Cache (version 7.7)...
+2026-10-22T06:53:31.545638111Z 2026/10/22 06:53:31| Closing HTTP(S) port [::]:3128
+2026-10-22T06:53:31.545641409Z     listening port: 3128
+2026-10-22T06:53:31.545643884Z 2026/10/22 06:53:31| Logfile: closing log stdio:/dev/stdout
+2026-10-22T06:53:31.546932077Z 2026/10/22 06:53:31| Processing Configuration File: /etc/squid/squid.conf (depth 0)
+2026-10-22T06:53:31.547527793Z 2026/10/22 06:53:31| Processing Configuration File: /etc/squid/idlab/policy.conf (depth 1)
+2026-10-22T06:53:31.547537868Z 2026/10/22 06:53:31| Processing Configuration File: /etc/squid/idlab/auth.conf (depth 1)
+2026-10-22T06:53:31.547541020Z 2026/10/22 06:53:31| Processing Configuration File: /etc/squid/idlab/tls.conf (depth 1)
+2026-10-22T06:53:31.558689746Z 2026/10/22 06:53:31| Logfile: opening log stdio:/dev/stdout
+2026-10-22T06:53:31.558716233Z 2026/10/22 06:53:31| Squid plugin modules loaded: 0
+2026-10-22T06:53:31.558719992Z 2026/10/22 06:53:31| Store logging disabled
+2026-10-22T06:53:31.558722514Z 2026/10/22 06:53:31| DNS IPv6 socket created at [::], FD 9
+2026-10-22T06:53:31.558724879Z 2026/10/22 06:53:31| DNS IPv4 socket created at 0.0.0.0, FD 10
+2026-10-22T06:53:31.558727250Z 2026/10/22 06:53:31| Adding nameserver 127.0.0.11 from /etc/resolv.conf
+2026-10-22T06:53:31.558729659Z 2026/10/22 06:53:31| Adding domain . from /etc/resolv.conf
+2026-10-22T06:53:31.558731976Z 2026/10/22 06:53:31| Adding ndots 1 from /etc/resolv.conf
+2026-10-22T06:53:31.558734272Z 2026/10/22 06:53:31| helperOpenServers: Starting 0/20 'basic_ncsa_auth' processes
+2026-10-22T06:53:31.558736636Z 2026/10/22 06:53:31| helperOpenServers: No 'basic_ncsa_auth' processes needed.
+2026-10-22T06:53:31.562700929Z 2026/10/22 06:53:31| Finished loading MIME types and icons.
+2026-10-22T06:53:31.562711724Z 2026/10/22 06:53:31| Accepting HTTP Socket connections at conn7 local=[::]:3128 remote=[::] FD 11 flags=9
+2026-10-22T06:53:31.562715017Z     listening port: 3128
+2026-10-22T06:53:36.432285341Z 1792652016.432      0 192.0.2.21 TCP_DENIED/407 3413 CONNECT keycloak:8180 - HIER_NONE/- text/html
+2026-10-22T06:53:39.707230428Z 2026/10/22 06:53:39| helperOpenServers: Starting 1/20 'basic_ncsa_auth' processes
+2026-10-22T06:53:39.707260202Z     current master transaction: master55
+2026-10-22T06:53:39.707435215Z 2026/10/22 06:53:39| WARNING: no_suid: setuid(0): (1) Operation not permitted
+2026-10-22T06:53:39.707442825Z     current master transaction: master55
+2026-10-22T06:53:39.732428507Z 1792652019.731     25 192.0.2.21 TCP_TUNNEL/200 3913 CONNECT keycloak:8180 egress-svc HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:53:40.260884381Z 2026/10/22 06:53:40| Reconfiguring Squid Cache (version 7.7)...
+2026-10-22T06:53:40.260909703Z 2026/10/22 06:53:40| Closing HTTP(S) port [::]:3128
+2026-10-22T06:53:40.260912943Z     listening port: 3128
+2026-10-22T06:53:40.260917331Z 2026/10/22 06:53:40| Logfile: closing log stdio:/dev/stdout
+2026-10-22T06:53:40.263691857Z 2026/10/22 06:53:40| Processing Configuration File: /etc/squid/squid.conf (depth 0)
+2026-10-22T06:53:40.263978219Z 2026/10/22 06:53:40| Processing Configuration File: /etc/squid/idlab/policy.conf (depth 1)
+2026-10-22T06:53:40.263999587Z 2026/10/22 06:53:40| Processing Configuration File: /etc/squid/idlab/auth.conf (depth 1)
+2026-10-22T06:53:40.264061099Z 2026/10/22 06:53:40| Processing Configuration File: /etc/squid/idlab/tls.conf (depth 1)
+2026-10-22T06:53:40.279050682Z 2026/10/22 06:53:40| Logfile: opening log stdio:/dev/stdout
+2026-10-22T06:53:40.279078195Z 2026/10/22 06:53:40| Squid plugin modules loaded: 0
+2026-10-22T06:53:40.279081908Z 2026/10/22 06:53:40| Store logging disabled
+2026-10-22T06:53:40.279084349Z 2026/10/22 06:53:40| DNS IPv6 socket created at [::], FD 9
+2026-10-22T06:53:40.279086776Z 2026/10/22 06:53:40| DNS IPv4 socket created at 0.0.0.0, FD 10
+2026-10-22T06:53:40.279089207Z 2026/10/22 06:53:40| Adding nameserver 127.0.0.11 from /etc/resolv.conf
+2026-10-22T06:53:40.279091629Z 2026/10/22 06:53:40| Adding domain . from /etc/resolv.conf
+2026-10-22T06:53:40.279093943Z 2026/10/22 06:53:40| Adding ndots 1 from /etc/resolv.conf
+2026-10-22T06:53:40.288684457Z 2026/10/22 06:53:40| Finished loading MIME types and icons.
+2026-10-22T06:53:40.288711515Z 2026/10/22 06:53:40| Accepting HTTP Socket connections at conn19 local=[::]:3128 remote=[::] FD 11 flags=9
+2026-10-22T06:53:40.288719205Z     listening port: 3128
+2026-10-22T06:53:45.032535062Z 1792652025.032     15 192.0.2.21 TCP_TUNNEL/200 7065 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -
+2026-10-22T06:53:45.043475960Z 1792652025.043      9 192.0.2.21 TCP_TUNNEL/200 3646 CONNECT keycloak:8180 - HIER_DIRECT/192.0.2.12 -

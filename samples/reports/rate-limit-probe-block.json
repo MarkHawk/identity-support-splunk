@@ -2,7 +2,7 @@
   "tool": "rate-limit-probe",
   "version": "0.1.0",
   "target": {
-    "url": "http://127.0.0.1:42347/s/block",
+    "url": "http://127.0.0.1:42331/s/block",
     "local": true,
     "method": "GET"
   },
@@ -97,7 +97,7 @@
       "type": "request",
       "n": 6,
       "phase": "discover",
-      "at": 0.501,
+      "at": 0.5,
       "status": 429,
       "rate_headers": [
         [
@@ -168,7 +168,7 @@
       "summary": "Request 6, 0.5 s in: 5 requests were accepted first.",
       "details": {
         "request": 6,
-        "at": 0.501,
+        "at": 0.5,
         "burst": 5
       }
     },
@@ -211,8 +211,8 @@
       "title": "Early retry",
       "summary": "A request sent 1 s early was refused, and did not extend the wait.",
       "details": {
-        "delay": 1.001,
-        "expected": 0.999,
+        "delay": 1.002,
+        "expected": 0.998,
         "new_hint": 1.0,
         "penalised": false
       }
