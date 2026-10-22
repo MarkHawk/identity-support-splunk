@@ -372,6 +372,14 @@ def test_app_lines_with_values_masked_by_the_lab():
     assert (f["src"], f["http_method"], f["uri_path"], f["status"]) == ("192.0.2.30", "GET", "/auth/callback", "502")
 
 
+def test_app_quoted_value_with_quotes_inside_is_kept_whole():
+    """shlex.quote writes a ' inside a quoted value as '"'"'."""
+    f = fields("oidc-rp-egress", "Tunnel connection failed: 407")
+    assert f["error"].startswith("HTTPSConnectionPool(host='\"'\"'keycloak'\"'\"', port=8180): Max retries")
+    assert f["error"].endswith("Tunnel connection failed: 407 Proxy Authentication Required'\"'\"')))")
+    assert f["detail"] == "ProxyError" and "port" not in f, "no pairs from inside a quoted value"
+
+
 # --- the egress proxy (Squid) ------------------------------------------------
 
 def test_squid_access_fields():
