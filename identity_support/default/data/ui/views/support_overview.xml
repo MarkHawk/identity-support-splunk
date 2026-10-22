@@ -23,12 +23,12 @@
     "ds_failures": {
       "type": "ds.search",
       "name": "Failures with their likely cause",
-      "options": {"query": "(`support_failures`) OR (`support_index` sourcetype=idlab:slapd ldap_op=BIND bind_dn=*) | eventstats values(bind_dn) as bind_dn by host conn op | where isnull(ldap_op) OR ldap_op!=\"BIND\" | eval bind_dn=mvindex(bind_dn, 0), bind_uid=if(match(bind_dn, \"^uid=\"), replace(bind_dn, \"^uid=([^,]+),.*$\", \"\\1\"), null()), bind_cn=if(match(bind_dn, \"^cn=\"), replace(bind_dn, \"^cn=([^,]+),.*$\", \"\\1\"), null()), user=coalesce(user, bind_uid), signature=if(signature==\"ldap_bind_49\" AND isnotnull(bind_uid), \"ldap_user_bind_49\", signature) | lookup support_causes signature OUTPUT cause runbook runbook_url | eval cause=coalesce(cause, \"unknown: \" . signature), who=case(isnotnull(user), user, isnotnull(bind_cn), \"service account (\" . bind_cn . \")\", like(signature, \"ldap_bind_%\"), null(), true(), \"not in log\") | fields _time user who app route cause signature runbook runbook_url"}
+      "options": {"query": "(`support_failures`) OR (`support_index` sourcetype=idlab:slapd ldap_op=BIND bind_dn=*) | eventstats values(bind_dn) as bind_dn by host conn op | where isnull(ldap_op) OR ldap_op!=\"BIND\" | eval bind_dn=mvindex(bind_dn, 0), bind_uid=if(match(bind_dn, \"^uid=\"), replace(bind_dn, \"^uid=([^,]+),.*$\", \"\\1\"), null()), bind_cn=if(match(bind_dn, \"^cn=\"), replace(bind_dn, \"^cn=([^,]+),.*$\", \"\\1\"), null()), user=coalesce(user, bind_uid), signature=if(signature==\"ldap_bind_49\" AND isnotnull(bind_uid), \"ldap_user_bind_49\", signature) | lookup support_causes signature OUTPUT cause runbook runbook_url | eval cause=coalesce(cause, \"unknown: \" . signature), who=case(isnotnull(user), user, isnotnull(bind_cn), \"service account (\" . bind_cn . \")\", like(signature, \"ldap_bind_%\"), null(), true(), \"not in log\") | `support_count_once_per_login` | fields _time user who app route cause signature runbook runbook_url counted"}
     },
     "ds_totals": {
       "type": "ds.chain",
       "name": "Totals",
-      "options": {"extend": "ds_failures", "query": "| stats count dc(user) as users min(_time) as first max(_time) as last"}
+      "options": {"extend": "ds_failures", "query": "| stats sum(counted) as count dc(user) as users min(_time) as first max(_time) as last"}
     },
     "ds_count": {"type": "ds.chain", "options": {"extend": "ds_totals", "query": "| fields count"}},
     "ds_users": {"type": "ds.chain", "options": {"extend": "ds_totals", "query": "| fields users"}},
@@ -37,17 +37,17 @@
     "ds_over_time": {
       "type": "ds.chain",
       "name": "Failures over time by cause",
-      "options": {"extend": "ds_failures", "query": "| `support_chart(cause)`"}
+      "options": {"extend": "ds_failures", "query": "| where counted=1 | `support_chart(cause)`"}
     },
     "ds_by_cause": {
       "type": "ds.chain",
       "name": "When did it start, by cause",
-      "options": {"extend": "ds_failures", "query": "| stats min(_time) as first_seen max(_time) as last_seen count dc(user) as n_users values(who) as who values(signature) as signatures values(app) as apps values(route) as routes latest(runbook) as runbook latest(runbook_url) as runbook_url by cause | eval accounts=mvfilter(match(who, \"^service account\")), users=case(n_users==1, \"1 user\", n_users>1, n_users . \" users\"), affected=coalesce(mvjoin(mvappend(users, accounts), \", \"), if(isnotnull(mvfind(signatures, \"^ldap_bind_\")), \"service account\", null()), \"not in log\") | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\") | eval _runbook_url=coalesce(runbook_url, \"https://github.com/MarkHawk/identity-lab/tree/main/runbooks\") | table first_seen last_seen cause count affected apps routes runbook _runbook_url"}
+      "options": {"extend": "ds_failures", "query": "| stats min(_time) as first_seen max(_time) as last_seen sum(counted) as count dc(user) as n_users values(who) as who values(signature) as signatures values(app) as apps values(route) as routes latest(runbook) as runbook latest(runbook_url) as runbook_url by cause | eval accounts=mvfilter(match(who, \"^service account\")), users=case(n_users==1, \"1 user\", n_users>1, n_users . \" users\"), affected=coalesce(mvjoin(mvappend(users, accounts), \", \"), if(isnotnull(mvfind(signatures, \"^ldap_bind_\")), \"service account\", null()), \"not in log\") | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\") | eval _runbook_url=coalesce(runbook_url, \"https://github.com/MarkHawk/identity-lab/tree/main/runbooks\") | table first_seen last_seen cause count affected apps routes runbook _runbook_url"}
     },
     "ds_who": {
       "type": "ds.chain",
       "name": "Users and apps affected",
-      "options": {"extend": "ds_failures", "query": "| where isnotnull(who) AND who!=\"not in log\" | fillnull value=\"-\" app | stats min(_time) as first_seen max(_time) as last_seen count values(cause) as causes by who app | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\")"}
+      "options": {"extend": "ds_failures", "query": "| where isnotnull(who) AND who!=\"not in log\" | fillnull value=\"-\" app | stats min(_time) as first_seen max(_time) as last_seen sum(counted) as count values(cause) as causes by who app | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\")"}
     },
     "ds_proxy_status": {
       "type": "ds.search",
@@ -67,7 +67,7 @@
     "ds_egress_causes": {
       "type": "ds.search",
       "name": "Egress proxy refusals and back-channel failures by cause",
-      "options": {"query": "`support_index` (eventtype=idlab_egress_error OR (sourcetype=idlab:sp signature=egress_app_*)) | stats count min(_time) as first_seen max(_time) as last_seen values(app) as apps values(route) as routes latest(runbook) as runbook latest(runbook_url) as runbook_url by cause | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\") | eval _runbook_url=coalesce(runbook_url, \"https://github.com/MarkHawk/identity-lab/tree/main/runbooks\") | table first_seen last_seen cause count apps routes runbook _runbook_url"}
+      "options": {"query": "`support_index` (eventtype=idlab_egress_error OR (sourcetype=idlab:sp signature=egress_app_*)) | stats count(eval(like(signature, \"egress_app_%\"))) as app_failures count(eval(like(signature, \"egress_proxy_%\"))) as proxy_refusals min(_time) as first_seen max(_time) as last_seen values(app) as apps values(route) as routes latest(runbook) as runbook latest(runbook_url) as runbook_url by cause | sort first_seen | eval first_seen=strftime(first_seen, \"%Y-%m-%d %H:%M:%S\"), last_seen=strftime(last_seen, \"%Y-%m-%d %H:%M:%S\") | eval _runbook_url=coalesce(runbook_url, \"https://github.com/MarkHawk/identity-lab/tree/main/runbooks\") | table first_seen last_seen cause app_failures proxy_refusals apps routes runbook _runbook_url | rename app_failures as \"failed calls (app)\", proxy_refusals as \"refusals (Squid)\""}
     },
     "ds_radius": {
       "type": "ds.search",
@@ -143,7 +143,7 @@
     "viz_egress_causes": {
       "type": "splunk.table",
       "title": "Forward proxy (egress): refusals and back-channel failures by likely cause (select a row for its runbook)",
-      "description": "Squid's refusals and the app's failed calls to the IdP, one row per cause. A bypass (runbook 14) leaves nothing in Squid's log, so only the app shows it. Squid's TLS row has no route: cache.log doesn't name the destination.",
+      "description": "Squid's refusals and the app's failed calls to the IdP, one row per cause, each side counted in its own column: one failed login usually shows in both (When did it start? counts it once). A bypass (runbook 14) leaves nothing in Squid's log, so only the app shows it. Squid's TLS row has no route: cache.log doesn't name the destination.",
       "options": {"showInternalFields": false},
       "dataSources": {"primary": "ds_egress_causes"},
       "eventHandlers": [{"type": "drilldown.customUrl", "options": {"url": "$row._runbook_url.value|n$", "newTab": true}}]

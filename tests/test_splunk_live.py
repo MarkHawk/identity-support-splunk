@@ -437,6 +437,10 @@ def test_overview_when_did_it_start_shows_apps_and_routes(host):
     assert rows["11-proxy-auth-required"]["routes"] == "keycloak:8180"
     assert sorted(rows["12-proxy-policy-block"]["routes"]) == ["keycloak:8180", "localhost:8182"]
     assert rows["14-proxy-bypass"]["apps"] == "oidc-rp-egress"
+    # ... and each failed login counts once: Squid's 407, 403 and TLS lines
+    # pair with the app's; Squid's aborted 403 and the one to localhost don't
+    assert [rows[r]["count"] for r in ("11-proxy-auth-required", "12-proxy-policy-block",
+                                       "13-proxy-tls-interception")] == ["1", "3", "1"]
     [unreachable] = [r for r in rows.values() if r["cause"].startswith("App cannot reach its egress proxy")]
     assert unreachable["_runbook_url"] == "https://github.com/MarkHawk/identity-lab/tree/main/runbooks"
 
@@ -445,5 +449,7 @@ def test_overview_egress_panels(host):
     rows = search(overview_query(host, "ds_egress_causes"))
     assert [r.get("runbook", "-") for r in rows] == [
         "11-proxy-auth-required", "12-proxy-policy-block", "13-proxy-tls-interception", "14-proxy-bypass", "-"]
+    assert [(r["failed calls (app)"], r["refusals (Squid)"]) for r in rows] == [
+        ("1", "1"), ("1", "3"), ("1", "1"), ("1", "0"), ("1", "0")]
     series = {k for r in search(overview_query(host, "ds_egress_status")) for k in r if not k.startswith("_")}
     assert series == {"tunnelled", "407", "403", "intercepted, no tunnel"}
