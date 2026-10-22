@@ -36,7 +36,7 @@ pytestmark = pytest.mark.skipif(not all(os.environ.get(n) for n in NEEDED),
 
 # Events the fixtures should produce once indexed: the healthz line is dropped.
 # The proxy's lines are all typed access or error at index time.
-EXPECTED = {"idlab:keycloak": 6, "idlab:sp": 46, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
+EXPECTED = {"idlab:keycloak": 6, "idlab:sp": 46, "idlab:api": 16, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
             "idlab:nginx:access": 7, "idlab:nginx:error": 7, "idlab:squid:access": 7, "idlab:squid:cache": 5,
             "token_inspector:report": 1, "rate_limit_probe:report": 1}
 
@@ -141,6 +141,39 @@ def test_proxied_app_failure_names_the_proxied_copy(host):
     row = one(host, "sourcetype=idlab:sp source=docker:oidc-rp-proxied event=oidc_login_failed")
     assert (row["action"], row["app"], row["dest"], row["signature"]) == (
         "failure", "oidc-rp-proxied", "oidc-rp-proxied", "oidc-rp:token_exchange_failed")
+
+
+def test_edge_rp_force_https_fields(host):
+    rows = search(f"`support_index` host={host} sourcetype=idlab:sp source=docker:oidc-rp-edge event=force_https "
+                  "| stats count by scheme x_forwarded_proto")
+    assert {(r["scheme"], r["x_forwarded_proto"]): r["count"] for r in rows} == {("http", "-"): "7", ("http", "https"): "5"}
+
+
+def test_api_calls_are_cim_authentication(host):
+    rows = search(f"`support_index` host={host} tag=authentication sourcetype=idlab:api "
+                  "| fillnull value=- user | stats count by action app dest status user")
+    sub = "0b6f6f1e-3c1b-4d4e-9a55-1f2e3d4c5b6a"
+    assert {(r["action"], r["app"], r["dest"], r["status"], r["user"]): r["count"] for r in rows} == {
+        ("success", "api", "api", "200", sub): "1",
+        ("failure", "api", "api", "401", sub): "2",
+        ("failure", "api", "api", "401", "7d1c2b3a-4e5f-4a6b-8c7d-9e0f1a2b3c4d"): "1",
+        ("failure", "api", "api", "401", "-"): "2",
+        ("failure", "api", "api", "400", "-"): "1"}
+
+
+def test_api_rejection_reasons_and_lifetime(host):
+    rows = search(f"`support_index` host={host} sourcetype=idlab:api event=api_token_rejected "
+                  "| fillnull value=- token_lifetime aud | stats count by reason token_lifetime aud")
+    assert {(r["reason"], r["token_lifetime"], r["aud"]) for r in rows} == {
+        ("no_token", "-", "-"), ("not_jwt", "-", "-"), ("not_bearer", "-", "-"),
+        ("wrong_audience", "300", "idlab-api-staging account"),
+        ("expired", "10", "idlab-api account"),
+        ("expired", "-", "idlab-api account")}
+
+
+def test_api_access_lines_keep_their_status(host):
+    rows = search(f"`support_index` host={host} sourcetype=idlab:api uri_path=/v1/whoami | stats count by status")
+    assert {r["status"]: r["count"] for r in rows} == {"200": "1", "400": "1", "401": "5"}
 
 
 def test_radius_reject_versus_no_reply(host):
@@ -355,8 +388,8 @@ def test_overview_names_who_is_affected(host):
 
 def test_overview_chart_buckets_follow_the_data(host):
     rows = search(overview_query(host, "ds_over_time"))
-    # the fixtures span 18:05-18:50, so 1-minute buckets, filled continuously
-    assert len(rows) == 46
+    # the fixtures span 18:05-18:54, so 1-minute buckets, filled continuously
+    assert len(rows) == 50
     assert not any("gap" in key for r in rows for key in r)
 
 

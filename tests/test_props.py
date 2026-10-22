@@ -353,7 +353,7 @@ def test_eventtypes_and_tags_line_up():
     assert {s.removeprefix("eventtype=") for s in tags.sections() if tags[s].get("web") == "enabled"} == {
         "idlab_proxy_access", "idlab_egress_access"}
     assert tags["eventtype=idlab_egress_access"]["proxy"] == "enabled"
-    assert auth == {"idlab_keycloak_login", "idlab_sp_login", "idlab_radius_auth", "idlab_ldap_bind_failure"}
+    assert auth == {"idlab_keycloak_login", "idlab_sp_login", "idlab_api_auth", "idlab_radius_auth", "idlab_ldap_bind_failure"}
 
 
 def test_report_sourcetypes_are_json():
@@ -516,3 +516,42 @@ def test_bypass_and_tls_rules_only_apply_to_the_app_behind_the_proxy():
 def test_proxied_egress_and_edge_app_names():
     for key in ("EVAL-app", "EVAL-dest"):
         assert 'replace(source, "^.*(-proxied|-egress|-edge)$", "\\1")' in props["idlab:sp"][key]
+
+
+# --- the API (bearer tokens) -------------------------------------------------
+
+def test_api_healthz_is_dropped_at_index_time():
+    assert props["idlab:api"]["TRANSFORMS-null_healthz"] == "idlab_sp_drop_healthz"
+    t = transforms["idlab_sp_drop_healthz"]
+    assert [e for e in events("api") if pcre(t["REGEX"]).search(e)] == [e for e in events("api") if "/healthz" in e]
+
+
+def test_api_rejection_fields():
+    f = fields("api", "does not include idlab-api")
+    assert (f["log_level"], f["event"], f["error"]) == ("WARNING", "api_token_rejected", "invalid_token")
+    assert f["error_description"] == "The access token audience (idlab-api-staging account) does not include idlab-api"
+    assert (f["sub"], f["azp"], f["aud"]) == ("0b6f6f1e-3c1b-4d4e-9a55-1f2e3d4c5b6a", "oidc-rp", "idlab-api-staging account")
+    assert (f["iss"], f["exp"], f["iat"]) == (
+        "https://idp.idlab.example:8180/realms/idlab", "2026-10-19T18:56:50Z", "2026-10-19T18:51:50Z")
+
+
+def test_api_claims_the_token_lacks_are_not_fields():
+    f = fields("api", "error=no_token")
+    assert f["error"] == "no_token"
+    assert not {"error_description", "sub", "azp", "aud", "iss", "exp", "iat"} & set(f)
+
+
+def test_api_rejection_without_iat():
+    f = fields("api", "expired at 2026-10-19T18:54:00Z")
+    assert f["exp"] == "2026-10-19T18:54:00Z" and "iat" not in f
+
+
+def test_api_access_line():
+    f = fields("api", '"GET /v1/whoami HTTP/1.1" 400')
+    assert (f["src"], f["http_method"], f["uri_path"], f["status"]) == ("192.0.2.50", "GET", "/v1/whoami", "400")
+
+
+def test_api_is_cim_authentication():
+    et = read_conf("eventtypes.conf")["idlab_api_auth"]["search"]
+    assert et == "sourcetype=idlab:api (event=api_request_ok OR event=api_token_rejected)"
+    assert read_conf("tags.conf")["eventtype=idlab_api_auth"]["authentication"] == "enabled"
