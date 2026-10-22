@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- **Docs:** a README screenshot of the Forward proxy (egress) row with
+  real lab data (runbooks 11 to 13).
+
 ## 0.3.0 (2026-10-22)
 
 Adds identity-lab's Squid egress proxy and its four scenarios (runbooks

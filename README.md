@@ -27,6 +27,9 @@ you can try it without the lab.
 ![Reverse proxy](docs/screenshots/proxy.png)
 *Reverse proxy: responses over time by status, and each 502, 504 or 429 with its likely cause, route and runbook.*
 
+![Forward proxy (egress)](docs/screenshots/egress-proxy.png)
+*Forward proxy (egress): the app's calls through Squid over time, and each 407, 403 or TLS interception refusal with its likely cause, apps, route and runbook.*
+
 The screenshots show real identity-lab data. Times are shown in the Splunk user's time zone (UK time in these screenshots).
 
 ## Try it in 5 minutes
