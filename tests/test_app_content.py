@@ -158,6 +158,22 @@ def test_proxy_panels():
     assert "values(route) as routes" in d["dataSources"]["ds_by_cause"]["options"]["query"]
     assert d["dataSources"]["ds_by_cause"]["options"]["query"].endswith("affected apps routes runbook _runbook_url")
     assert "has no route: nginx cuts that error line short" in d["visualizations"]["viz_proxy_causes"]["description"]
+    # the chained searches only see what ds_failures keeps
+    assert " route " in d["dataSources"]["ds_failures"]["options"]["query"].rsplit("| fields ", 1)[1] + " "
+
+
+def test_egress_panels():
+    _, d = definition(APP / "default/data/ui/views/support_overview.xml")
+    q = d["dataSources"]["ds_egress_causes"]["options"]["query"]
+    assert "eventtype=idlab_egress_error" in q and "signature=egress_app_*" in q
+    colours = d["visualizations"]["viz_egress_status"]["options"]["seriesColorsByField"]
+    assert set(colours) == {"tunnelled", "407", "403", "intercepted, no tunnel"}
+    assert "only the app shows it" in d["visualizations"]["viz_egress_causes"]["description"]
+    assert "eventtype=idlab_egress_error" in read_conf("macros.conf")["support_failures"]["definition"]
+    # a cause with no runbook opens identity-lab's runbooks folder
+    folder = 'coalesce(runbook_url, "https://github.com/MarkHawk/identity-lab/tree/main/runbooks")'
+    for name in ("ds_by_cause", "ds_egress_causes"):
+        assert "_runbook_url=" + folder in d["dataSources"][name]["options"]["query"]
 
 
 @pytest.mark.parametrize("name, runbooks", [

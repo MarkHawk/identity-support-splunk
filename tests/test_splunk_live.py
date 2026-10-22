@@ -354,3 +354,25 @@ def test_overview_when_did_it_start_lists_the_proxy_causes(host):
     runbooks = {r.get("runbook") for r in search(overview_query(host, "ds_by_cause"))}
     assert {"06-proxy-bad-gateway", "07-proxy-gateway-timeout", "08-proxy-rate-limit",
             "09-proxy-forwarded-headers", "10-proxy-header-too-large"} <= runbooks
+
+
+def test_overview_when_did_it_start_shows_apps_and_routes(host):
+    rows = {r["runbook"] if r.get("runbook") else r["cause"][:40]: r for r in search(overview_query(host, "ds_by_cause"))}
+    assert (rows["06-proxy-bad-gateway"]["apps"], rows["06-proxy-bad-gateway"]["routes"]) == ("proxy", "rp.idlab.example:8185")
+    assert rows["09-proxy-forwarded-headers"]["apps"] == "keycloak (via proxy)"
+    assert "routes" not in rows["10-proxy-header-too-large"]
+    # each egress scenario is one row, from both sides
+    assert sorted(rows["11-proxy-auth-required"]["apps"]) == ["egress proxy", "oidc-rp-egress"]
+    assert rows["11-proxy-auth-required"]["routes"] == "keycloak:8180"
+    assert sorted(rows["12-proxy-policy-block"]["routes"]) == ["keycloak:8180", "localhost:8182"]
+    assert rows["14-proxy-bypass"]["apps"] == "oidc-rp-egress"
+    [unreachable] = [r for r in rows.values() if r["cause"].startswith("App cannot reach its egress proxy")]
+    assert unreachable["_runbook_url"] == "https://github.com/MarkHawk/identity-lab/tree/main/runbooks"
+
+
+def test_overview_egress_panels(host):
+    rows = search(overview_query(host, "ds_egress_causes"))
+    assert [r.get("runbook", "-") for r in rows] == [
+        "11-proxy-auth-required", "12-proxy-policy-block", "13-proxy-tls-interception", "14-proxy-bypass", "-"]
+    series = {k for r in search(overview_query(host, "ds_egress_status")) for k in r if not k.startswith("_")}
+    assert series == {"tunnelled", "407", "403", "intercepted, no tunnel"}
