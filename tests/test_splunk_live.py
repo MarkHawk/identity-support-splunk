@@ -271,6 +271,16 @@ def alert_query(host, name, threshold=None):
     return spl.replace(">= 3", f">= {threshold}") if threshold else spl
 
 
+def test_egress_alert(host):
+    rows = {r["runbook"]: r for r in search(alert_query(host, "Egress proxy refusing the IdP"))}
+    assert set(rows) == {"11-proxy-auth-required", "12-proxy-policy-block", "13-proxy-tls-interception"}
+    # Squid's and the app's side of each; the healthcheck refused on localhost:8182 is not the IdP
+    assert (rows["11-proxy-auth-required"]["count"], rows["12-proxy-policy-block"]["count"]) == ("2", "3")
+    assert rows["12-proxy-policy-block"]["routes"] == "keycloak:8180"
+    assert sorted(rows["13-proxy-tls-interception"]["apps"]) == ["egress proxy", "oidc-rp-egress"]
+    assert all(r["runbook_url"].endswith(r["runbook"] + ".md") for r in rows.values())
+
+
 def test_proxy_spike_alert(host):
     [row] = search(alert_query(host, "Reverse proxy 502/504 spike"))
     assert row["responses"] == "3" and set(row["statuses"]) == {"502", "504"}
