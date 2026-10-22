@@ -1,0 +1,10 @@
+tls_lib_err,tls_error
+A000086,certificate verify failed
+A000412,ssl/tls alert bad certificate
+A000413,ssl/tls alert unsupported certificate
+A000414,ssl/tls alert certificate revoked
+A000415,ssl/tls alert certificate expired
+A000416,ssl/tls alert certificate unknown
+A000418,tlsv1 alert unknown ca
+A000419,tlsv1 alert access denied
+A00041B,tlsv1 alert decrypt error

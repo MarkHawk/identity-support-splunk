@@ -16,9 +16,10 @@ props = read_conf("props.conf")
 transforms = read_conf("transforms.conf")
 FIXTURES = ROOT / "tests/fixtures/lab"
 LOG_SOURCETYPES = sorted(set(hec_send.SERVICES.values()))
-# Sourcetypes events are searched under: idlab:nginx lines are given their
-# own type at index time.
-SEARCH_SOURCETYPES = sorted(set(LOG_SOURCETYPES) - {"idlab:nginx"} | {"idlab:nginx:access", "idlab:nginx:error"})
+# Sourcetypes events are searched under: idlab:nginx and idlab:squid events
+# are given their own type at index time.
+SEARCH_SOURCETYPES = sorted(set(LOG_SOURCETYPES) - {"idlab:nginx", "idlab:squid"}
+                            | {"idlab:nginx:access", "idlab:nginx:error", "idlab:squid:access", "idlab:squid:cache"})
 
 
 def events(service):
@@ -94,6 +95,13 @@ def test_squid_cache_log_detail_lines_stay_with_their_message():
     tls = [e for e in squid if "Cannot accept a TLS connection" in e]
     assert len(tls) == 1 and "TLS_LIB_ERR=A000418" in tls[0] and "current master transaction" in tls[0]
     assert any("Accepting HTTP Socket" in e and "listening port: 3128" in e for e in squid)
+
+
+def test_squid_events_are_typed_access_or_cache_at_index_time():
+    typed = collections.Counter(index_sourcetype(props, transforms, "idlab:squid", e) for e in events("squid"))
+    assert typed == {"idlab:squid:access": 7, "idlab:squid:cache": 5}
+    for sourcetype in ("idlab:squid:access", "idlab:squid:cache"):
+        assert "LINE_BREAKER" not in props[sourcetype], "search-time only: events break as idlab:squid"
 
 
 # --- fields ----------------------------------------------------------------
@@ -295,7 +303,8 @@ def test_eventtypes_and_tags_line_up():
     assert tagged == set(eventtypes.sections())
     auth = {s.removeprefix("eventtype=") for s in tags.sections() if tags[s].get("authentication") == "enabled"}
     assert {s.removeprefix("eventtype=") for s in tags.sections() if tags[s].get("web") == "enabled"} == {
-        "idlab_proxy_access"}
+        "idlab_proxy_access", "idlab_egress_access"}
+    assert tags["eventtype=idlab_egress_access"]["proxy"] == "enabled"
     assert auth == {"idlab_keycloak_login", "idlab_sp_login", "idlab_radius_auth", "idlab_ldap_bind_failure"}
 
 
@@ -321,3 +330,56 @@ def test_calculated_fields_never_use_each_other():
             if key.startswith("EVAL-"):
                 used = set(re.findall(r"(?<![\w.\"'])([A-Za-z_][\w.]*)\b(?!\s*\()", re.sub(r'"[^"]*"', '""', expr)))
                 assert not (used & calculated) - {key.removeprefix("EVAL-")}, (sourcetype, key)
+
+
+# --- the egress proxy (Squid) ------------------------------------------------
+
+def test_squid_access_fields():
+    f = fields("squid", "TCP_DENIED/407")
+    assert (f["elapsed_ms"], f["src"], f["result_code"], f["status"], f["bytes"]) == ("0", "192.0.2.40", "TCP_DENIED", "407", "3413")
+    assert (f["http_method"], f["url"], f["dest_host"], f["dest_port"]) == ("CONNECT", "keycloak:8180", "keycloak", "8180")
+    assert (f["squid_user"], f["hierarchy_code"], f["peer"], f["http_content_type"]) == ("-", "HIER_NONE", "-", "text/html")
+
+
+@pytest.mark.parametrize("contains, result_code, status", [
+    ("TCP_DENIED_ABORTED/403", "TCP_DENIED_ABORTED", "403"),
+    ("NONE_NONE/200", "NONE_NONE", "200"),
+    ("egress-svc", "TCP_TUNNEL", "200"),
+])
+def test_squid_result_codes(contains, result_code, status):
+    f = fields("squid", contains)
+    assert (f["result_code"], f["status"]) == (result_code, status)
+
+
+def test_squid_access_to_a_destination_that_is_not_the_idp():
+    f = fields("squid", "localhost:8182")
+    assert (f["dest_host"], f["dest_port"], f["status"]) == ("localhost", "8182", "403")
+
+
+def test_squid_access_cim_fields():
+    s = props["idlab:squid:access"]
+    assert 'match(result_code, "DENIED"), "blocked", "allowed"' in s["EVAL-action"]
+    assert s["EVAL-user"] == 'if(squid_user == "-", null(), squid_user)'
+    assert s["EVAL-duration"] == "tonumber(elapsed_ms) / 1000"
+
+
+def test_squid_cache_tls_error():
+    f = fields("squid", "Cannot accept a TLS connection")
+    assert (f["log_level"], f["squid_message"]) == ("ERROR", "Cannot accept a TLS connection")
+    assert f["squid_error_detail"] == "SQUID_TLS_ERR_ACCEPT+TLS_LIB_ERR=A000418+TLS_IO_ERR=1"
+    assert (f["tls_squid_err"], f["tls_lib_err"]) == ("SQUID_TLS_ERR_ACCEPT", "A000418")
+
+
+def test_squid_cache_plain_and_warning_messages():
+    f = fields("squid", "Reconfiguring")
+    assert "log_level" not in f and f["squid_message"] == "Reconfiguring Squid Cache (version 7.7)..."
+    assert fields("squid", "no_suid")["log_level"] == "WARNING"
+
+
+def test_squid_tls_lib_errors_lookup_decodes_unknown_ca():
+    assert props["idlab:squid:cache"]["LOOKUP-squid_tls_lib_errors"] == "squid_tls_lib_errors tls_lib_err OUTPUT tls_error"
+    assert transforms["squid_tls_lib_errors"]["filename"] == "squid_tls_lib_errors.csv"
+    with (APP / "lookups/squid_tls_lib_errors.csv").open(newline="") as f:
+        rows = {r["tls_lib_err"]: r["tls_error"] for r in csv.DictReader(f)}
+    assert rows["A000418"] == "tlsv1 alert unknown ca"
+    assert all(re.fullmatch(r"A000[0-9A-F]{3}", code) and text for code, text in rows.items())
