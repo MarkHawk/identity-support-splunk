@@ -29,7 +29,10 @@ you can try it without the lab.
 *Reverse proxy: responses over time by status, and each 502, 504 or 429 with its likely cause, route and runbook.*
 
 ![Forward proxy (egress)](docs/screenshots/egress-proxy.png)
-*Forward proxy (egress): the app's calls through Squid over time, and each 407, 403 or TLS interception refusal with its likely cause, apps, route and runbook.*
+*Forward proxy (egress): the app's calls through Squid over time, and each 407, 403 or TLS interception refusal with its likely cause, the app's and Squid's counts, apps, route and runbook.*
+
+![API (bearer tokens)](docs/screenshots/api.png)
+*API (bearer tokens): every call to the API over time, accepted or refused by reason, and each rejection with its status, the clients the tokens were issued to, the audiences they carry and the expired tokens' lifetime.*
 
 The screenshots show real identity-lab data. Times are shown in the Splunk user's time zone (UK time in these screenshots).
 
