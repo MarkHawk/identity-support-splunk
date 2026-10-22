@@ -1,9 +1,43 @@
 # Changelog
 
-## Unreleased
+## 0.4.0 (2026-10-22)
 
-- **Docs:** a README screenshot of the Forward proxy (egress) row with
-  real lab data (runbooks 11 to 13).
+Adds identity-lab's redirect loop behind the reverse proxy (runbook 15)
+and its API that checks bearer tokens (runbook 16).
+
+- **Sources:** the sender ships the `oidc-rp-edge` app copy (behind the
+  proxy's plain-HTTP route) and the API.
+- **Sourcetypes:** `oidc-rp-edge` logs as the other app copies, so it is
+  `idlab:sp`, app `oidc-rp-edge`; its forced HTTPS redirects carry `path`,
+  `scheme` and `x_forwarded_proto`. The API is `idlab:api`: `reason`,
+  `status`, `sub`, `azp`, `aud`, `iss`, `exp`, `iat` and `token_lifetime`
+  (`exp - iat`), with accepted and refused tokens as CIM Authentication.
+  The API never logs the token, and neither does the app.
+- **Causes:** a redirect loop (5 or more redirects of the same path, each
+  within 2 seconds of the last) by what arrived in `X-Forwarded-Proto`:
+  nothing, `https` the app ignores (trusted proxy count), or plain HTTP.
+  The API's refusals by reason: wrong audience (naming the `azp` client to
+  look at), expired, no token, not a Bearer header, not a JWT, untrusted
+  issuer, not an access token, unverifiable signature, signing keys
+  unreachable. All link runbook 15 or 16.
+- **Dashboard:** 15 and 16 in "When did it start?"; the expired-token row
+  names the tokens' lifetime, or says it is not in the log. A new "API
+  (bearer tokens)" row: calls over time by result, and rejections by
+  reason. The cause columns are wider, so the tables are about half as
+  tall; nothing scrolls inside a panel.
+- **Alert:** "App stuck in a redirect loop" (runbook 15). The API's
+  refusals have none: they are per client, and the dashboard shows them.
+- **Fix:** a failed login through the egress proxy counted twice in "When
+  did it start?" (Squid and the app both log it). It counts once now; the
+  egress panel shows the app's and Squid's counts in their own columns.
+- **Masking:** OAuth token parameters (`access_token`, `id_token`,
+  `refresh_token`, `id_token_hint`) and anything shaped like a JWT are
+  masked, and the sanitiser's check fails on any left.
+- **Samples:** re-captured with scenarios 15 and 16. identity-lab now
+  masks nonce, code_challenge, Signature, session_code and client_data in
+  the proxy's log itself.
+- **Docs:** a scenario coverage table in the README, and a screenshot of
+  the Forward proxy (egress) row with real lab data (runbooks 11 to 13).
 
 ## 0.3.0 (2026-10-22)
 

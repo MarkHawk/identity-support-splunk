@@ -5,8 +5,9 @@ questions every support ticket starts with: when did it start, who is
 affected, and what is the likely cause?** It reads the logs from every
 part of [identity-lab](https://github.com/MarkHawk/identity-lab) (the
 identity provider, the SAML and OIDC sample apps, the nginx reverse proxy
-in front of them, the Squid egress proxy behind one of them, the RADIUS
-server and NAS, and the LDAP directory), plus the JSON reports from
+in front of them, the Squid egress proxy behind one of them, the API that
+checks the OIDC app's access tokens, the RADIUS server and NAS, and the
+LDAP directory), plus the JSON reports from
 [token-inspector](https://github.com/MarkHawk/token-inspector) and
 [rate-limit-probe](https://github.com/MarkHawk/rate-limit-probe). Each
 failure is matched to a likely cause and a link to the identity-lab
@@ -70,7 +71,11 @@ clash with a Splunk you already run.
   incident shows as a dozen 10-second columns, not one sliver in a 4-hour
   chart.
 - *When did it start?* One row per cause with first and last seen, count,
-  who is affected, apps and routes. Select a row to open its runbook (or,
+  who is affected, apps and routes. A redirect loop counts once per
+  browser that gave up, not once per redirect, and a failed login through
+  the egress proxy counts once, though Squid and the app both log it. The
+  expired-token row names the tokens' lifetime (`exp - iat`) and says when
+  it is very short. Select a row to open its runbook (or,
   for a cause no runbook covers, identity-lab's list of runbooks). *affected*
   shows one of three things:
   - a number of end users, where the logs name them;
@@ -93,9 +98,15 @@ clash with a Splunk you already run.
   intercepted with no tunnel.
 - *Forward proxy (egress): refusals and back-channel failures by likely
   cause.* Squid's refusals and the app's failed calls to the IdP, one row
-  per cause: proxy credentials (407), policy (403), TLS interception the
+  per cause, each side counted in its own column: proxy credentials (407), policy (403), TLS interception the
   app doesn't trust, and the proxy bypassed by `NO_PROXY`, which only the
   app shows because Squid never sees the call.
+- *API (bearer tokens): calls over time by result.* Every call to the API:
+  accepted, or refused by reason (wrong audience, expired, no token, not a
+  JWT, ...).
+- *API (bearer tokens): rejections by reason.* Status, count, the clients
+  (`azp`) the tokens were issued to, the audiences (`aud`) they carry, and
+  the lifetime of the expired ones.
 - *RADIUS: Access-Reject versus no reply.* A reject means the server
   answered no. No reply means it dropped or ignored the request (a shared
   secret mismatch, or an unknown NAS), which users see as a timeout.
@@ -119,13 +130,32 @@ clash with a Splunk you already run.
 | Reverse proxy 502/504 spike | the proxy answers 502 or 504 at least 3 times in 5 minutes; lists the reasons from its error log | 06, 07, 10 |
 | Reverse proxy rate limiting logins | the proxy's rate limit refuses at least 3 requests (429) in 5 minutes | 08 |
 | Egress proxy refusing the IdP | the egress proxy refuses the app's calls to the IdP (407, 403, or TLS interception) in the last 5 minutes, from Squid's logs or the app's | 11, 12, 13 |
+| App stuck in a redirect loop | an app redirects the same path to itself 5 or more times, each within 2 seconds of the last, in the last 10 minutes; one loop is enough | 15 |
 | rate-limit-probe found a problem | a report in the last hour has a FAIL | (the report's own next step) |
 
 The samples set off the LDAP and SAML alerts at the next five-minute run.
 The RADIUS, proxy 502/504 and egress alerts look back only five minutes, so they
 can miss them by the time they run. The capture is also too short for the
 SSO spike, and has a single 429, below the rate-limit alert's threshold. On Splunk
-Free there is no alerting: the same searches still run as reports.
+Free there is no alerting: the same searches still run as reports. The API's
+rejections have no alert: they show in the dashboard's API row.
+
+**Scenario coverage:** every identity-lab scenario, and where it shows.
+
+| Runbook | Scenario | Shows in |
+|---|---|---|
+| 01 | Expired or rotated SAML signing certificate | When did it start? (`saml-sp`), SAML alert |
+| 02 | Clock skew | When did it start? (`saml-sp`), SAML alert |
+| 03 | Redirect URI mismatch | When did it start? (Keycloak), SSO alert |
+| 04 | LDAP bind failure | When did it start? (service account), LDAP panel and alert |
+| 05 | RADIUS shared secret mismatch | When did it start? (`radius`), RADIUS panel and alert |
+| 06, 07, 10 | Reverse proxy 502, 504, headers too large | Reverse proxy row, When did it start?, 502/504 alert |
+| 08 | Reverse proxy rate limit | Reverse proxy row, When did it start?, rate-limit alert |
+| 09 | Wrong `X-Forwarded-*` headers to the IdP | When did it start? (`keycloak (via proxy)`) |
+| 11 to 13 | Egress proxy: credentials, policy, TLS interception | Forward proxy row, When did it start?, egress alert |
+| 14 | Egress proxy bypassed (`NO_PROXY`) | Forward proxy row, When did it start? (`oidc-rp-egress`) |
+| 15 | Redirect loop behind the reverse proxy | When did it start? (`oidc-rp-edge`), redirect-loop alert |
+| 16 | API 401: wrong audience, expired token | API row, When did it start? (`api`) |
 
 ## How it works
 
@@ -140,7 +170,8 @@ starts, so a Java stack trace or a Python traceback stays whole.
 | Sourcetype | From | Key fields |
 |---|---|---|
 | `idlab:keycloak` | identity provider | `kc_type`, `kc_error`, `kc_clientId`, `kc_username`, `ldap_result_code` (from stack traces) |
-| `idlab:sp` | SAML SP and OIDC RP, and their copies behind the proxies | `event`, `reason`, `error`, `name_id` / `email`; `app` ends in `-proxied` or `-egress` for the copies; health checks dropped at index time |
+| `idlab:sp` | SAML SP and OIDC RP, and their copies behind the proxies | `event`, `reason`, `error`, `name_id` / `email`; `app` ends in `-proxied`, `-egress` or `-edge` for the copies; `path`, `scheme`, `x_forwarded_proto` on a forced HTTPS redirect; health checks dropped at index time |
+| `idlab:api` | API (resource server) | `reason` (wrong_audience, expired, no_token, ...), `status` (401, or 400 for a malformed header), `sub`, `azp`, `aud`, `iss`, `exp`, `iat`, `token_lifetime` (`exp - iat`, seconds); a claim the token lacks is no field; never the token |
 | `idlab:nginx:access` | reverse proxy access log | `status`, `request`, `src`, `site`, `upstream`, `upstream_status`, `request_time`, `upstream_time`, `upstream_response_time` (seconds, from the last upstream tried) |
 | `idlab:nginx:error` | reverse proxy error log | `log_level`, `nginx_reason` (the reason text), `src`, `request`, `upstream`, `site`, `limit_zone`; `app` is `proxy` and `route` the host and port for a refusal |
 | `idlab:squid:access` | egress proxy access log (Squid's native format) | `result_code`, `status`, `action` (allowed, blocked), `http_method`, `url`, `dest_host`, `dest_port`, `src`, `user`, `hierarchy_code`, `duration` |
@@ -153,7 +184,8 @@ starts, so a Java stack trace or a Python traceback stays whole.
 
 - **CIM:** login events map to the Authentication data model (`action`,
   `app`, `dest`, `src`, `user`, `reason`, `signature`), tagged
-  `authentication`. So do the directory's failed binds. The proxies'
+  `authentication`. So do the directory's failed binds, and the API's
+  accepted and refused tokens (`app` is `api`, `user` the token's `sub`). The proxies'
   access logs map to the Web data model, tagged `web` (and `proxy` for
   Squid's).
 - **The proxy's two logs** arrive in one stream from the container, as
@@ -167,6 +199,15 @@ starts, so a Java stack trace or a Python traceback stays whole.
   `saml_clock_skew` or `radius_bad_shared_secret`. The
   [`support_causes`](identity_support/lookups/support_causes.csv) lookup
   turns it into a cause, a runbook and its URL.
+- **Redirect loops:** the app's `force_https` line names no client, and
+  behind a proxy that lost `X-Forwarded-For` every client has the proxy's
+  address anyway. The `` `support_redirect_loops` `` macro groups the
+  redirects by host, app copy, path and the `X-Forwarded-Proto` that
+  arrived: 5 or more, each within 2 seconds of the last, are one loop. A
+  lone redirect (someone typing `http://`) is not.
+- **Counting once:** the `` `support_count_once_per_login` `` macro marks
+  a Squid refusal that the egress app also logged (same cause, within 2
+  seconds) so the overview's counts don't double it.
 - **Index:** everything lives in the `identity_support` index (90 days).
   Searches go through the `` `support_index` `` macro, so pointing the app
   at another index is a one-line change in `local/macros.conf`. The egress
@@ -270,6 +311,10 @@ writes a sanitised copy to `samples/`.
   become `masked-<name>-N`. The same value gets the same name everywhere,
   so a `state` still links an authorisation request to its callback.
   Values identity-lab already masks itself, as `***`, stay as they are.
+- Tokens are credentials until they expire: `access_token`, `id_token`,
+  `refresh_token` and `id_token_hint` values become `masked-<name>-N`,
+  and anything shaped like a JWT (`eyJ...eyJ...`) `masked-jwt-N`. The
+  final check fails on any left.
 - Base64, deflated SAML requests and URL-encoded text are decoded before
   the final check.
 - A private key anywhere stops the run.
