@@ -36,8 +36,8 @@ pytestmark = pytest.mark.skipif(not all(os.environ.get(n) for n in NEEDED),
 
 # Events the fixtures should produce once indexed: the healthz line is dropped.
 # The proxy's lines are all typed access or error at index time.
-EXPECTED = {"idlab:keycloak": 6, "idlab:sp": 16, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
-            "idlab:nginx:access": 7, "idlab:nginx:error": 7,
+EXPECTED = {"idlab:keycloak": 6, "idlab:sp": 24, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
+            "idlab:nginx:access": 7, "idlab:nginx:error": 7, "idlab:squid:access": 7, "idlab:squid:cache": 5,
             "token_inspector:report": 1, "rate_limit_probe:report": 1}
 
 
@@ -118,7 +118,7 @@ def test_sp_failure_causes(host, contains, signature, runbook):
 
 
 def test_sp_failure_without_a_known_cause_keeps_its_reason(host):
-    row = one(host, "sourcetype=idlab:sp source=docker:oidc-rp event=oidc_login_failed")
+    row = one(host, "sourcetype=idlab:sp source=docker:oidc-rp event=oidc_login_failed reason=token_validation_failed")
     assert row["signature"] == "oidc-rp:token_validation_failed" and "cause" not in row
 
 
@@ -167,7 +167,7 @@ def test_failures_macro(host):
         "saml_idp_cert_expired", "saml_clock_skew", "oidc-rp:token_validation_failed",
         "radius_reject_bad_password", "radius_bad_shared_secret", "radius_unknown_client", "nas_no_reply",
         "oidc-rp:token_exchange_failed", "kc_invalid_destination", "proxy_upstream_closed", "proxy_upstream_timeout",
-        "proxy_rate_limited", "proxy_header_too_large"}
+        "proxy_rate_limited", "proxy_header_too_large", "oidc-rp:access_denied", "oidc-rp:backchannel_failed"}
 
 
 def test_proxy_access_is_cim_web(host):
@@ -207,6 +207,28 @@ def test_forwarded_headers_point_at_the_proxy(host):
     assert (row["action"], row["kc_reason"], row["runbook"]) == ("failure", "invalid_destination", "09-proxy-forwarded-headers")
     assert row["cause"].startswith("Reverse proxy is the likely cause")
     assert "app" not in row, "Keycloak's clientId=\"null\" is not an app"
+
+
+def test_masked_detail_is_one_value(host):
+    row = one(host, "sourcetype=idlab:sp reason=access_denied")
+    assert (row["detail"], row["signature"]) == ("state=***", "oidc-rp:access_denied") and "state" not in row
+
+
+def test_squid_access_fields(host):
+    row = one(host, "sourcetype=idlab:squid:access status=407")
+    assert (row["result_code"], row["action"], row["http_method"], row["dest"], row["dest_port"]) == (
+        "TCP_DENIED", "blocked", "CONNECT", "keycloak", "8180")
+    assert "user" not in row and row["duration"] == "0"
+    row = one(host, "sourcetype=idlab:squid:access user=egress-svc")
+    assert (row["result_code"], row["action"], row["duration"]) == ("TCP_TUNNEL", "allowed", "0.034")
+    rows = search(f"`support_index` host={host} eventtype=idlab_egress_access tag=web tag=proxy | stats count")
+    assert rows == [{"count": "7"}]
+
+
+def test_squid_tls_error_is_decoded(host):
+    row = one(host, "sourcetype=idlab:squid:cache tls_lib_err=*")
+    assert (row["log_level"], row["tls_squid_err"], row["tls_lib_err"], row["tls_error"]) == (
+        "ERROR", "SQUID_TLS_ERR_ACCEPT", "A000418", "tlsv1 alert unknown ca")
 
 
 def alert_query(host, name, threshold=None):
