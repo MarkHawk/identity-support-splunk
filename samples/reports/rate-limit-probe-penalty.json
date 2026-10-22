@@ -2,7 +2,7 @@
   "tool": "rate-limit-probe",
   "version": "0.1.0",
   "target": {
-    "url": "http://127.0.0.1:46459/s/penalty",
+    "url": "http://127.0.0.1:43375/s/penalty",
     "local": true,
     "method": "GET"
   },
@@ -15,7 +15,7 @@
     "demo window shortened to 4 s"
   ],
   "sent": 13,
-  "duration": 7.005,
+  "duration": 7.004,
   "stop": null,
   "timeline": [
     {
@@ -35,7 +35,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652375"
+          "1792670624"
         ]
       ],
       "retry_after": null,
@@ -62,13 +62,13 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652375"
+          "1792670624"
         ]
       ],
       "retry_after": null,
       "limit": 5,
       "remaining": 3,
-      "reset": 5.0,
+      "reset": 4.0,
       "error": null,
       "error_kind": null
     },
@@ -89,7 +89,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652375"
+          "1792670624"
         ]
       ],
       "retry_after": null,
@@ -116,7 +116,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652375"
+          "1792670624"
         ]
       ],
       "retry_after": null,
@@ -143,7 +143,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652375"
+          "1792670624"
         ]
       ],
       "retry_after": null,
@@ -157,7 +157,7 @@
       "type": "request",
       "n": 6,
       "phase": "discover",
-      "at": 0.501,
+      "at": 0.5,
       "status": 429,
       "rate_headers": [
         [
@@ -174,7 +174,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652376"
+          "1792670625"
         ]
       ],
       "retry_after": 4.0,
@@ -186,7 +186,7 @@
     },
     {
       "type": "wait",
-      "at": 0.502,
+      "at": 0.501,
       "seconds": 2.0,
       "source": "early",
       "purpose": "early"
@@ -195,7 +195,7 @@
       "type": "request",
       "n": 7,
       "phase": "early",
-      "at": 2.502,
+      "at": 2.501,
       "status": 429,
       "rate_headers": [
         [
@@ -212,7 +212,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652378"
+          "1792670627"
         ]
       ],
       "retry_after": 4.0,
@@ -224,7 +224,7 @@
     },
     {
       "type": "wait",
-      "at": 2.504,
+      "at": 2.502,
       "seconds": 4.0,
       "source": "Retry-After",
       "purpose": "honour"
@@ -233,7 +233,7 @@
       "type": "request",
       "n": 8,
       "phase": "honour",
-      "at": 6.504,
+      "at": 6.502,
       "status": 200,
       "rate_headers": [
         [
@@ -246,7 +246,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652379"
+          "1792670628"
         ]
       ],
       "retry_after": null,
@@ -260,7 +260,7 @@
       "type": "request",
       "n": 9,
       "phase": "refill",
-      "at": 6.604,
+      "at": 6.602,
       "status": 200,
       "rate_headers": [
         [
@@ -273,7 +273,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652379"
+          "1792670628"
         ]
       ],
       "retry_after": null,
@@ -287,7 +287,7 @@
       "type": "request",
       "n": 10,
       "phase": "refill",
-      "at": 6.704,
+      "at": 6.703,
       "status": 200,
       "rate_headers": [
         [
@@ -300,7 +300,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652379"
+          "1792670628"
         ]
       ],
       "retry_after": null,
@@ -314,7 +314,7 @@
       "type": "request",
       "n": 11,
       "phase": "refill",
-      "at": 6.804,
+      "at": 6.803,
       "status": 200,
       "rate_headers": [
         [
@@ -327,7 +327,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652379"
+          "1792670628"
         ]
       ],
       "retry_after": null,
@@ -341,7 +341,7 @@
       "type": "request",
       "n": 12,
       "phase": "refill",
-      "at": 6.904,
+      "at": 6.903,
       "status": 200,
       "rate_headers": [
         [
@@ -354,7 +354,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652379"
+          "1792670628"
         ]
       ],
       "retry_after": null,
@@ -368,7 +368,7 @@
       "type": "request",
       "n": 13,
       "phase": "refill",
-      "at": 7.004,
+      "at": 7.003,
       "status": 429,
       "rate_headers": [
         [
@@ -385,7 +385,7 @@
         ],
         [
           "X-RateLimit-Reset",
-          "1792652382"
+          "1792670631"
         ]
       ],
       "retry_after": 4.0,
@@ -404,7 +404,7 @@
       "summary": "Request 6, 0.5 s in: 5 requests were accepted first.",
       "details": {
         "request": 6,
-        "at": 0.501,
+        "at": 0.5,
         "burst": 5
       }
     },
@@ -417,7 +417,7 @@
         "burst": 5,
         "policy_limit": 5,
         "policy_window": null,
-        "window": 4.501,
+        "window": 4.5,
         "window_nice": 4,
         "window_source": "Retry-After",
         "refill_accepted": 5,
@@ -462,8 +462,8 @@
       "title": "Early retry",
       "summary": "A request sent 2 s early was refused and the wait went back up to 4 s: the server restarts the limit on every early request. A client that retries before the wait is over stays limited for as long as it keeps retrying.",
       "details": {
-        "delay": 2.002,
-        "expected": 1.998,
+        "delay": 2.001,
+        "expected": 1.999,
         "new_hint": 4.0,
         "penalised": true
       }
@@ -475,7 +475,7 @@
       "summary": "A client that waits as told gets back in: accepted 6 s after the first 429, at the first try.",
       "details": {
         "recovered": true,
-        "after": 6.003,
+        "after": 6.002,
         "attempts": 1
       }
     },

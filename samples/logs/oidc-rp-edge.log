@@ -1,0 +1,76 @@
+2026-10-22T11:52:14.522628181Z [2026-10-22 11:52:14 +0000] [1] [INFO] Starting gunicorn 26.2.0
+2026-10-22T11:52:14.522658804Z [2026-10-22 11:52:14 +0000] [1] [INFO] Listening at: http://0.0.0.0:8182 (1)
+2026-10-22T11:52:14.522993315Z [2026-10-22 11:52:14 +0000] [1] [INFO] Using worker: gthread
+2026-10-22T11:52:14.525251251Z [2026-10-22 11:52:14 +0000] [7] [INFO] Booting worker with pid: 7
+2026-10-22T11:52:14.988216188Z [2026-10-22 11:52:14 +0000] [1] [ERROR] Control server error: [Errno 13] Permission denied: '/.gunicorn'
+2026-10-22T11:52:30.977141823Z 192.0.2.12 - - [22/Oct/2026:11:52:30 +0000] "GET / HTTP/1.1" 200 2548 "-" "curl/8.18.0"
+2026-10-22T11:53:00.014733929Z 192.0.2.12 - - [22/Oct/2026:11:53:00 +0000] "GET / HTTP/1.1" 200 2548 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:53:00.102499253Z 2026-10-22 11:53:00,102 INFO oidc-rp event=oidc_authorize_redirect redirect_uri=https://idlab.home:8187/auth/callback
+2026-10-22T11:53:00.124799537Z 192.0.2.12 - - [22/Oct/2026:11:53:00 +0000] "GET /login HTTP/1.1" 302 937 "https://idlab.home:8187/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:53:00.450850054Z 2026-10-22 11:53:00,450 INFO oidc-rp event=oidc_login_ok sub=cfeca6fc-f25c-4695-8574-7c2d5b19863b email=alice@idlab.example iss=https://idlab.home:8183/realms/idlab elapsed=0.04s
+2026-10-22T11:53:00.451875037Z 192.0.2.12 - - [22/Oct/2026:11:53:00 +0000] "GET /auth/callback?state=***&session_state=***&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=*** HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:53:00.473564538Z 192.0.2.12 - - [22/Oct/2026:11:53:00 +0000] "GET /debug HTTP/1.1" 200 5649 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:53:02.384637202Z 192.0.2.12 - - [22/Oct/2026:11:53:02 +0000] "GET / HTTP/1.1" 200 2548 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:53:02.469089226Z 2026-10-22 11:53:02,468 INFO oidc-rp event=oidc_authorize_redirect redirect_uri=https://idlab.home:8187/auth/callback
+2026-10-22T11:53:02.471281794Z 192.0.2.12 - - [22/Oct/2026:11:53:02 +0000] "GET /login HTTP/1.1" 302 937 "https://idlab.home:8187/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:53:02.856219620Z 192.0.2.12 - - [22/Oct/2026:11:53:02 +0000] "GET /auth/callback?state=***&session_state=***&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=*** HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:53:02.856265876Z 2026-10-22 11:53:02,855 INFO oidc-rp event=oidc_login_ok sub=964c5b25-5fc8-4079-abfd-7957071e184a email=dave@idlab.example iss=https://idlab.home:8183/realms/idlab elapsed=0.02s
+2026-10-22T11:53:02.873906391Z 192.0.2.12 - - [22/Oct/2026:11:53:02 +0000] "GET /debug HTTP/1.1" 200 5587 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:54.550874286Z 192.0.2.12 - - [22/Oct/2026:11:57:54 +0000] "GET / HTTP/1.1" 200 2548 "-" "curl/8.18.0"
+2026-10-22T11:57:56.257603573Z 2026-10-22 11:57:56,257 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:56.258021372Z 192.0.2.16 - - [22/Oct/2026:11:57:56 +0000] "GET / HTTP/1.1" 302 235 "-" "curl/8.18.0"
+2026-10-22T11:57:56.754635681Z 2026-10-22 11:57:56,754 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:56.754828648Z 192.0.2.16 - - [22/Oct/2026:11:57:56 +0000] "GET / HTTP/1.1" 302 235 "-" "curl/8.18.0"
+2026-10-22T11:57:57.259787135Z 2026-10-22 11:57:57,259 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:57.260810118Z 192.0.2.16 - - [22/Oct/2026:11:57:57 +0000] "GET / HTTP/1.1" 302 235 "-" "curl/8.18.0"
+2026-10-22T11:57:58.706114103Z 2026-10-22 11:57:58,705 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.706435525Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.711334782Z 2026-10-22 11:57:58,710 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.711472792Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.714141020Z 2026-10-22 11:57:58,714 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.715699695Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.717002005Z 2026-10-22 11:57:58,716 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.717387933Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.719382464Z 2026-10-22 11:57:58,719 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.720112692Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.722271047Z 2026-10-22 11:57:58,722 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.722745350Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.724608344Z 2026-10-22 11:57:58,724 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.725008421Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.727466214Z 2026-10-22 11:57:58,727 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.727803385Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.730181236Z 2026-10-22 11:57:58,729 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.730437011Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.732707355Z 2026-10-22 11:57:58,732 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.732859790Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.734865693Z 2026-10-22 11:57:58,734 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.735228135Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.737135501Z 2026-10-22 11:57:58,737 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.737538872Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.739323549Z 2026-10-22 11:57:58,739 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.739863924Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.742240292Z 2026-10-22 11:57:58,742 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.742501492Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.744493928Z 2026-10-22 11:57:58,744 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.744876494Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.746686248Z 2026-10-22 11:57:58,746 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.747033701Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.749770553Z 2026-10-22 11:57:58,749 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.750113598Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.752503073Z 2026-10-22 11:57:58,752 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.752796799Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.754804297Z 2026-10-22 11:57:58,754 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.755126700Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:57:58.757257557Z 2026-10-22 11:57:58,757 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:57:58.757658122Z 192.0.2.16 - - [22/Oct/2026:11:57:58 +0000] "GET / HTTP/1.1" 302 235 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:58:02.113584799Z 2026-10-22 11:58:02,113 INFO oidc-rp event=force_https path=/ scheme=http x_forwarded_proto=-
+2026-10-22T11:58:02.113930138Z 192.0.2.16 - - [22/Oct/2026:11:58:02 +0000] "GET / HTTP/1.1" 302 235 "-" "curl/8.18.0"
+2026-10-22T11:58:03.813872670Z 192.0.2.12 - - [22/Oct/2026:11:58:03 +0000] "GET / HTTP/1.1" 200 2548 "-" "curl/8.18.0"
+2026-10-22T11:58:04.324788300Z 192.0.2.12 - - [22/Oct/2026:11:58:04 +0000] "GET / HTTP/1.1" 200 2548 "-" "curl/8.18.0"
+2026-10-22T11:58:04.809062429Z 192.0.2.12 - - [22/Oct/2026:11:58:04 +0000] "GET / HTTP/1.1" 200 2548 "-" "curl/8.18.0"
+2026-10-22T11:58:06.197971116Z 192.0.2.12 - - [22/Oct/2026:11:58:06 +0000] "GET / HTTP/1.1" 200 2548 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:58:06.292589125Z 2026-10-22 11:58:06,292 INFO oidc-rp event=oidc_authorize_redirect redirect_uri=https://idlab.home:8187/auth/callback
+2026-10-22T11:58:06.294593041Z 192.0.2.12 - - [22/Oct/2026:11:58:06 +0000] "GET /login HTTP/1.1" 302 937 "https://idlab.home:8187/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:58:06.644630926Z 2026-10-22 11:58:06,644 INFO oidc-rp event=oidc_login_ok sub=cfeca6fc-f25c-4695-8574-7c2d5b19863b email=alice@idlab.example iss=https://idlab.home:8183/realms/idlab elapsed=0.04s
+2026-10-22T11:58:06.645747617Z 192.0.2.12 - - [22/Oct/2026:11:58:06 +0000] "GET /auth/callback?state=***&session_state=***&iss=https%3A%2F%2Fidlab.home%3A8183%2Frealms%2Fidlab&code=*** HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:58:06.650349453Z 192.0.2.12 - - [22/Oct/2026:11:58:06 +0000] "GET /debug HTTP/1.1" 200 5649 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"

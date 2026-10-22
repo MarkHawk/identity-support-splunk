@@ -1,35 +1,35 @@
-2026-10-22T06:48:34.705617878Z [2026-10-22 06:48:34 +0000] [1] [INFO] Starting gunicorn 26.2.0
-2026-10-22T06:48:34.705967102Z [2026-10-22 06:48:34 +0000] [1] [INFO] Listening at: https://0.0.0.0:8181 (1)
-2026-10-22T06:48:34.705979582Z [2026-10-22 06:48:34 +0000] [1] [INFO] Using worker: gthread
-2026-10-22T06:48:34.709055977Z [2026-10-22 06:48:34 +0000] [7] [INFO] Booting worker with pid: 7
-2026-10-22T06:48:34.911876043Z [2026-10-22 06:48:34 +0000] [1] [ERROR] Control server error: [Errno 13] Permission denied: '/.gunicorn'
-2026-10-22T06:49:03.320276443Z 192.0.2.16 - - [22/Oct/2026:06:49:03 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:49:03.407022087Z 2026-10-22 06:49:03,406 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_c3a64a9c2a9e4a369159affc5c4671221267c438
-2026-10-22T06:49:03.408890192Z 192.0.2.16 - - [22/Oct/2026:06:49:03 +0000] "GET /login HTTP/1.1" 302 2557 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:49:03.767874474Z 2026-10-22 06:49:03,767 INFO saml-sp event=saml_login_ok name_id=alice@idlab.example assertion_id=ID_c1457fec-d6fc-4a13-8bf3-6986818a2445
-2026-10-22T06:49:03.768880124Z 192.0.2.16 - - [22/Oct/2026:06:49:03 +0000] "POST /saml/acs HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:49:03.787217870Z 192.0.2.16 - - [22/Oct/2026:06:49:03 +0000] "GET /debug HTTP/1.1" 200 16042 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:49:08.095356018Z 192.0.2.16 - - [22/Oct/2026:06:49:08 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:49:08.186967132Z 2026-10-22 06:49:08,186 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_37dfa3a17658866a827818c55afa7756571fd496
-2026-10-22T06:49:08.187856903Z 192.0.2.16 - - [22/Oct/2026:06:49:08 +0000] "GET /login HTTP/1.1" 302 2509 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:49:08.616269376Z 2026-10-22 06:49:08,616 INFO saml-sp event=saml_login_ok name_id=dave@idlab.example assertion_id=ID_e596d7f5-db49-4f73-af23-1d6fc332e8cc
-2026-10-22T06:49:08.617761364Z 192.0.2.16 - - [22/Oct/2026:06:49:08 +0000] "POST /saml/acs HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:49:08.626331154Z 192.0.2.16 - - [22/Oct/2026:06:49:08 +0000] "GET /debug HTTP/1.1" 200 15805 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:18.230210675Z 192.0.2.16 - - [22/Oct/2026:06:51:18 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:18.314185639Z 2026-10-22 06:51:18,313 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_2dd85df8793656b1b92acac271ff3efdd7f6909e
-2026-10-22T06:51:18.314922813Z 192.0.2.16 - - [22/Oct/2026:06:51:18 +0000] "GET /login HTTP/1.1" 302 2477 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:25.614023102Z 192.0.2.16 - - [22/Oct/2026:06:51:25 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:25.715889304Z 2026-10-22 06:51:25,714 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_3befad6859c1e3c7d4a02c3b1e4e4626eeabc981
-2026-10-22T06:51:25.716878888Z 192.0.2.16 - - [22/Oct/2026:06:51:25 +0000] "GET /login HTTP/1.1" 302 2513 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:26.073779348Z 2026-10-22 06:51:26,073 INFO saml-sp event=saml_login_ok name_id=alice@idlab.example assertion_id=ID_af12fdf9-119f-4dc7-b204-ff5115e9fbb9
-2026-10-22T06:51:26.076886464Z 192.0.2.16 - - [22/Oct/2026:06:51:26 +0000] "POST /saml/acs HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:26.081894403Z 192.0.2.16 - - [22/Oct/2026:06:51:26 +0000] "GET /debug HTTP/1.1" 200 16042 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:44.614722818Z 192.0.2.16 - - [22/Oct/2026:06:51:44 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:44.695979855Z 2026-10-22 06:51:44,695 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_4e5e19f17742842930d251fb81ad28e69863f588
-2026-10-22T06:51:44.696734594Z 192.0.2.16 - - [22/Oct/2026:06:51:44 +0000] "GET /login HTTP/1.1" 302 2501 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:51.420354001Z 192.0.2.16 - - [22/Oct/2026:06:51:51 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:51.511923815Z 2026-10-22 06:51:51,511 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_dda0f061973dfdc975a22475bb176bf8b1727793
-2026-10-22T06:51:51.512134242Z 192.0.2.16 - - [22/Oct/2026:06:51:51 +0000] "GET /login HTTP/1.1" 302 2525 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:51.876877836Z 2026-10-22 06:51:51,875 INFO saml-sp event=saml_login_ok name_id=alice@idlab.example assertion_id=ID_1186a689-a1e4-4f5b-bf89-62911efaeda0
-2026-10-22T06:51:51.877884209Z 192.0.2.16 - - [22/Oct/2026:06:51:51 +0000] "POST /saml/acs HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
-2026-10-22T06:51:51.884898193Z 192.0.2.16 - - [22/Oct/2026:06:51:51 +0000] "GET /debug HTTP/1.1" 200 16042 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:52:15.446667933Z [2026-10-22 11:52:15 +0000] [1] [INFO] Starting gunicorn 26.2.0
+2026-10-22T11:52:15.447037066Z [2026-10-22 11:52:15 +0000] [1] [INFO] Listening at: https://0.0.0.0:8181 (1)
+2026-10-22T11:52:15.447054680Z [2026-10-22 11:52:15 +0000] [1] [INFO] Using worker: gthread
+2026-10-22T11:52:15.449820341Z [2026-10-22 11:52:15 +0000] [6] [INFO] Booting worker with pid: 6
+2026-10-22T11:52:15.641279179Z [2026-10-22 11:52:15 +0000] [1] [ERROR] Control server error: [Errno 13] Permission denied: '/.gunicorn'
+2026-10-22T11:52:45.269075664Z 192.0.2.16 - - [22/Oct/2026:11:52:45 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:52:45.370987524Z 2026-10-22 11:52:45,370 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_09a89b98adbbd6124f32c8799990d7939b69740a
+2026-10-22T11:52:45.371886620Z 192.0.2.16 - - [22/Oct/2026:11:52:45 +0000] "GET /login HTTP/1.1" 302 2469 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:52:45.751111883Z 2026-10-22 11:52:45,750 INFO saml-sp event=saml_login_ok name_id=alice@idlab.example assertion_id=ID_094f956b-bb32-4076-aea4-04122dd4b303
+2026-10-22T11:52:45.752115385Z 192.0.2.16 - - [22/Oct/2026:11:52:45 +0000] "POST /saml/acs HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:52:45.775931432Z 192.0.2.16 - - [22/Oct/2026:11:52:45 +0000] "GET /debug HTTP/1.1" 200 16042 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:52:50.176265090Z 192.0.2.16 - - [22/Oct/2026:11:52:50 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:52:50.256882732Z 2026-10-22 11:52:50,255 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_4701c819385df865419279e9791a22759e4fb317
+2026-10-22T11:52:50.256927663Z 192.0.2.16 - - [22/Oct/2026:11:52:50 +0000] "GET /login HTTP/1.1" 302 2525 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:52:50.737770464Z 2026-10-22 11:52:50,737 INFO saml-sp event=saml_login_ok name_id=dave@idlab.example assertion_id=ID_ab21d964-095d-4b5d-b985-76159a5d4005
+2026-10-22T11:52:50.738786376Z 192.0.2.16 - - [22/Oct/2026:11:52:50 +0000] "POST /saml/acs HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:52:50.744901458Z 192.0.2.16 - - [22/Oct/2026:11:52:50 +0000] "GET /debug HTTP/1.1" 200 15805 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:02.435502617Z 192.0.2.16 - - [22/Oct/2026:11:56:02 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:02.513914706Z 2026-10-22 11:56:02,513 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_0e1f41205a1f45aecad9061fd6dc208eaee993e9
+2026-10-22T11:56:02.515182372Z 192.0.2.16 - - [22/Oct/2026:11:56:02 +0000] "GET /login HTTP/1.1" 302 2481 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:10.062065821Z 192.0.2.16 - - [22/Oct/2026:11:56:10 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:10.147675735Z 2026-10-22 11:56:10,147 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_52677befdd323ca82122b7bcf82de2fca8fbfd8a
+2026-10-22T11:56:10.148876578Z 192.0.2.16 - - [22/Oct/2026:11:56:10 +0000] "GET /login HTTP/1.1" 302 2525 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:10.465876189Z 2026-10-22 11:56:10,465 INFO saml-sp event=saml_login_ok name_id=alice@idlab.example assertion_id=ID_cd2396a2-f4dd-48e8-a003-6930f0b3d5e0
+2026-10-22T11:56:10.466666329Z 192.0.2.16 - - [22/Oct/2026:11:56:10 +0000] "POST /saml/acs HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:10.482940846Z 192.0.2.16 - - [22/Oct/2026:11:56:10 +0000] "GET /debug HTTP/1.1" 200 16042 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:29.447226198Z 192.0.2.16 - - [22/Oct/2026:11:56:29 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:29.535613795Z 2026-10-22 11:56:29,535 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_39add5bd6789e9a7ade0be40ee8a1ce72367e986
+2026-10-22T11:56:29.536875326Z 192.0.2.16 - - [22/Oct/2026:11:56:29 +0000] "GET /login HTTP/1.1" 302 2477 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:36.228966609Z 192.0.2.16 - - [22/Oct/2026:11:56:36 +0000] "GET / HTTP/1.1" 200 2636 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:36.317345160Z 2026-10-22 11:56:36,317 INFO saml-sp event=saml_authn_request request_id=ONELOGIN_a768a8a2dfbfe73694a7ea805963ba2557207e61
+2026-10-22T11:56:36.318483723Z 192.0.2.16 - - [22/Oct/2026:11:56:36 +0000] "GET /login HTTP/1.1" 302 2497 "https://idlab.home:8184/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:36.656888560Z 2026-10-22 11:56:36,650 INFO saml-sp event=saml_login_ok name_id=alice@idlab.example assertion_id=ID_b7e07179-33fb-4504-b124-eef89ccd79e2
+2026-10-22T11:56:36.656918653Z 192.0.2.16 - - [22/Oct/2026:11:56:36 +0000] "POST /saml/acs HTTP/1.1" 302 199 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T11:56:36.659877574Z 192.0.2.16 - - [22/Oct/2026:11:56:36 +0000] "GET /debug HTTP/1.1" 200 16042 "-" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
