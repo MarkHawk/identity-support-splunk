@@ -47,7 +47,8 @@ import sanitise  # noqa: E402
 
 HOME = pathlib.Path.home()
 DEFAULT_LAB = HOME / "identity-lab"
-DEFAULT_TOKEN_INSPECTOR = HOME / "token-inspector"
+# Where a token-inspector checkout usually is; the first with samples wins.
+DEFAULT_TOKEN_INSPECTORS = (HOME / "token-inspector", HOME / "projects" / "token-inspector")
 DEFAULT_RATE_LIMIT_PROBE = HOME / "projects" / "rate-limit-probe"
 # Behaviours whose reports show a misbehaving limiter, plus one that is fine.
 RATE_LIMIT_DEMOS = ("fixed-seconds", "lying", "penalty", "block")
@@ -109,12 +110,24 @@ def write_report(raw, name, stdout, when):
     (raw / "reports" / f"{name}.meta.json").write_text(json.dumps({"time": iso(when)}) + "\n", encoding="utf-8")
 
 
-def token_inspector_reports(root, raw, when, runner=None):
+def token_inspector_samples(root):
+    """The samples in a token-inspector checkout's samples/lab, by their .meta.json."""
+    return sorted((root / "samples" / "lab").glob("*/*.meta.json"))
+
+
+def token_inspector_reports(roots, raw, when, runner=None):
     """token-inspector --json on each sample in its samples/lab, with the
-    arguments recorded in the sample's .meta.json. Returns report names."""
+    arguments recorded in the sample's .meta.json, from the first of roots
+    that has samples. Returns report names; finding none is an error, so a
+    capture never silently leaves the reports out."""
+    root = next((r for r in roots if token_inspector_samples(r)), None)
+    if root is None:
+        looked = ", ".join(str(r / "samples" / "lab") for r in roots)
+        raise hec_send.SenderError(f"no token-inspector samples in {looked}: pass --token-inspector "
+                                   "with the path of your token-inspector checkout, or --no-tools to skip the reports")
     exe = root / "venv" / "bin" / "token-inspector"
     names = []
-    for meta in sorted((root / "samples" / "lab").glob("*/*.meta.json")):
+    for meta in token_inspector_samples(root):
         sample = meta.with_name(meta.name[: -len(".meta.json")])
         args = [a.replace("{dir}", str(sample.parent)) for a in json.loads(meta.read_text())["args"]]
         out = (runner or run)([str(exe), "--json", *args, str(sample)])
@@ -145,8 +158,10 @@ def build_parser():
     parser.add_argument("--project", default="identity-lab", help="its compose project name")
     parser.add_argument("--since", type=parse_time, help="start of a run already done (ISO 8601 with zone)")
     parser.add_argument("--until", type=parse_time, help="end of that run (default: now)")
-    parser.add_argument("--token-inspector", type=pathlib.Path, default=DEFAULT_TOKEN_INSPECTOR,
-                        help="token-inspector checkout (its venv and samples/lab)")
+    parser.add_argument("--token-inspector", type=pathlib.Path,
+                        help="token-inspector checkout (its venv and samples/lab); default: the first of "
+                             + " and ".join(str(p).replace(str(HOME), "~") for p in DEFAULT_TOKEN_INSPECTORS)
+                             + " that has samples")
     parser.add_argument("--rate-limit-probe", type=pathlib.Path, default=DEFAULT_RATE_LIMIT_PROBE,
                         help="rate-limit-probe checkout (its venv)")
     parser.add_argument("--no-tools", action="store_true", help="collect the lab's logs only")
@@ -181,7 +196,8 @@ def main(argv=None, out=sys.stdout, ask=input, runner=None):
         counts = collect_logs(args.project, since, until, raw, runner)
         reports = []
         if not args.no_tools:
-            reports += token_inspector_reports(args.token_inspector, raw, until, runner)
+            roots = [args.token_inspector] if args.token_inspector else DEFAULT_TOKEN_INSPECTORS
+            reports += token_inspector_reports(roots, raw, until, runner)
             reports += rate_limit_probe_reports(args.rate_limit_probe, raw, until, runner)
     except (hec_send.SenderError, OSError, ValueError) as exc:
         print(f"capture_lab: {exc}", file=sys.stderr)

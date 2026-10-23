@@ -169,6 +169,39 @@ def test_tool_reports_with_their_arguments_and_time(setup):
         f"rate-limit-probe-{d}.json" for d in sorted(capture.RATE_LIMIT_DEMOS)]
 
 
+def test_no_token_inspector_samples_is_a_clear_error(setup, capsys):
+    """A wrong checkout path used to leave the reports out without a word."""
+    empty = setup["tmp"] / "elsewhere"
+    argv = setup["argv"] + ["--since", "2026-10-19T18:00:00Z", "--token-inspector", str(empty)]
+    assert capture.main(argv, out=io.StringIO(), runner=FakeSystem()) == 1
+    err = capsys.readouterr().err
+    assert f"no token-inspector samples in {empty / 'samples' / 'lab'}" in err and "--token-inspector" in err
+    assert not (setup["tmp"] / "samples").exists()  # samples/ untouched
+
+
+def test_token_inspector_found_in_either_usual_place(setup, monkeypatch, capsys):
+    home = setup["tmp"] / "home"
+    defaults = (home / "token-inspector", home / "projects" / "token-inspector")
+    monkeypatch.setattr(capture, "DEFAULT_TOKEN_INSPECTORS", defaults)
+    argv = setup["argv"][2:] + ["--since", "2026-10-19T18:00:00Z"]  # without --token-inspector
+    defaults[1].parent.mkdir(parents=True)
+    setup["ti"].rename(defaults[1])
+    system = FakeSystem()
+    assert capture.main(argv, out=io.StringIO(), runner=system) == 0
+    assert [c[0] for c in system.calls if c[0].endswith("token-inspector")] == [
+        str(defaults[1] / "venv/bin/token-inspector")]
+    # with neither, the error names both places
+    defaults[1].rename(setup["tmp"] / "moved")
+    assert capture.main(argv, out=io.StringIO(), runner=FakeSystem()) == 1
+    err = capsys.readouterr().err
+    assert all(str(d / "samples" / "lab") in err for d in defaults)
+
+
+def test_default_token_inspector_paths_are_only_the_two_usual_ones():
+    home = capture.HOME
+    assert capture.DEFAULT_TOKEN_INSPECTORS == (home / "token-inspector", home / "projects" / "token-inspector")
+
+
 def test_no_tools_collects_logs_only(setup):
     system = FakeSystem()
     capture.main(setup["argv"] + ["--since", "2026-10-19T18:00:00Z", "--no-tools"], out=io.StringIO(), runner=system)
