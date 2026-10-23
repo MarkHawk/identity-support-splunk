@@ -647,11 +647,12 @@ def test_api_is_cim_authentication():
 
 
 def test_api_reason_and_signature_agree():
-    """signature is api_bearer_<reason>, spelt out (a calculated field cannot use another)."""
+    """signature is api_bearer_<reason> (api_<reason> for CORS), spelt out (a calculated field cannot use another)."""
     a = props["idlab:api"]
     literals = lambda expr: [x for x in re.findall(r'(?<![=!]=)"([a-z_]+)"', expr) if not x.endswith("_")]  # noqa: E731
     reasons, signatures = literals(a["EVAL-reason"]), literals(a["EVAL-signature"])
-    assert signatures == [f"api_bearer_{r}" for r in reasons]
+    assert signatures == [f"api_cors_{r.removeprefix('cors_')}" if r.startswith("cors_") else f"api_bearer_{r}"
+                          for r in reasons]
     assert {"wrong_audience", "expired", "no_token", "not_jwt", "not_bearer"} <= set(reasons)
     assert a["LOOKUP-support_causes"] == "support_causes signature OUTPUT cause runbook runbook_url"
 
@@ -661,6 +662,37 @@ def test_api_causes_point_at_runbook_16():
     assert set(rows) == {s for s in eval_signatures() if s.startswith("api_bearer_")}
     assert {r["runbook"] for r in rows.values()} == {"16-api-bearer-401"}
     assert "audience" in rows["api_bearer_wrong_audience"]["cause"] and "azp" in rows["api_bearer_wrong_audience"]["cause"]
+
+
+CORS_MISMATCH = ('event=="api_request_ok" AND isnotnull(origin) AND coalesce(cors_allow_origin, "")!=origin '
+                 'AND coalesce(cors_allow_origin, "")!="*"')
+
+
+@pytest.mark.parametrize("contains, origin, allow, mismatch", [
+    ("18:55:00,002", "https://rp.idlab.example:8182", "https://rp.idlab.example:8182/", True),  # a trailing slash
+    ("18:55:10,000", None, "https://rp.idlab.example:8182/", False),  # from a back end: no Origin, no CORS
+    ("18:55:20,000", "https://spa.idlab.example", None, True),        # no header at all
+    ("18:55:30,000", "https://rp.idlab.example:8182", "https://rp.idlab.example:8182", False),
+    ("18:55:40,000", "https://spa.idlab.example", "*", False),
+])
+def test_api_cors_origin_mismatch(contains, origin, allow, mismatch):
+    """The API logs the page's Origin and the Access-Control-Allow-Origin it
+    sent; the browser blocks the answer unless they are equal (or "*")."""
+    f = fields("api", contains)
+    assert (f["event"], f.get("origin"), f.get("cors_allow_origin")) == ("api_request_ok", origin, allow)
+    assert (origin is not None and (allow or "") not in (origin, "*")) == mismatch
+    a = props["idlab:api"]
+    assert f'{CORS_MISMATCH}, "api_cors_origin_mismatch")' in a["EVAL-signature"]
+    assert f'{CORS_MISMATCH}, "cors_origin_mismatch")' in a["EVAL-reason"]
+    assert a["EVAL-action"].startswith('case(event=="api_request_ok", "success"')  # the token was fine
+
+
+def test_api_cors_mismatch_counts_as_a_failure_with_runbook_19():
+    row = {r["signature"]: r for r in causes()}["api_cors_origin_mismatch"]
+    assert row["runbook"] == "19-cors-blocked" and "API logged a success" in row["cause"]
+    assert read_conf("eventtypes.conf")["idlab_api_cors_mismatch"]["search"] == (
+        "sourcetype=idlab:api event=api_request_ok signature=api_cors_origin_mismatch")
+    assert "OR eventtype=idlab_api_cors_mismatch)" in read_conf("macros.conf")["support_failures"]["definition"]
 
 
 def test_redirect_loop_signatures_have_causes():
