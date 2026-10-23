@@ -259,6 +259,8 @@ def test_proxy_access_on_the_mutual_tls_route(contains, verify, reason, dn, not_
     assert (f["ssl_client_verify"], f.get("ssl_client_verify_reason")) == (verify, reason)
     assert (f.get("client_dn"), f.get("client_not_after")) == (dn, not_after)
     assert "upstream" not in f
+    # no automatic key=value extraction, which would make client_dn "-"
+    assert props["idlab:nginx:access"]["KV_MODE"] == "none"
 
 
 @pytest.mark.parametrize("contains, reason, error", [
