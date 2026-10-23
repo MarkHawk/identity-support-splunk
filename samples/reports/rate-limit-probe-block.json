@@ -2,7 +2,7 @@
   "tool": "rate-limit-probe",
   "version": "0.1.0",
   "target": {
-    "url": "http://127.0.0.1:42937/s/block",
+    "url": "http://127.0.0.1:35105/s/block",
     "local": true,
     "method": "GET"
   },
@@ -15,7 +15,7 @@
     "demo window shortened to 2 s"
   ],
   "sent": 8,
-  "duration": 2.504,
+  "duration": 2.505,
   "stop": {
     "kind": "blocked",
     "detail": "the server answered 403 instead of 429",
@@ -83,7 +83,7 @@
       "type": "request",
       "n": 5,
       "phase": "discover",
-      "at": 0.401,
+      "at": 0.4,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -114,7 +114,7 @@
     },
     {
       "type": "wait",
-      "at": 0.501,
+      "at": 0.502,
       "seconds": 1.0,
       "source": "early",
       "purpose": "early"
@@ -123,7 +123,7 @@
       "type": "request",
       "n": 7,
       "phase": "early",
-      "at": 1.501,
+      "at": 1.502,
       "status": 429,
       "rate_headers": [
         [
@@ -140,7 +140,7 @@
     },
     {
       "type": "wait",
-      "at": 1.503,
+      "at": 1.504,
       "seconds": 1.0,
       "source": "Retry-After",
       "purpose": "honour"
@@ -149,7 +149,7 @@
       "type": "request",
       "n": 8,
       "phase": "honour",
-      "at": 2.503,
+      "at": 2.504,
       "status": 403,
       "rate_headers": [],
       "retry_after": null,
@@ -211,8 +211,8 @@
       "title": "Early retry",
       "summary": "A request sent 1 s early was refused, and did not extend the wait.",
       "details": {
-        "delay": 1.001,
-        "expected": 0.999,
+        "delay": 1.002,
+        "expected": 0.998,
         "new_hint": 1.0,
         "penalised": false
       }

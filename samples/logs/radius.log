@@ -1,22 +1,22 @@
-2026-10-22T11:52:13.725528257Z Thu Oct 22 11:52:13 2026 : Info: Starting - reading configuration files ...
-2026-10-22T11:52:13.743136667Z Thu Oct 22 11:52:13 2026 : Info: Debug state unknown (cap_sys_ptrace capability not set)
-2026-10-22T11:52:13.743158978Z Thu Oct 22 11:52:13 2026 : Info: systemd watchdog is disabled
-2026-10-22T11:52:13.764700483Z Thu Oct 22 11:52:13 2026 : Info: rlm_ldap: libldap vendor: OpenLDAP, version: 20520
-2026-10-22T11:52:13.764722581Z Thu Oct 22 11:52:13 2026 : Warning: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-2026-10-22T11:52:13.764726437Z Thu Oct 22 11:52:13 2026 : Warning: !! libldap is using GnuTLS, while FreeRADIUS is using OpenSSL
-2026-10-22T11:52:13.764729008Z Thu Oct 22 11:52:13 2026 : Warning: !! There may be random issues with TLS connections due to this conflict.
-2026-10-22T11:52:13.764731515Z Thu Oct 22 11:52:13 2026 : Warning: !! The server may also crash.
-2026-10-22T11:52:13.764733786Z Thu Oct 22 11:52:13 2026 : Warning: !! See https://wiki.freeradius.org/modules/Rlm_ldap for more information.
-2026-10-22T11:52:13.764736149Z Thu Oct 22 11:52:13 2026 : Warning: !!
-2026-10-22T11:52:13.764738371Z Thu Oct 22 11:52:13 2026 : Warning: !! Perhaps also see https://ltb-project.org/download.html
-2026-10-22T11:52:13.764740662Z Thu Oct 22 11:52:13 2026 : Warning: !! Which may have a pre-build package of libldap which links to OpenSSL.
-2026-10-22T11:52:13.764743007Z Thu Oct 22 11:52:13 2026 : Warning: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-2026-10-22T11:52:13.764745444Z Thu Oct 22 11:52:13 2026 : Info: Loaded virtual server <default>
-2026-10-22T11:52:13.764748106Z Thu Oct 22 11:52:13 2026 : Info: Loaded virtual server default
-2026-10-22T11:52:13.779569962Z Thu Oct 22 11:52:13 2026 : Info: Ready to process requests
-2026-10-22T11:53:11.003389005Z Thu Oct 22 11:53:11 2026 : Auth: (11) Login OK: [dave] (from client nas port 0)
-2026-10-22T11:53:11.189045103Z Thu Oct 22 11:53:11 2026 : Auth: (12) Login incorrect (ldap: Bind credentials incorrect: Invalid credentials): [dave] (from client nas port 0)
-2026-10-22T11:57:43.880350175Z Thu Oct 22 11:57:43 2026 : Info: Dropping packet without response because of error: Received packet from 192.0.2.22 with invalid Message-Authenticator!  (Shared secret is incorrect.) (from client nas)
-2026-10-22T11:57:45.882621998Z Thu Oct 22 11:57:45 2026 : Info: Dropping packet without response because of error: Received packet from 192.0.2.22 with invalid Message-Authenticator!  (Shared secret is incorrect.) (from client nas)
-2026-10-22T11:57:47.884493512Z Thu Oct 22 11:57:47 2026 : Info: Dropping packet without response because of error: Received packet from 192.0.2.22 with invalid Message-Authenticator!  (Shared secret is incorrect.) (from client nas)
-2026-10-22T11:57:54.052792866Z Thu Oct 22 11:57:54 2026 : Auth: (72) Login OK: [dave] (from client nas port 0)
+2026-10-22T18:48:11.241679170Z Thu Oct 22 18:48:11 2026 : Info: Starting - reading configuration files ...
+2026-10-22T18:48:11.258671945Z Thu Oct 22 18:48:11 2026 : Info: Debug state unknown (cap_sys_ptrace capability not set)
+2026-10-22T18:48:11.258693693Z Thu Oct 22 18:48:11 2026 : Info: systemd watchdog is disabled
+2026-10-22T18:48:11.262980059Z Thu Oct 22 18:48:11 2026 : Info: rlm_ldap: libldap vendor: OpenLDAP, version: 20520
+2026-10-22T18:48:11.263008446Z Thu Oct 22 18:48:11 2026 : Warning: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+2026-10-22T18:48:11.263013458Z Thu Oct 22 18:48:11 2026 : Warning: !! libldap is using GnuTLS, while FreeRADIUS is using OpenSSL
+2026-10-22T18:48:11.263016342Z Thu Oct 22 18:48:11 2026 : Warning: !! There may be random issues with TLS connections due to this conflict.
+2026-10-22T18:48:11.263018914Z Thu Oct 22 18:48:11 2026 : Warning: !! The server may also crash.
+2026-10-22T18:48:11.263021307Z Thu Oct 22 18:48:11 2026 : Warning: !! See https://wiki.freeradius.org/modules/Rlm_ldap for more information.
+2026-10-22T18:48:11.263024103Z Thu Oct 22 18:48:11 2026 : Warning: !!
+2026-10-22T18:48:11.263026375Z Thu Oct 22 18:48:11 2026 : Warning: !! Perhaps also see https://ltb-project.org/download.html
+2026-10-22T18:48:11.263028654Z Thu Oct 22 18:48:11 2026 : Warning: !! Which may have a pre-build package of libldap which links to OpenSSL.
+2026-10-22T18:48:11.263031006Z Thu Oct 22 18:48:11 2026 : Warning: !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+2026-10-22T18:48:11.263033419Z Thu Oct 22 18:48:11 2026 : Info: Loaded virtual server <default>
+2026-10-22T18:48:11.263036926Z Thu Oct 22 18:48:11 2026 : Info: Loaded virtual server default
+2026-10-22T18:48:11.277517629Z Thu Oct 22 18:48:11 2026 : Info: Ready to process requests
+2026-10-22T18:50:09.669227320Z Thu Oct 22 18:50:09 2026 : Auth: (23) Login OK: [dave] (from client nas port 0)
+2026-10-22T18:50:09.857596494Z Thu Oct 22 18:50:09 2026 : Auth: (24) Login incorrect (ldap: Bind credentials incorrect: Invalid credentials): [dave] (from client nas port 0)
+2026-10-22T18:55:18.557877634Z Thu Oct 22 18:55:18 2026 : Info: Dropping packet without response because of error: Received packet from 192.0.2.22 with invalid Message-Authenticator!  (Shared secret is incorrect.) (from client nas)
+2026-10-22T18:55:20.560041466Z Thu Oct 22 18:55:20 2026 : Info: Dropping packet without response because of error: Received packet from 192.0.2.22 with invalid Message-Authenticator!  (Shared secret is incorrect.) (from client nas)
+2026-10-22T18:55:22.561376068Z Thu Oct 22 18:55:22 2026 : Info: Dropping packet without response because of error: Received packet from 192.0.2.22 with invalid Message-Authenticator!  (Shared secret is incorrect.) (from client nas)
+2026-10-22T18:55:28.641929621Z Thu Oct 22 18:55:28 2026 : Auth: (91) Login OK: [dave] (from client nas port 0)

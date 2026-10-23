@@ -1,6 +1,6 @@
 {
   "tool": "token-inspector",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "input": {
     "kind": "jwt",
     "label": "ID token (JWT)",
@@ -184,7 +184,8 @@
       "details": {
         "value": "2026-10-17T13:39:20Z",
         "seconds_remaining": 301.0,
-        "issued": "2026-10-17T13:34:20Z"
+        "issued": "2026-10-17T13:34:20Z",
+        "lifetime": 300.0
       }
     },
     {

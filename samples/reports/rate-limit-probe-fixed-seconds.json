@@ -2,7 +2,7 @@
   "tool": "rate-limit-probe",
   "version": "0.1.0",
   "target": {
-    "url": "http://127.0.0.1:42285/s/fixed-seconds",
+    "url": "http://127.0.0.1:43213/s/fixed-seconds",
     "local": true,
     "method": "GET"
   },
@@ -78,7 +78,7 @@
       "type": "request",
       "n": 5,
       "phase": "discover",
-      "at": 0.4,
+      "at": 0.401,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -135,7 +135,7 @@
     },
     {
       "type": "wait",
-      "at": 1.503,
+      "at": 1.504,
       "seconds": 1.0,
       "source": "Retry-After",
       "purpose": "honour"
@@ -144,7 +144,7 @@
       "type": "request",
       "n": 8,
       "phase": "honour",
-      "at": 2.503,
+      "at": 2.504,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -158,7 +158,7 @@
       "type": "request",
       "n": 9,
       "phase": "refill",
-      "at": 2.603,
+      "at": 2.604,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -172,7 +172,7 @@
       "type": "request",
       "n": 10,
       "phase": "refill",
-      "at": 2.703,
+      "at": 2.704,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -286,8 +286,8 @@
       "title": "Early retry",
       "summary": "A request sent 1 s early was refused, and did not extend the wait.",
       "details": {
-        "delay": 1.001,
-        "expected": 0.999,
+        "delay": 1.002,
+        "expected": 0.998,
         "new_hint": 1.0,
         "penalised": false
       }

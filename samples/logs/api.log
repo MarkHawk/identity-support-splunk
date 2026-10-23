@@ -1,23 +1,39 @@
-2026-10-22T11:52:14.690540561Z [2026-10-22 11:52:14 +0000] [1] [INFO] Starting gunicorn 26.2.0
-2026-10-22T11:52:14.690945994Z [2026-10-22 11:52:14 +0000] [1] [INFO] Listening at: https://0.0.0.0:8188 (1)
-2026-10-22T11:52:14.690956191Z [2026-10-22 11:52:14 +0000] [1] [INFO] Using worker: gthread
-2026-10-22T11:52:14.700217663Z [2026-10-22 11:52:14 +0000] [6] [INFO] Booting worker with pid: 6
-2026-10-22T11:52:15.161818045Z [2026-10-22 11:52:15 +0000] [1] [ERROR] Control server error: [Errno 13] Permission denied: '/.gunicorn'
-2026-10-22T11:52:33.749977428Z 2026-10-22 11:52:33,749 WARNING api event=api_token_rejected error=no_token error_description=- sub=- azp=- aud=- iss=- iat=- exp=-
-2026-10-22T11:52:33.750279313Z 192.0.2.10 - - [22/Oct/2026:11:52:33 +0000] "GET /v1/whoami HTTP/1.1" 401 21 "-" "curl/8.18.0"
-2026-10-22T11:52:33.775686094Z 2026-10-22 11:52:33,775 WARNING api event=api_token_rejected error=invalid_token error_description='The access token is not a JWT' sub=- azp=- aud=- iss=- iat=- exp=-
-2026-10-22T11:52:33.776427964Z 192.0.2.10 - - [22/Oct/2026:11:52:33 +0000] "GET /v1/whoami HTTP/1.1" 401 78 "-" "curl/8.18.0"
-2026-10-22T11:53:05.300630137Z 2026-10-22 11:53:05,300 INFO api event=api_request_ok sub=cfeca6fc-f25c-4695-8574-7c2d5b19863b azp=oidc-rp iat=2026-10-22T11:53:05Z exp=2026-10-22T11:58:05Z
-2026-10-22T11:53:05.301208643Z 192.0.2.11 - - [22/Oct/2026:11:53:05 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "-" "python-requests/2.34.2"
-2026-10-22T11:53:07.855221392Z 2026-10-22 11:53:07,854 INFO api event=api_request_ok sub=964c5b25-5fc8-4079-abfd-7957071e184a azp=oidc-rp iat=2026-10-22T11:53:07Z exp=2026-10-22T11:58:07Z
-2026-10-22T11:53:07.855704938Z 192.0.2.11 - - [22/Oct/2026:11:53:07 +0000] "GET /v1/whoami HTTP/1.1" 200 155 "-" "python-requests/2.34.2"
-2026-10-22T11:53:15.270239800Z 2026-10-22 11:53:15,269 WARNING api event=api_token_rejected error=invalid_token error_description='The access token audience (idlab-api-staging account) does not include idlab-api' sub=cfeca6fc-f25c-4695-8574-7c2d5b19863b azp=oidc-rp aud='idlab-api-staging account' iss=https://idlab.home:8180/realms/idlab iat=2026-10-22T11:53:15Z exp=2026-10-22T11:58:15Z
-2026-10-22T11:53:15.270963562Z 192.0.2.11 - - [22/Oct/2026:11:53:15 +0000] "GET /v1/whoami HTTP/1.1" 401 129 "-" "python-requests/2.34.2"
-2026-10-22T11:53:21.303862571Z 2026-10-22 11:53:21,303 INFO api event=api_request_ok sub=cfeca6fc-f25c-4695-8574-7c2d5b19863b azp=oidc-rp iat=2026-10-22T11:53:21Z exp=2026-10-22T11:58:21Z
-2026-10-22T11:53:21.304184032Z 192.0.2.11 - - [22/Oct/2026:11:53:21 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "-" "python-requests/2.34.2"
-2026-10-22T11:53:39.368885681Z 2026-10-22 11:53:39,368 WARNING api event=api_token_rejected error=invalid_token error_description='The access token expired at 2026-10-22T11:53:34Z' sub=cfeca6fc-f25c-4695-8574-7c2d5b19863b azp=oidc-rp aud='idlab-api account' iss=https://idlab.home:8180/realms/idlab iat=2026-10-22T11:53:24Z exp=2026-10-22T11:53:34Z
-2026-10-22T11:53:39.369575506Z 192.0.2.11 - - [22/Oct/2026:11:53:39 +0000] "GET /v1/whoami HTTP/1.1" 401 97 "-" "python-requests/2.34.2"
-2026-10-22T11:53:42.266298097Z 2026-10-22 11:53:42,266 INFO api event=api_request_ok sub=cfeca6fc-f25c-4695-8574-7c2d5b19863b azp=oidc-rp iat=2026-10-22T11:53:42Z exp=2026-10-22T11:53:52Z
-2026-10-22T11:53:42.266635149Z 192.0.2.11 - - [22/Oct/2026:11:53:42 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "-" "python-requests/2.34.2"
-2026-10-22T11:54:00.304539633Z 2026-10-22 11:54:00,304 INFO api event=api_request_ok sub=cfeca6fc-f25c-4695-8574-7c2d5b19863b azp=oidc-rp iat=2026-10-22T11:53:45Z exp=2026-10-22T11:58:45Z
-2026-10-22T11:54:00.305294082Z 192.0.2.11 - - [22/Oct/2026:11:54:00 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "-" "python-requests/2.34.2"
+2026-10-22T18:49:02.636872842Z [2026-10-22 18:49:02 +0000] [1] [INFO] Starting gunicorn 26.2.0
+2026-10-22T18:49:02.637169021Z [2026-10-22 18:49:02 +0000] [1] [INFO] Listening at: https://0.0.0.0:8188 (1)
+2026-10-22T18:49:02.637267404Z [2026-10-22 18:49:02 +0000] [1] [INFO] Using worker: gthread
+2026-10-22T18:49:02.640089854Z [2026-10-22 18:49:02 +0000] [8] [INFO] Booting worker with pid: 8
+2026-10-22T18:49:02.975290288Z [2026-10-22 18:49:02 +0000] [1] [ERROR] Control server error: [Errno 13] Permission denied: '/.gunicorn'
+2026-10-22T18:49:22.874391230Z 2026-10-22 18:49:22,874 WARNING api event=api_token_rejected error=no_token error_description=- sub=- azp=- aud=- iss=- iat=- exp=-
+2026-10-22T18:49:22.874762553Z 192.0.2.10 - - [22/Oct/2026:18:49:22 +0000] "GET /v1/whoami HTTP/1.1" 401 21 "-" "curl/8.18.0"
+2026-10-22T18:49:22.899721772Z 192.0.2.10 - - [22/Oct/2026:18:49:22 +0000] "GET /v1/whoami HTTP/1.1" 401 78 "-" "curl/8.18.0"
+2026-10-22T18:49:22.899747193Z 2026-10-22 18:49:22,899 WARNING api event=api_token_rejected error=invalid_token error_description='The access token is not a JWT' sub=- azp=- aud=- iss=- iat=- exp=-
+2026-10-22T18:49:22.923586823Z 2026-10-22 18:49:22,923 INFO api event=api_cors_preflight origin=https://idlab.home:8182 method=GET headers=authorization
+2026-10-22T18:49:22.924187672Z 192.0.2.10 - - [22/Oct/2026:18:49:22 +0000] "OPTIONS /v1/whoami HTTP/1.1" 204 0 "-" "curl/8.18.0"
+2026-10-22T18:49:57.684492622Z 2026-10-22 18:49:57,684 INFO api event=api_request_ok sub=1e7d717f-82d0-49ab-bb06-c34330a53287 azp=oidc-rp iat=2026-10-22T18:49:57Z exp=2026-10-22T18:54:57Z origin=- cors_allow_origin=https://idlab.home:8182
+2026-10-22T18:49:57.686365949Z 192.0.2.11 - - [22/Oct/2026:18:49:57 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "-" "python-requests/2.34.2"
+2026-10-22T18:50:00.649574024Z 2026-10-22 18:50:00,648 INFO api event=api_request_ok sub=dc17d2a6-0cdc-4219-8212-fb2a0642e610 azp=oidc-rp iat=2026-10-22T18:50:00Z exp=2026-10-22T18:55:00Z origin=- cors_allow_origin=https://idlab.home:8182
+2026-10-22T18:50:00.649617168Z 192.0.2.11 - - [22/Oct/2026:18:50:00 +0000] "GET /v1/whoami HTTP/1.1" 200 155 "-" "python-requests/2.34.2"
+2026-10-22T18:50:03.699223630Z 2026-10-22 18:50:03,699 INFO api event=api_cors_preflight origin=https://idlab.home:8182 method=GET headers=authorization
+2026-10-22T18:50:03.699714482Z 192.0.2.10 - - [22/Oct/2026:18:50:03 +0000] "OPTIONS /v1/whoami HTTP/1.1" 204 0 "https://idlab.home:8182/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T18:50:03.701766735Z 2026-10-22 18:50:03,701 INFO api event=api_request_ok sub=1e7d717f-82d0-49ab-bb06-c34330a53287 azp=oidc-rp iat=2026-10-22T18:50:03Z exp=2026-10-22T18:55:03Z origin=https://idlab.home:8182 cors_allow_origin=https://idlab.home:8182
+2026-10-22T18:50:03.702274973Z 192.0.2.10 - - [22/Oct/2026:18:50:03 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "https://idlab.home:8182/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T18:50:14.165121440Z 2026-10-22 18:50:14,164 WARNING api event=api_token_rejected error=invalid_token error_description='The access token audience (idlab-api-staging account) does not include idlab-api' sub=1e7d717f-82d0-49ab-bb06-c34330a53287 azp=oidc-rp aud='idlab-api-staging account' iss=https://idlab.home:8180/realms/idlab iat=2026-10-22T18:50:14Z exp=2026-10-22T18:55:14Z
+2026-10-22T18:50:14.165511422Z 192.0.2.11 - - [22/Oct/2026:18:50:14 +0000] "GET /v1/whoami HTTP/1.1" 401 129 "-" "python-requests/2.34.2"
+2026-10-22T18:50:20.481571172Z 2026-10-22 18:50:20,481 INFO api event=api_request_ok sub=1e7d717f-82d0-49ab-bb06-c34330a53287 azp=oidc-rp iat=2026-10-22T18:50:20Z exp=2026-10-22T18:55:20Z origin=- cors_allow_origin=https://idlab.home:8182
+2026-10-22T18:50:20.481897505Z 192.0.2.11 - - [22/Oct/2026:18:50:20 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "-" "python-requests/2.34.2"
+2026-10-22T18:50:38.729007969Z 192.0.2.11 - - [22/Oct/2026:18:50:38 +0000] "GET /v1/whoami HTTP/1.1" 401 97 "-" "python-requests/2.34.2"
+2026-10-22T18:50:38.729015803Z 2026-10-22 18:50:38,728 WARNING api event=api_token_rejected error=invalid_token error_description='The access token expired at 2026-10-22T18:50:33Z' sub=1e7d717f-82d0-49ab-bb06-c34330a53287 azp=oidc-rp aud='idlab-api account' iss=https://idlab.home:8180/realms/idlab iat=2026-10-22T18:50:23Z exp=2026-10-22T18:50:33Z
+2026-10-22T18:50:41.380098059Z 2026-10-22 18:50:41,379 INFO api event=api_request_ok sub=1e7d717f-82d0-49ab-bb06-c34330a53287 azp=oidc-rp iat=2026-10-22T18:50:41Z exp=2026-10-22T18:50:51Z origin=- cors_allow_origin=https://idlab.home:8182
+2026-10-22T18:50:41.380486583Z 192.0.2.11 - - [22/Oct/2026:18:50:41 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "-" "python-requests/2.34.2"
+2026-10-22T18:50:59.630902333Z 2026-10-22 18:50:59,630 INFO api event=api_request_ok sub=1e7d717f-82d0-49ab-bb06-c34330a53287 azp=oidc-rp iat=2026-10-22T18:50:44Z exp=2026-10-22T18:55:44Z origin=- cors_allow_origin=https://idlab.home:8182
+2026-10-22T18:50:59.631685905Z 192.0.2.11 - - [22/Oct/2026:18:50:59 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "-" "python-requests/2.34.2"
+2026-10-22T18:51:23.974406728Z 2026-10-22 18:51:23,974 INFO api event=api_cors_preflight origin=https://idlab.home:8182 method=GET headers=authorization
+2026-10-22T18:51:23.974864748Z 192.0.2.10 - - [22/Oct/2026:18:51:23 +0000] "OPTIONS /v1/whoami HTTP/1.1" 204 0 "https://idlab.home:8182/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T18:51:23.976817442Z 2026-10-22 18:51:23,976 INFO api event=api_request_ok sub=1e7d717f-82d0-49ab-bb06-c34330a53287 azp=oidc-rp iat=2026-10-22T18:51:23Z exp=2026-10-22T18:56:23Z origin=https://idlab.home:8182 cors_allow_origin=https://idlab.home:8182/
+2026-10-22T18:51:23.977231944Z 192.0.2.10 - - [22/Oct/2026:18:51:23 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "https://idlab.home:8182/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T18:51:27.151430813Z 2026-10-22 18:51:27,149 INFO api event=api_request_ok sub=1e7d717f-82d0-49ab-bb06-c34330a53287 azp=oidc-rp iat=2026-10-22T18:51:26Z exp=2026-10-22T18:56:26Z origin=- cors_allow_origin=https://idlab.home:8182/
+2026-10-22T18:51:27.151434434Z 192.0.2.11 - - [22/Oct/2026:18:51:27 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "-" "python-requests/2.34.2"
+2026-10-22T18:51:29.907874315Z 2026-10-22 18:51:29,907 INFO api event=api_cors_preflight origin=https://idlab.home:8182 method=GET headers=authorization
+2026-10-22T18:51:29.908273053Z 192.0.2.10 - - [22/Oct/2026:18:51:29 +0000] "OPTIONS /v1/whoami HTTP/1.1" 204 0 "https://idlab.home:8182/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"
+2026-10-22T18:51:29.910425298Z 2026-10-22 18:51:29,910 INFO api event=api_request_ok sub=1e7d717f-82d0-49ab-bb06-c34330a53287 azp=oidc-rp iat=2026-10-22T18:51:29Z exp=2026-10-22T18:56:29Z origin=https://idlab.home:8182 cors_allow_origin=https://idlab.home:8182
+2026-10-22T18:51:29.910841499Z 192.0.2.10 - - [22/Oct/2026:18:51:29 +0000] "GET /v1/whoami HTTP/1.1" 200 156 "https://idlab.home:8182/" "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/153.0.8010.12 Safari/537.36"

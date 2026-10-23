@@ -2,7 +2,7 @@
   "tool": "rate-limit-probe",
   "version": "0.1.0",
   "target": {
-    "url": "http://127.0.0.1:44253/s/lying",
+    "url": "http://127.0.0.1:33273/s/lying",
     "local": true,
     "method": "GET"
   },
@@ -15,7 +15,7 @@
     "demo window shortened to 5 s"
   ],
   "sent": 16,
-  "duration": 5.507,
+  "duration": 5.508,
   "stop": null,
   "timeline": [
     {
@@ -92,7 +92,7 @@
       "type": "request",
       "n": 6,
       "phase": "discover",
-      "at": 0.5,
+      "at": 0.501,
       "status": 429,
       "rate_headers": [
         [
@@ -109,7 +109,7 @@
     },
     {
       "type": "wait",
-      "at": 0.501,
+      "at": 0.502,
       "seconds": 0.5,
       "source": "early",
       "purpose": "early"
@@ -118,7 +118,7 @@
       "type": "request",
       "n": 7,
       "phase": "early",
-      "at": 1.001,
+      "at": 1.002,
       "status": 429,
       "rate_headers": [
         [
@@ -161,7 +161,7 @@
     },
     {
       "type": "wait",
-      "at": 2.003,
+      "at": 2.004,
       "seconds": 1.0,
       "source": "Retry-After",
       "purpose": "honour"
@@ -170,7 +170,7 @@
       "type": "request",
       "n": 9,
       "phase": "honour",
-      "at": 3.003,
+      "at": 3.004,
       "status": 429,
       "rate_headers": [
         [
@@ -316,7 +316,7 @@
       "summary": "Request 6, 0.5 s in: 5 requests were accepted first.",
       "details": {
         "request": 6,
-        "at": 0.5,
+        "at": 0.501,
         "burst": 5
       }
     },
