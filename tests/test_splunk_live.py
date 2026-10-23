@@ -17,6 +17,7 @@ runs never see each other's events.
 import base64
 import json
 import os
+import re
 import ssl
 import time
 import urllib.parse
@@ -48,7 +49,7 @@ def search(spl):
     ctx = ssl.create_default_context()
     ctx.check_hostname, ctx.verify_mode = False, ssl.CERT_NONE
     auth = base64.b64encode(f"admin:{os.environ['SUPPORT_SPLUNK_PASSWORD']}".encode()).decode()
-    body = urllib.parse.urlencode({"search": "search " + spl, "output_mode": "json", "exec_mode": "oneshot",
+    body = urllib.parse.urlencode({"search": spl if spl.startswith("|") else "search " + spl, "output_mode": "json", "exec_mode": "oneshot",
                                    "earliest_time": "0", "latest_time": "+7d", "count": "0"}).encode()
     req = urllib.request.Request(MGMT + "/services/search/jobs", data=body,
                                  headers={"Authorization": "Basic " + auth})
@@ -477,6 +478,16 @@ def test_overview_proxy_panels(host):
         ("CN=partner-client", "Nov 3 18:32:36 2027 GMT", "refused: self-signed certificate", "1")}
     days = {r["result"]: r.get("days_left") for r in mtls}
     assert days["refused: no certificate"] is None and int(days["refused: certificate has expired"]) < 0
+
+
+def test_overview_days_left_rounds_towards_zero():
+    """Whole days, rounded towards zero: just over a day past expiry is -1, not -2, and never -0."""
+    q = overview_query("unused", "ds_mtls_clients")
+    days_left = re.search(r"\| eval (left=.*?), first_seen=", q).group(1)
+    rows = search(f"| makeresults count=6 | streamstats count as n "
+                  f"| eval expires=now() + 86400 * case(n=1, -1.1, n=2, -0.4, n=3, 0.4, n=4, 2.5, n=5, -3.9) "
+                  f"| eval {days_left} | sort n | table days_left")
+    assert [r.get("days_left") for r in rows] == ["-1", "0", "0", "2", "-3", None]
 
 
 def test_overview_when_did_it_start_lists_the_proxy_causes(host):
