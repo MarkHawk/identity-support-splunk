@@ -36,8 +36,8 @@ pytestmark = pytest.mark.skipif(not all(os.environ.get(n) for n in NEEDED),
 
 # Events the fixtures should produce once indexed: the healthz line is dropped.
 # The proxy's lines are all typed access or error at index time.
-EXPECTED = {"idlab:keycloak": 6, "idlab:sp": 46, "idlab:api": 16, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
-            "idlab:nginx:access": 7, "idlab:nginx:error": 7, "idlab:squid:access": 7, "idlab:squid:cache": 5,
+EXPECTED = {"idlab:keycloak": 6, "idlab:sp": 46, "idlab:api": 24, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
+            "idlab:nginx:access": 12, "idlab:nginx:error": 10, "idlab:squid:access": 7, "idlab:squid:cache": 5,
             "token_inspector:report": 1, "rate_limit_probe:report": 1}
 
 
@@ -163,7 +163,7 @@ def test_api_calls_are_cim_authentication(host):
                   "| fillnull value=- user | stats count by action app dest status user")
     sub = "0b6f6f1e-3c1b-4d4e-9a55-1f2e3d4c5b6a"
     assert {(r["action"], r["app"], r["dest"], r["status"], r["user"]): r["count"] for r in rows} == {
-        ("success", "api", "api", "200", sub): "1",
+        ("success", "api", "api", "200", sub): "6",  # 2 of them blocked by the browser (CORS)
         ("failure", "api", "api", "401", sub): "2",
         ("failure", "api", "api", "401", "7d1c2b3a-4e5f-4a6b-8c7d-9e0f1a2b3c4d"): "1",
         ("failure", "api", "api", "401", "-"): "2",
@@ -185,12 +185,22 @@ def test_api_rejection_causes(host):
     assert {r["signature"]: (r["count"], r["runbook"]) for r in rows} == {
         "api_bearer_no_token": ("1", "16-api-bearer-401"), "api_bearer_not_jwt": ("1", "16-api-bearer-401"),
         "api_bearer_not_bearer": ("1", "16-api-bearer-401"), "api_bearer_wrong_audience": ("1", "16-api-bearer-401"),
-        "api_bearer_expired": ("2", "16-api-bearer-401")}
+        "api_bearer_expired": ("2", "16-api-bearer-401"),
+        # a trailing slash, and no header at all; not the back-end call, the exact match or "*"
+        "api_cors_origin_mismatch": ("2", "19-cors-blocked")}
+
+
+def test_api_cors_mismatch_is_a_success_with_a_reason(host):
+    rows = search(f"`support_index` host={host} eventtype=idlab_api_cors_mismatch "
+                  "| fillnull value=- cors_allow_origin | table _time action reason origin cors_allow_origin")
+    assert [(r["action"], r["reason"], r["origin"], r["cors_allow_origin"]) for r in rows] == [
+        ("success", "cors_origin_mismatch", "https://spa.idlab.example", "-"),
+        ("success", "cors_origin_mismatch", "https://rp.idlab.example:8182", "https://rp.idlab.example:8182/")]
 
 
 def test_api_access_lines_keep_their_status(host):
     rows = search(f"`support_index` host={host} sourcetype=idlab:api uri_path=/v1/whoami | stats count by status")
-    assert {r["status"]: r["count"] for r in rows} == {"200": "1", "400": "1", "401": "5"}
+    assert {r["status"]: r["count"] for r in rows} == {"200": "2", "204": "1", "400": "1", "401": "5"}
 
 
 def test_radius_reject_versus_no_reply(host):
@@ -231,7 +241,8 @@ def test_failures_macro(host):
         "egress_app_proxy_auth_required", "egress_app_proxy_policy_block", "egress_app_tls_untrusted",
         "egress_app_proxy_bypassed", "egress_app_proxy_unreachable",
         "api_bearer_no_token", "api_bearer_not_jwt", "api_bearer_not_bearer", "api_bearer_wrong_audience",
-        "api_bearer_expired"}
+        "api_bearer_expired", "api_cors_origin_mismatch", "proxy_answered_503", "proxy_client_cert_missing",
+        "proxy_client_cert_expired", "proxy_client_cert_rejected"}
 
 
 def test_proxy_access_is_cim_web(host):
@@ -258,8 +269,30 @@ def test_proxy_error_causes(host):
         "proxy_rate_limited": ("08-proxy-rate-limit", "proxy", "idp.idlab.example:8183"),
         # nginx cut this line before its host
         "proxy_header_too_large": ("10-proxy-header-too-large", "proxy", "-"),
+        # from the access log
+        "proxy_answered_503": ("17-service-unavailable", "proxy", "idp.idlab.example:8183"),
+        "proxy_client_cert_missing": ("18-client-cert", "proxy", "partner.idlab.example:8189"),
+        "proxy_client_cert_expired": ("18-client-cert", "proxy", "partner.idlab.example:8189"),
+        "proxy_client_cert_rejected": ("18-client-cert", "proxy", "partner.idlab.example:8189"),
     }
     assert all(r["count"] == "1" for r in rows)
+
+
+def test_proxy_mutual_tls_fields(host):
+    rows = search(f"`support_index` host={host} sourcetype=idlab:nginx:access ssl_client_verify=* "
+                  "| fillnull value=MISSING client_dn client_not_after ssl_client_verify_reason "
+                  "| table status ssl_client_verify ssl_client_verify_reason client_dn client_not_after")
+    assert {(r["status"], r["ssl_client_verify"], r["ssl_client_verify_reason"], r["client_dn"]) for r in rows} == {
+        ("200", "SUCCESS", "MISSING", "CN=partner-client"),
+        ("400", "NONE", "MISSING", "MISSING"),  # no "-" from automatic key=value extraction
+        ("400", "FAILED:certificate has expired", "certificate has expired", "CN=partner-client"),
+        ("400", "FAILED:self-signed certificate", "self-signed certificate", "CN=partner-client")}
+
+
+def test_proxy_info_lines_explain_but_do_not_count(host):
+    rows = search(f"`support_index` host={host} sourcetype=idlab:nginx:error log_level=info "
+                  "| fillnull value=- ssl_verify_error | stats count(signature) as n count by ssl_verify_error")
+    assert {r["ssl_verify_error"]: (r["n"], r["count"]) for r in rows} == {"10": ("0", "1"), "-": ("0", "2")}
 
 
 def test_proxy_notices_are_not_failures(host):
@@ -423,18 +456,27 @@ def test_overview_names_who_is_affected(host):
 
 def test_overview_chart_buckets_follow_the_data(host):
     rows = search(overview_query(host, "ds_over_time"))
-    # the fixtures span 18:05-18:54, so 1-minute buckets, filled continuously
-    assert len(rows) == 50
+    # the fixtures span 18:05-18:55, so 1-minute buckets, filled continuously
+    assert len(rows) == 51
     assert not any("gap" in key for r in rows for key in r)
 
 
 def test_overview_proxy_panels(host):
     rows = search(overview_query(host, "ds_proxy_causes"))
     assert [r["runbook"] for r in rows] == [
-        "06-proxy-bad-gateway", "07-proxy-gateway-timeout", "08-proxy-rate-limit", "10-proxy-header-too-large"]
+        "06-proxy-bad-gateway", "07-proxy-gateway-timeout", "08-proxy-rate-limit", "10-proxy-header-too-large",
+        "18-client-cert", "18-client-cert", "18-client-cert", "17-service-unavailable"]
     assert all(r["_runbook_url"].endswith(r["runbook"] + ".md") for r in rows)
     series = {k for r in search(overview_query(host, "ds_proxy_status")) for k in r if not k.startswith("_")}
-    assert series == {"2xx", "3xx", "400", "429", "502", "504"}
+    assert series == {"2xx", "3xx", "400", "400 client certificate", "429", "502", "503", "504"}
+    mtls = search(overview_query(host, "ds_mtls_clients"))
+    assert {(r["client"], r["not_after"], r["result"], r["count"]) for r in mtls} == {
+        ("CN=partner-client", "Nov 23 18:32:36 2027 GMT", "accepted", "1"),
+        ("no certificate sent", "-", "refused: no certificate", "1"),
+        ("CN=partner-client", "Oct 18 18:51:00 2026 GMT", "refused: certificate has expired", "1"),
+        ("CN=partner-client", "Nov 3 18:32:36 2027 GMT", "refused: self-signed certificate", "1")}
+    days = {r["result"]: r.get("days_left") for r in mtls}
+    assert days["refused: no certificate"] is None and int(days["refused: certificate has expired"]) < 0
 
 
 def test_overview_when_did_it_start_lists_the_proxy_causes(host):
@@ -492,4 +534,4 @@ def test_overview_api_panels(host):
     assert rows[3]["audiences"] == "idlab-api-staging account" and rows[3]["clients"] == "oidc-rp"
     assert all(r["_runbook_url"].endswith("/16-api-bearer-401.md") for r in rows)
     series = {k for r in search(overview_query(host, "ds_api_results")) for k in r if not k.startswith("_")}
-    assert series == {"accepted", "no_token", "not_jwt", "not_bearer", "wrong_audience", "expired"}
+    assert series == {"accepted", "no_token", "not_jwt", "not_bearer", "wrong_audience", "expired", "cors_origin_mismatch"}

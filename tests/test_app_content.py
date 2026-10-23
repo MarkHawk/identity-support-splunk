@@ -117,11 +117,12 @@ def test_times_follow_the_viewers_time_zone(view):
     """Every time shown goes through strftime without a zone (or is _time on
     a chart axis), so each viewer sees their own Splunk time zone. No query
     names a zone, and no table shows raw _time (Studio formats that itself,
-    with the zone the session started with)."""
+    with the zone the session started with). Reading a time that names its
+    zone (nginx's certificate dates, in GMT) takes %Z, in strptime only."""
     _, d = definition(view)
     for name, source in d["dataSources"].items():
         query = source["options"]["query"]
-        assert not re.search(r"UTC|GMT|%Z|%z|[+-]00:?00", query), name
+        assert not re.search(r"UTC|GMT|%Z|%z|[+-]00:?00", re.sub(r'strptime\(\w+, "[^"]*%Z"\)', "", query)), name
         for fmt in re.findall(r'strftime\([^,]+, "([^"]*)"\)', query):
             assert fmt == "%Y-%m-%d %H:%M:%S", (name, fmt)
         table = re.search(r"\| table ([^|]*)", query)
