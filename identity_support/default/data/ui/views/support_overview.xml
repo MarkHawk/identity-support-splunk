@@ -106,7 +106,7 @@
     "viz_by_cause": {
       "type": "splunk.table",
       "title": "When did it start? (select a row for its runbook)",
-      "options": {"showInternalFields": false, "count": 50, "columnFormat": {"cause": {"width": 560}}},
+      "options": {"showInternalFields": false, "count": 50, "columnFormat": {"first_seen": {"width": 112}, "last_seen": {"width": 112}, "cause": {"width": 540}}},
       "description": "affected: end users where the logs name them, the service account for directory binds, the client certificate on a mutual-TLS route, otherwise not in log",
       "dataSources": {"primary": "ds_by_cause"},
       "eventHandlers": [{"type": "drilldown.customUrl", "options": {"url": "$row._runbook_url.value|n$", "newTab": true}}]
@@ -157,8 +157,8 @@
     "viz_egress_causes": {
       "type": "splunk.table",
       "title": "Forward proxy (egress): refusals and back-channel failures by likely cause (select a row for its runbook)",
-      "description": "Squid's refusals and the app's failed calls to the IdP, one row per cause, each side counted in its own column: one failed login usually shows in both (When did it start? counts it once). A bypass (runbook 14) leaves nothing in Squid's log, so only the app shows it. Squid's TLS row has no route: cache.log doesn't name the destination.",
-      "options": {"showInternalFields": false, "columnFormat": {"cause": {"width": 560}}},
+      "description": "Squid's refusals and the app's failed calls to the IdP, each in its own column: one failed login usually shows in both. A bypass (runbook 14) never reaches Squid, so only the app shows it. Squid's TLS row has no route.",
+      "options": {"showInternalFields": false, "columnFormat": {"first_seen": {"width": 112}, "last_seen": {"width": 112}, "cause": {"width": 540}}},
       "dataSources": {"primary": "ds_egress_causes"},
       "eventHandlers": [{"type": "drilldown.customUrl", "options": {"url": "$row._runbook_url.value|n$", "newTab": true}}]
     },
@@ -184,14 +184,14 @@
     "viz_radius": {
       "type": "splunk.column",
       "title": "RADIUS: Access-Reject versus no reply",
-      "description": "Access-Reject: the server answered no (password, policy). No reply: it dropped or ignored the request (shared secret, unknown NAS), which users see as a timeout.",
+      "description": "Access-Reject: the server said no (password, policy). No reply: dropped (shared secret, unknown NAS): a timeout.",
       "dataSources": {"primary": "ds_radius"},
       "options": {"stackMode": "stacked", "legendDisplay": "bottom", "yAxisMajorTickInterval": 1}
     },
     "viz_ldap": {
       "type": "splunk.table",
       "title": "LDAP binds refused by the directory",
-      "description": "Result 49 for a service account means the IdP's bind credential is wrong; for a user (uid=...), only that user's password.",
+      "description": "Result 49 for a service account: the IdP's bind credential is wrong. For a user (uid=...): that user's password.",
       "dataSources": {"primary": "ds_ldap"}
     },
     "viz_idp_ldap": {
@@ -203,25 +203,25 @@
   "layout": {
     "type": "grid",
     "globalInputs": ["input_time"],
-    "options": {"width": 1440, "height": 6136},
+    "options": {"width": 1440, "height": 6392},
     "structure": [
       {"item": "viz_count", "type": "block", "position": {"x": 0, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_users", "type": "block", "position": {"x": 360, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_first", "type": "block", "position": {"x": 720, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_last", "type": "block", "position": {"x": 1080, "y": 0, "w": 360, "h": 120}},
       {"item": "viz_over_time", "type": "block", "position": {"x": 0, "y": 120, "w": 1440, "h": 320}},
-      {"item": "viz_by_cause", "type": "block", "position": {"x": 0, "y": 440, "w": 1440, "h": 1912}},
-      {"item": "viz_who", "type": "block", "position": {"x": 0, "y": 2352, "w": 1440, "h": 568}},
-      {"item": "viz_proxy_status", "type": "block", "position": {"x": 0, "y": 2920, "w": 1440, "h": 400}},
-      {"item": "viz_proxy_causes", "type": "block", "position": {"x": 0, "y": 3320, "w": 1440, "h": 560}},
-      {"item": "viz_mtls_clients", "type": "block", "position": {"x": 0, "y": 3880, "w": 1440, "h": 296}},
-      {"item": "viz_egress_status", "type": "block", "position": {"x": 0, "y": 4176, "w": 1440, "h": 400}},
-      {"item": "viz_egress_causes", "type": "block", "position": {"x": 0, "y": 4576, "w": 1440, "h": 376}},
-      {"item": "viz_api_results", "type": "block", "position": {"x": 0, "y": 4952, "w": 1440, "h": 400}},
-      {"item": "viz_api_reasons", "type": "block", "position": {"x": 0, "y": 5352, "w": 1440, "h": 272}},
-      {"item": "viz_radius", "type": "block", "position": {"x": 0, "y": 5624, "w": 720, "h": 512}},
-      {"item": "viz_ldap", "type": "block", "position": {"x": 720, "y": 5624, "w": 720, "h": 392}},
-      {"item": "viz_idp_ldap", "type": "block", "position": {"x": 720, "y": 6016, "w": 720, "h": 120}}
+      {"item": "viz_by_cause", "type": "block", "position": {"x": 0, "y": 440, "w": 1440, "h": 2048}},
+      {"item": "viz_who", "type": "block", "position": {"x": 0, "y": 2488, "w": 1440, "h": 568}},
+      {"item": "viz_proxy_status", "type": "block", "position": {"x": 0, "y": 3056, "w": 1440, "h": 400}},
+      {"item": "viz_proxy_causes", "type": "block", "position": {"x": 0, "y": 3456, "w": 1440, "h": 560}},
+      {"item": "viz_mtls_clients", "type": "block", "position": {"x": 0, "y": 4016, "w": 1440, "h": 296}},
+      {"item": "viz_egress_status", "type": "block", "position": {"x": 0, "y": 4312, "w": 1440, "h": 400}},
+      {"item": "viz_egress_causes", "type": "block", "position": {"x": 0, "y": 4712, "w": 1440, "h": 496}},
+      {"item": "viz_api_results", "type": "block", "position": {"x": 0, "y": 5208, "w": 1440, "h": 400}},
+      {"item": "viz_api_reasons", "type": "block", "position": {"x": 0, "y": 5608, "w": 1440, "h": 272}},
+      {"item": "viz_radius", "type": "block", "position": {"x": 0, "y": 5880, "w": 720, "h": 512}},
+      {"item": "viz_ldap", "type": "block", "position": {"x": 720, "y": 5880, "w": 720, "h": 392}},
+      {"item": "viz_idp_ldap", "type": "block", "position": {"x": 720, "y": 6272, "w": 720, "h": 120}}
     ]
   }
 }
