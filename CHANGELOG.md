@@ -1,5 +1,20 @@
 # Changelog
 
+## 0.5.1 (2026-10-23)
+
+Polish.
+
+- **Dashboard:** nothing truncates. The egress, RADIUS and LDAP
+  descriptions are shorter, and the `first_seen` and `last_seen` headers
+  of "When did it start?" and the egress causes table are no longer cut
+  short. Both tables are taller, so neither scrolls.
+- **Fix:** the client certificates table rounds `days_left` towards zero:
+  a certificate that expired just over a day ago shows -1, not -2.
+- **Samples:** identity-lab's NO_PROXY scenario (runbook 14), from the
+  app logs identity-lab now keeps before recreating the app. Its lines are
+  moved into the capture's window (`capture.json` says from where, and by
+  how much), so the reviewer stack shows it with the other egress causes.
+
 ## 0.5.0 (2026-10-23)
 
 Adds identity-lab's maintenance 503 (runbook 17), its mutual-TLS route
