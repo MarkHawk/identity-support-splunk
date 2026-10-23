@@ -321,7 +321,7 @@ def test_causes_link_identity_lab_runbooks():
     for row in causes():
         if row["signature"] == "egress_app_proxy_unreachable":
             continue  # no runbook covers it; see the next test
-        assert row["cause"] and re.fullmatch(r"(?:0[1-9]|1[0-6])-[a-z0-9-]+", row["runbook"]), row
+        assert row["cause"] and re.fullmatch(r"(?:0[1-9]|1[0-9])-[a-z0-9-]+", row["runbook"]), row
         assert row["runbook_url"] == (
             f"https://github.com/MarkHawk/identity-lab/blob/main/runbooks/{row['runbook']}.md")
 
@@ -368,6 +368,54 @@ def test_proxy_error_signature(contains, signature, runbook):
         assert bool(pcre(rule).search(reason)) == bool(signature)
     if signature:
         assert {row["signature"]: row["runbook"] for row in causes()}[signature] == runbook
+
+
+def access_signature(f):
+    """idlab:nginx:access's EVAL-signature, run in Python: a case() whose
+    conditions are field=="value" and match(field, "regex"), joined by AND."""
+    def holds(term):
+        if m := re.fullmatch(r'(\w+)=="([^"]*)"', term):
+            return f.get(m[1]) == m[2]
+        m = re.fullmatch(r'match\((\w+), "([^"]+)"\)', term)
+        return bool(pcre(m[2]).search(f.get(m[1], "")))
+
+    expr = props["idlab:nginx:access"]["EVAL-signature"]
+    rules = re.findall(r'(?:case\(|, )((?:\w+=="[^"]*"|match\(\w+, "[^"]+"\))(?: AND (?:\w+=="[^"]*"|match\(\w+, "[^"]+"\)))*), "(\w+)"', expr)
+    assert len(rules) == len(re.findall(r', "proxy_\w+"', expr))  # every rule was read
+    return next((sig for cond, sig in rules if all(holds(t) for t in cond.split(" AND "))), None)
+
+
+@pytest.mark.parametrize("contains, signature, runbook", [
+    ('" 503 ', "proxy_answered_503", "17-service-unavailable"),
+    ("ssl_client_verify=NONE", "proxy_client_cert_missing", "18-client-cert"),
+    ("FAILED:certificate has expired", "proxy_client_cert_expired", "18-client-cert"),
+    ("FAILED:self-signed", "proxy_client_cert_rejected", "18-client-cert"),
+    ("ssl_client_verify=SUCCESS", None, None),
+    ('" 429 ', None, None),            # the error log's limiting requests line counts it
+    ('" 504 ', None, None),            # and its upstream timed out line
+    ("SAMLRequest=masked-", None, None),  # a 400 from the IdP, through the proxy
+])
+def test_proxy_access_signature(contains, signature, runbook):
+    access = [e for e in events("proxy") if contains in e
+              and index_sourcetype(props, transforms, "idlab:nginx", e) == "idlab:nginx:access"]
+    assert len(access) == 1
+    f = extract(props["idlab:nginx:access"], transforms, access[0])
+    assert access_signature(f) == signature
+    refused = (f["status"] == "503" and f.get("upstream") == "-") or bool(
+        re.match(r"NONE|FAILED:", f.get("ssl_client_verify", "")))
+    assert refused == bool(signature)
+    if signature:
+        assert {row["signature"]: row["runbook"] for row in causes()}[signature] == runbook
+
+
+def test_proxy_access_refusals_are_app_proxy_with_their_route():
+    s = props["idlab:nginx:access"]
+    cond = '(status=="503" AND upstream=="-") OR match(ssl_client_verify, "^(NONE|FAILED:)")'
+    assert (s["EVAL-app"], s["EVAL-route"]) == (f'if({cond}, "proxy", null())', f"if({cond}, site, null())")
+    assert eval_signatures() >= {"proxy_answered_503", "proxy_client_cert_missing",
+                                 "proxy_client_cert_expired", "proxy_client_cert_rejected"}
+    assert read_conf("eventtypes.conf")["idlab_proxy_error"]["search"] == (
+        "(sourcetype=idlab:nginx:error OR sourcetype=idlab:nginx:access) signature=proxy_*")
 
 
 def test_forwarded_headers_cause_names_the_proxy():
