@@ -68,8 +68,8 @@ def test_every_runbook_scenario_is_in_the_samples():
             for text, scenario in EGRESS_APP_ERRORS.items():
                 if text in f["error"]:
                     seen[scenario] += 1
-    # 14 (NO_PROXY) leaves nothing in Squid's log, and its app-side line goes
-    # with the container that break.sh and fix.sh recreate.
+    # 14 (NO_PROXY) leaves nothing in Squid's log: the app tries Keycloak
+    # directly and cannot resolve it.
     assert set(seen) == {"01 signing certificate", "02 clock skew", "03 redirect URI", "04 LDAP 49",
                          "05 RADIUS no reply", "RADIUS Access-Reject", *PROXY_REASONS.values(),
                          "09 proxy forwarded headers", "11 proxy auth (Squid)", "12 proxy policy (Squid)",
@@ -80,6 +80,7 @@ EGRESS_APP_ERRORS = {
     "Tunnel connection failed: 407": "11 proxy auth (app)",
     "Tunnel connection failed: 403": "12 proxy policy (app)",
     "CERTIFICATE_VERIFY_FAILED": "13 TLS interception (app)",
+    "(Caused by NameResolutionError": "14 NO_PROXY (app)",
 }
 
 

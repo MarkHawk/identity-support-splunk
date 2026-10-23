@@ -9,7 +9,7 @@
     "nas": 1,
     "oidc-rp": 295,
     "oidc-rp-edge": 169,
-    "oidc-rp-egress": 88,
+    "oidc-rp-egress": 93,
     "oidc-rp-proxied": 156,
     "proxy": 569,
     "radius": 22,
@@ -28,5 +28,14 @@
     "rate-limit-probe-lying",
     "rate-limit-probe-penalty",
     "rate-limit-probe-block"
+  ],
+  "added": [
+    {
+      "scenario": 14,
+      "service": "oidc-rp-egress",
+      "lines": 5,
+      "from": "identity-lab .state/oidc-rp-egress/logs/20261023T091148Z",
+      "shifted": "-14h15m, into this capture's window"
+    }
   ]
 }
