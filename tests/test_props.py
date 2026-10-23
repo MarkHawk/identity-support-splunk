@@ -83,7 +83,7 @@ def test_healthz_is_dropped_at_index_time():
 
 def test_proxy_lines_are_typed_access_or_error_at_index_time():
     typed = collections.Counter(index_sourcetype(props, transforms, "idlab:nginx", e) for e in events("proxy"))
-    assert typed == {"idlab:nginx:access": 7, "idlab:nginx:error": 7}
+    assert typed == {"idlab:nginx:access": 12, "idlab:nginx:error": 10}
     for sourcetype in ("idlab:nginx:access", "idlab:nginx:error"):
         assert "LINE_BREAKER" not in props[sourcetype], "search-time only: lines break as idlab:nginx"
 
@@ -239,6 +239,47 @@ def test_proxy_notice_lines():
     f = fields("proxy", "SIGHUP")
     assert (f["log_level"], f["nginx_reason"]) == ("notice", "signal 1 (SIGHUP) received from 183, reconfiguring")
     assert "connection_id" not in f and "src" not in f
+
+
+@pytest.mark.parametrize("contains, verify, reason, dn, not_after", [
+    ("ssl_client_verify=SUCCESS", "SUCCESS", None, "CN=partner-client", "Nov 23 18:32:36 2027 GMT"),
+    ("ssl_client_verify=NONE", "NONE", None, None, None),
+    ("has expired", "FAILED:certificate has expired", "certificate has expired", "CN=partner-client",
+     "Oct 18 18:51:00 2026 GMT"),
+    ("self-signed", "FAILED:self-signed certificate", "self-signed certificate", "CN=partner-client",
+     "Nov  3 18:32:36 2027 GMT"),
+])
+def test_proxy_access_on_the_mutual_tls_route(contains, verify, reason, dn, not_after):
+    access = [e for e in events("proxy") if contains in e and "[info]" not in e]
+    assert len(access) == 1
+    f = extract(props["idlab:nginx:access"], transforms, access[0])
+    assert (f["src"], f["http_method"], f["uri_path"], f["site"]) == (
+        "192.0.2.10", "GET", "/", "partner.idlab.example:8189")
+    assert f["status"] == ("200" if verify == "SUCCESS" else "400")
+    assert (f["ssl_client_verify"], f.get("ssl_client_verify_reason")) == (verify, reason)
+    assert (f.get("client_dn"), f.get("client_not_after")) == (dn, not_after)
+    assert "upstream" not in f
+
+
+@pytest.mark.parametrize("contains, reason, error", [
+    ("no required SSL certificate", "client sent no required SSL certificate while reading client request headers",
+     None),
+    ("verify error", "client SSL certificate verify error: (10:certificate has expired) "
+                     "while reading client request headers", "10"),
+])
+def test_proxy_error_client_certificate(contains, reason, error):
+    f = fields("proxy", contains)
+    assert (f["log_level"], f["nginx_reason"], f["src"], f["site"]) == (
+        "info", reason, "192.0.2.10", "partner.idlab.example:8189")
+    assert f.get("ssl_verify_error") == error
+    assert f.get("ssl_client_verify_reason") == ("certificate has expired" if error else None)
+
+
+def test_proxy_info_noise_is_parsed_without_a_request():
+    f = fields("proxy", "closed connection while waiting")
+    assert (f["log_level"], f["nginx_reason"], f["src"]) == (
+        "info", "client closed connection while waiting for request", "192.0.2.10")
+    assert "request" not in f and "site" not in f
 
 
 def test_slapd_bind_and_result_join_on_conn_and_op():
