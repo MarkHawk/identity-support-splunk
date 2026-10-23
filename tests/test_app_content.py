@@ -187,6 +187,13 @@ def test_proxy_alerts_link_their_runbooks(name, runbooks):
     assert (s["dispatch.earliest_time"], s["cron_schedule"]) == ("-5m@m", "*/5 * * * *")
 
 
+def test_proxy_spike_alert_takes_only_the_error_logs_reasons():
+    """idlab_proxy_error also holds access-line refusals (a 503, a refused
+    client certificate): they are not 502s or 504s."""
+    s = read_conf("savedsearches.conf")["Reverse proxy 502/504 spike"]["search"]
+    assert "(sourcetype=idlab:nginx:error eventtype=idlab_proxy_error signature!=proxy_rate_limited)" in s
+
+
 def test_egress_alert_links_its_runbooks_and_only_counts_the_idp():
     s = read_conf("savedsearches.conf")["Egress proxy refusing the IdP"]
     assert set(re.findall(r"/runbooks/([0-9]{2}-[a-z-]+)\.md", s["description"])) == {
