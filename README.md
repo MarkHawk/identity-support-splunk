@@ -5,7 +5,7 @@ questions every support ticket starts with: when did it start, who is
 affected, and what is the likely cause?** It reads the logs from every
 part of [identity-lab](https://github.com/MarkHawk/identity-lab) (the
 identity provider, the SAML and OIDC sample apps, the nginx reverse proxy
-in front of them, the Squid egress proxy behind one of them, the API that
+in front of them and its mutual-TLS route, the Squid egress proxy behind one of them, the API that
 checks the OIDC app's access tokens, the RADIUS server and NAS, and the
 LDAP directory), plus the JSON reports from
 [token-inspector](https://github.com/MarkHawk/token-inspector) and
@@ -26,13 +26,13 @@ you can try it without the lab.
 *Who is affected? End users and service accounts, with RADIUS rejects versus no reply and LDAP result 49 below.*
 
 ![Reverse proxy](docs/screenshots/proxy.png)
-*Reverse proxy: responses over time by status, and each 502, 504 or 429 with its likely cause, route and runbook.*
+*Reverse proxy: responses over time by status; each refusal (502, 504, 429, a 503 the proxy answered itself, a refused client certificate) with its likely cause, route and runbook; and the client certificates seen on the mutual-TLS route, with their expiry.*
 
 ![Forward proxy (egress)](docs/screenshots/egress-proxy.png)
 *Forward proxy (egress): the app's calls through Squid over time, and each 407, 403 or TLS interception refusal with its likely cause, the app's and Squid's counts, apps, route and runbook.*
 
 ![API (bearer tokens)](docs/screenshots/api.png)
-*API (bearer tokens): every call to the API over time, accepted or refused by reason, and each rejection with its status, the clients the tokens were issued to, the audiences they carry and the expired tokens' lifetime.*
+*API (bearer tokens): every call to the API over time, accepted or refused by reason, with the accepted calls a browser blocked for CORS, and each rejection with its status, the clients the tokens were issued to, the audiences they carry and the expired tokens' lifetime.*
 
 The screenshots show real identity-lab data. Times are shown in the Splunk user's time zone (UK time in these screenshots).
 
@@ -84,16 +84,27 @@ clash with a Splunk you already run.
   - a number of end users, where the logs name them;
   - the service account, for a directory bind such as
     `service account (keycloak-svc)`;
+  - the client certificate, on a mutual-TLS route, such as
+    `client certificate (CN=partner-client)`;
   - *not in log*, where a failure happens before the user is known, such as
     a SAML response the SP rejects.
-- *Who is affected?* End users and service accounts, each with their apps
+- *Who is affected?* End users, service accounts and client certificates, each with their apps
   and causes. A failed bind as `uid=...` counts as that user's own password
   being rejected, not as an outage.
 - *Reverse proxy: responses over time.* Every request through the proxy by
-  status, with 2xx and 3xx grouped and each error code on its own.
-- *Reverse proxy: 5xx and 429 by likely cause.* One row per reason in the
-  proxy's error log (bad gateway, gateway timeout, rate limit, IdP headers
-  too large), with the route and the runbook. Wrong `X-Forwarded-*`
+  status, with 2xx and 3xx grouped and each error code on its own. A client
+  certificate refused on a mutual-TLS route shows as `400 client
+  certificate`, apart from the IdP's own 400s: nginx sends both as a plain
+  400 (its 495 and 496 never reach the wire).
+- *Reverse proxy: refusals by likely cause.* One row per cause, with the
+  route and the runbook: from the error log's reason (bad gateway, gateway
+  timeout, rate limit, IdP headers too large), and from the access log a
+  503 the proxy answered itself, without an upstream (maintenance mode), and
+  a client certificate that was missing, expired or otherwise refused.
+- *Reverse proxy: client certificates on mutual-TLS routes.* Each
+  certificate clients presented, with its expiry (`not_after`), days left
+  from now, and what nginx made of it. A certificate still accepted but
+  close to 0 days is the next ticket. Wrong `X-Forwarded-*`
   headers leave nothing in nginx's logs. They show in *When did it start?*
   as the Keycloak error they cause, under the app `keycloak (via proxy)`.
 - *Forward proxy (egress): CONNECTs over time.* Every call the app behind
@@ -106,7 +117,10 @@ clash with a Splunk you already run.
   app shows because Squid never sees the call.
 - *API (bearer tokens): calls over time by result.* Every call to the API:
   accepted, or refused by reason (wrong audience, expired, no token, not a
-  JWT, ...).
+  JWT, ...). `cors_origin_mismatch` is a call the API accepted and logged
+  as a success, from a browser page whose origin its
+  `Access-Control-Allow-Origin` doesn't match, so the browser blocked the
+  answer. It counts as a failure in *When did it start?* (runbook 19).
 - *API (bearer tokens): rejections by reason.* Status, count, the clients
   (`azp`) the tokens were issued to, the audiences (`aud`) they carry, and
   the lifetime of the expired ones.
@@ -141,7 +155,9 @@ The RADIUS, proxy 502/504 and egress alerts look back only five minutes, so they
 can miss them by the time they run. The capture is also too short for the
 SSO spike, and has a single 429, below the rate-limit alert's threshold. On Splunk
 Free there is no alerting: the same searches still run as reports. The API's
-rejections have no alert: they show in the dashboard's API row.
+rejections, the proxy's maintenance 503, refused client certificates and
+CORS mismatches have no alert: they show in the dashboard. The 502/504
+alert counts only the error log's reasons, never those.
 
 **Scenario coverage:** every identity-lab scenario, and where it shows.
 
@@ -159,6 +175,9 @@ rejections have no alert: they show in the dashboard's API row.
 | 14 | Egress proxy bypassed (`NO_PROXY`) | Forward proxy row, When did it start? (`oidc-rp-egress`) |
 | 15 | Redirect loop behind the reverse proxy | When did it start? (`oidc-rp-edge`), redirect-loop alert |
 | 16 | API 401: wrong audience, expired token | API row, When did it start? (`api`) |
+| 17 | Reverse proxy 503: maintenance mode left on | Reverse proxy row, When did it start? (`proxy`) |
+| 18 | Mutual TLS: no client certificate, or an expired one | Reverse proxy row and its client certificates, When did it start? (`proxy`, the certificate as affected) |
+| 19 | CORS: the API answers 200, the browser blocks it | API row (`cors_origin_mismatch`), When did it start? (`api`) |
 
 ## How it works
 
@@ -174,9 +193,9 @@ starts, so a Java stack trace or a Python traceback stays whole.
 |---|---|---|
 | `idlab:keycloak` | identity provider | `kc_type`, `kc_error`, `kc_clientId`, `kc_username`, `ldap_result_code` (from stack traces) |
 | `idlab:sp` | SAML SP and OIDC RP, and their copies behind the proxies | `event`, `reason`, `error`, `name_id` / `email`; `app` ends in `-proxied`, `-egress` or `-edge` for the copies; `path`, `scheme`, `x_forwarded_proto` on a forced HTTPS redirect; health checks dropped at index time |
-| `idlab:api` | API (resource server) | `reason` (wrong_audience, expired, no_token, ...), `status` (401, or 400 for a malformed header), `sub`, `azp`, `aud`, `iss`, `exp`, `iat`, `token_lifetime` (`exp - iat`, seconds); a claim the token lacks is no field; never the token |
-| `idlab:nginx:access` | reverse proxy access log | `status`, `request`, `src`, `site`, `upstream`, `upstream_status`, `request_time`, `upstream_time`, `upstream_response_time` (seconds, from the last upstream tried) |
-| `idlab:nginx:error` | reverse proxy error log | `log_level`, `nginx_reason` (the reason text), `src`, `request`, `upstream`, `site`, `limit_zone`; `app` is `proxy` and `route` the host and port for a refusal |
+| `idlab:api` | API (resource server) | `reason` (wrong_audience, expired, no_token, ...), `status` (401, or 400 for a malformed header), `sub`, `azp`, `aud`, `iss`, `exp`, `iat`, `token_lifetime` (`exp - iat`, seconds); `origin` (a browser page's Origin) and `cors_allow_origin` (the header the API sent) on an accepted call; a claim the token lacks is no field; never the token |
+| `idlab:nginx:access` | reverse proxy access log | `status`, `request`, `src`, `site`, `upstream`, `upstream_status`, `request_time`, `upstream_time`, `upstream_response_time` (seconds, from the last upstream tried); on the mutual-TLS route `client_dn`, `client_not_after`, `ssl_client_verify` (SUCCESS, NONE or FAILED:<reason>) and `ssl_client_verify_reason`; `app` is `proxy` and `route` the host and port for a 503 without an upstream or a refused certificate |
+| `idlab:nginx:error` | reverse proxy error log | `log_level`, `nginx_reason` (the reason text), `src`, `request`, `upstream`, `site`, `limit_zone`, `ssl_verify_error` and `ssl_client_verify_reason` (a refused client certificate, at info level); `app` is `proxy` and `route` the host and port for a refusal |
 | `idlab:squid:access` | egress proxy access log (Squid's native format) | `result_code`, `status`, `action` (allowed, blocked), `http_method`, `url`, `dest_host`, `dest_port`, `src`, `user`, `hierarchy_code`, `duration` |
 | `idlab:squid:cache` | egress proxy cache.log | `log_level`, `squid_message`, `squid_error_detail`, `tls_lib_err` and `tls_error` (OpenSSL's code and text: `A000418` is `tlsv1 alert unknown ca`) |
 | `idlab:radius` | RADIUS server | `radius_result`, `radius_outcome` (Access-Accept, Access-Reject, no reply), `user`, `nas_client` |
@@ -208,6 +227,15 @@ starts, so a Java stack trace or a Python traceback stays whole.
   redirects by host, app copy, path and the `X-Forwarded-Proto` that
   arrived: 5 or more, each within 2 seconds of the last, are one loop. A
   lone redirect (someone typing `http://`) is not.
+- **What the logs can show:** nginx logs nothing in its error log for a
+  503 it answers itself, and gives a refused client certificate's reason
+  only at `info` level, so both causes come from the access line, one per
+  request. A rate limit set to answer 503 instead of 429 would show as
+  both a rate limit and a 503: the 503's cause says so. For CORS, the
+  API logs the page's `Origin` and the header it sent, and the app
+  compares them; the browser's refusal itself is never in a server log.
+  A preflight the browser refuses (an `OPTIONS` with no `GET` after it)
+  is not detected.
 - **Counting once:** the `` `support_count_once_per_login` `` macro marks
   a Squid refusal that the egress app also logged (same cause, within 2
   seconds) so the overview's counts don't double it.

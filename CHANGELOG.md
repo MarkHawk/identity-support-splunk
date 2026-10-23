@@ -1,5 +1,41 @@
 # Changelog
 
+## 0.5.0 (2026-10-23)
+
+Adds identity-lab's maintenance 503 (runbook 17), its mutual-TLS route
+with a missing or expired client certificate (runbook 18), and its CORS
+scenario (runbook 19).
+
+- **Sourcetypes:** the reverse proxy's mutual-TLS route (`:8189`) logs
+  `client_dn`, `client_not_after` and `ssl_client_verify` instead of the
+  upstream fields; its access lines are parsed, with
+  `ssl_client_verify_reason` for a refusal. nginx's info-level lines for a
+  refused certificate give `ssl_verify_error` (OpenSSL's number) and the
+  reason. The API's accepted calls carry `origin` and `cors_allow_origin`.
+- **Causes:** a 503 the proxy answered itself, with no upstream
+  (maintenance mode, runbook 17); a client certificate missing, expired,
+  or refused for another reason (runbook 18), with the certificate as who
+  is affected; and an API call the browser blocks because the API's
+  `Access-Control-Allow-Origin` isn't the page's origin (runbook 19). The
+  last stays `action=success` in CIM, since the token was fine, and joins
+  the failures through its own eventtype. It is read from the API's own
+  line, not guessed; a refused preflight is not detected.
+- **Dashboard:** 17, 18 and 19 in "When did it start?". The reverse proxy
+  row's causes come from both of its logs, its chart shows the 503 and a
+  refused certificate's 400 apart from the IdP's, and a new table lists
+  the client certificates seen, with their expiry and days left. The API
+  row shows `cors_origin_mismatch`, and says a success in the API's log
+  can still be a CORS failure. Nothing scrolls inside a panel.
+- **Fix:** the 502/504 spike alert would have counted the new 503 and
+  client-certificate refusals; it counts only the error log's reasons.
+- **Fix:** the proxy's access lines no longer go through Splunk's
+  automatic key=value extraction, which made `client_dn` `-` for no
+  certificate.
+- **Samples:** re-captured from identity-lab's final run with scenarios
+  17 to 19.
+- **Docs:** the README's coverage table runs to runbook 19, and all six
+  screenshots are retaken with the new samples.
+
 ## 0.4.0 (2026-10-22)
 
 Adds identity-lab's redirect loop behind the reverse proxy (runbook 15)
