@@ -1,23 +1,17 @@
 # Identity Support for Splunk
 
-**identity-support-splunk is a Splunk app that answers the three
-questions every support ticket starts with: when did it start, who is
-affected, and what is the likely cause?** It reads the logs from every
-part of [identity-lab](https://github.com/MarkHawk/identity-lab) (the
-identity provider, the SAML and OIDC sample apps, the nginx reverse proxy
-in front of them and its mutual-TLS route, the Squid egress proxy behind one of them, the API that
-checks the OIDC app's access tokens, the RADIUS server and NAS, and the
-LDAP directory), plus the JSON reports from
-[token-inspector](https://github.com/MarkHawk/token-inspector) and
-[rate-limit-probe](https://github.com/MarkHawk/rate-limit-probe). Each
-failure is matched to a likely cause and a link to the identity-lab
-runbook that explains it.
+**A Splunk app that answers the three questions every identity support
+ticket starts with: when did it start, who is affected, and what is the
+likely cause? Each answer links the
+[identity-lab](https://github.com/MarkHawk/identity-lab) runbook that
+explains it.**
 
-It ships with sample data captured from a real identity-lab run, so
-you can try it without the lab.
+It comes with sample data from a real identity-lab run, so you can try it
+without the lab. [How it works](#how-it-works) lists the logs and reports
+it reads.
 
 ![Support overview](docs/screenshots/overview.png)
-*Support overview: failures, users affected, first and latest failure, and failures over time by likely cause.*
+*Support overview: failures, users affected, and failures over time by likely cause.*
 
 ![When did it start?](docs/screenshots/when-did-it-start.png)
 *When did it start? Each likely cause with its first and last occurrence, who is affected and its runbook.*
@@ -180,6 +174,19 @@ alert counts only the error log's reasons, never those.
 | 19 | CORS: the API answers 200, the browser blocks it | API row (`cors_origin_mismatch`), When did it start? (`api`) |
 
 ## How it works
+
+The app reads the logs from every part of identity-lab:
+- the identity provider (Keycloak);
+- the SAML and OIDC sample apps;
+- the nginx reverse proxy in front of them, and its mutual-TLS route;
+- the Squid egress proxy behind one of them;
+- the API that checks the OIDC app's access tokens;
+- the RADIUS server and NAS;
+- the LDAP directory.
+
+It also reads the JSON reports from
+[token-inspector](https://github.com/MarkHawk/token-inspector) and
+[rate-limit-probe](https://github.com/MarkHawk/rate-limit-probe).
 
 Container logs are shipped as `docker logs --timestamps` output, so every
 event is timed by Docker's clock, the same for every component (slapd's own
