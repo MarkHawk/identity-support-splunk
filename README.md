@@ -13,22 +13,8 @@ it reads.
 ![Support overview](docs/screenshots/overview.png)
 *Support overview: failures, users affected, and failures over time by likely cause.*
 
-![When did it start?](docs/screenshots/when-did-it-start.png)
-*When did it start? Each likely cause with its first and last occurrence, who is affected and its runbook.*
-
-![Who is affected?](docs/screenshots/who-is-affected.png)
-*Who is affected? End users and service accounts, with RADIUS rejects versus no reply and LDAP result 49 below.*
-
-![Reverse proxy](docs/screenshots/proxy.png)
-*Reverse proxy: responses over time by status; each refusal (502, 504, 429, a 503 the proxy answered itself, a refused client certificate) with its likely cause, route and runbook; and the client certificates seen on the mutual-TLS route, with their expiry.*
-
-![Forward proxy (egress)](docs/screenshots/egress-proxy.png)
-*Forward proxy (egress): the app's calls through Squid over time, and each 407, 403 or TLS interception refusal with its likely cause, the app's and Squid's counts, apps, route and runbook.*
-
-![API (bearer tokens)](docs/screenshots/api.png)
-*API (bearer tokens): every call to the API over time, accepted or refused by reason, with the accepted calls a browser blocked for CORS, and each rejection with its status, the clients the tokens were issued to, the audiences they carry and the expired tokens' lifetime.*
-
-The screenshots show real identity-lab data. Times are shown in the Splunk user's time zone (UK time in these screenshots).
+The screenshots show real identity-lab data, in the Splunk user's time zone
+(UK time here).
 
 ## Try it in 5 minutes
 
@@ -61,76 +47,95 @@ clash with a Splunk you already run.
 
 ## What you see
 
-**Support overview**
-- Failures, users affected, and the first and latest failure.
-- Failures over time, stacked by likely cause. The bucket size follows the
-  data, not the time picker (the `support_chart` macro). A two-minute
-  incident shows as a dozen 10-second columns, not one sliver in a 4-hour
-  chart.
-- *When did it start?* One row per cause with first and last seen, count,
-  who is affected, apps and routes. A redirect loop counts once per
-  browser that gave up, not once per redirect, and a failed login through
-  the egress proxy counts once, though Squid and the app both log it. The
-  expired-token row names the tokens' lifetime (`exp - iat`) and says when
-  it is very short. Select a row to open its runbook (or,
-  for a cause no runbook covers, identity-lab's list of runbooks). *affected*
-  shows one of three things:
-  - a number of end users, where the logs name them;
-  - the service account, for a directory bind such as
-    `service account (keycloak-svc)`;
-  - the client certificate, on a mutual-TLS route, such as
-    `client certificate (CN=partner-client)`;
-  - *not in log*, where a failure happens before the user is known, such as
-    a SAML response the SP rejects.
-- *Who is affected?* End users, service accounts and client certificates, each with their apps
-  and causes. A failed bind as `uid=...` counts as that user's own password
-  being rejected, not as an outage.
-- *Reverse proxy: responses over time.* Every request through the proxy by
-  status, with 2xx and 3xx grouped and each error code on its own. A client
-  certificate refused on a mutual-TLS route shows as `400 client
-  certificate`, apart from the IdP's own 400s: nginx sends both as a plain
-  400 (its 495 and 496 never reach the wire).
-- *Reverse proxy: refusals by likely cause.* One row per cause, with the
-  route and the runbook: from the error log's reason (bad gateway, gateway
-  timeout, rate limit, IdP headers too large), and from the access log a
-  503 the proxy answered itself, without an upstream (maintenance mode), and
-  a client certificate that was missing, expired or otherwise refused.
-- *Reverse proxy: client certificates on mutual-TLS routes.* Each
-  certificate clients presented, with its expiry (`not_after`), days left
-  from now, and what nginx made of it. A certificate still accepted but
-  close to 0 days is the next ticket. Wrong `X-Forwarded-*`
-  headers leave nothing in nginx's logs. They show in *When did it start?*
-  as the Keycloak error they cause, under the app `keycloak (via proxy)`.
-- *Forward proxy (egress): CONNECTs over time.* Every call the app behind
-  the egress proxy makes through Squid: tunnelled, 407, 403, or
-  intercepted with no tunnel.
-- *Forward proxy (egress): refusals and back-channel failures by likely
-  cause.* Squid's refusals and the app's failed calls to the IdP, one row
-  per cause, each side counted in its own column: proxy credentials (407), policy (403), TLS interception the
-  app doesn't trust, and the proxy bypassed by `NO_PROXY`, which only the
-  app shows because Squid never sees the call.
-- *API (bearer tokens): calls over time by result.* Every call to the API:
-  accepted, or refused by reason (wrong audience, expired, no token, not a
-  JWT, ...). `cors_origin_mismatch` is a call the API accepted and logged
-  as a success, from a browser page whose origin its
-  `Access-Control-Allow-Origin` doesn't match, so the browser blocked the
-  answer. It counts as a failure in *When did it start?* (runbook 19).
-- *API (bearer tokens): rejections by reason.* Status, count, the clients
-  (`azp`) the tokens were issued to, the audiences (`aud`) they carry, and
-  the lifetime of the expired ones.
-- *RADIUS: Access-Reject versus no reply.* A reject means the server
+**Support overview** is one dashboard, from top to bottom:
+
+- **Tiles and chart:** failures, users affected, and the first and latest
+  failure. Below them, failures over time, stacked by likely cause. The
+  bucket size follows the data, not the time picker (the `support_chart`
+  macro), so a two-minute incident shows as a dozen 10-second columns.
+
+![When did it start?](docs/screenshots/when-did-it-start.png)
+*When did it start? Each likely cause with its first and last occurrence, who is affected and its runbook.*
+
+- **When did it start?** One row per cause: first and last seen, count, who
+  is affected, apps and routes. Select a row to open its runbook. A cause
+  no runbook covers opens identity-lab's list of runbooks.
+  - A redirect loop counts once per browser that gave up, not once per
+    redirect.
+  - A failed login through the egress proxy counts once, though Squid and
+    the app both log it.
+  - The expired-token row names the tokens' lifetime (`exp - iat`) and
+    says when it is very short.
+  - *affected* is one of four things: a number of end users, where the
+    logs name them; a service account, such as
+    `service account (keycloak-svc)`; a client certificate on a
+    mutual-TLS route, such as `client certificate (CN=partner-client)`; or
+    *not in log*, where the failure happens before the user is known (a
+    SAML response the SP rejects, for example).
+
+![Who is affected?](docs/screenshots/who-is-affected.png)
+*Who is affected? End users, service accounts and client certificates, with RADIUS and LDAP below.*
+
+- **Who is affected?** Each end user, service account and client
+  certificate, with their apps and causes. A failed bind as `uid=...` is
+  that user's own password being rejected, not an outage.
+- **RADIUS: Access-Reject versus no reply.** A reject means the server
   answered no. No reply means it dropped or ignored the request (a shared
   secret mismatch, or an unknown NAS), which users see as a timeout.
-- *LDAP binds refused by the directory* (result 49, invalid credentials),
-  next to the identity provider's own LDAP errors.
+- **LDAP binds refused by the directory** (result 49, invalid
+  credentials), next to the identity provider's own LDAP errors.
 
-**Tool reports**
+![Reverse proxy](docs/screenshots/proxy.png)
+*Reverse proxy: responses by status, refusals by likely cause, and client certificates with their expiry.*
+
+- **Responses over time:** every request through the proxy by status, with
+  2xx and 3xx grouped. A refused client certificate shows as
+  `400 client certificate`, apart from the IdP's own 400s. nginx sends
+  both as a plain 400: its 495 and 496 never reach the wire.
+- **Refusals by likely cause:** one row per cause, with route and runbook.
+  Bad gateway, gateway timeout, rate limit and IdP headers too large come
+  from the error log. A 503 the proxy answered itself (maintenance mode)
+  and a refused client certificate come from the access log.
+- **Client certificates on mutual-TLS routes:** each certificate clients
+  presented, its expiry (`not_after`), days left and what nginx made of
+  it. One still accepted but close to 0 days is the next ticket.
+- Wrong `X-Forwarded-*` headers leave nothing in nginx's logs. They show
+  in *When did it start?* as the Keycloak error they cause, under the app
+  `keycloak (via proxy)`.
+
+![Forward proxy (egress)](docs/screenshots/egress-proxy.png)
+*Forward proxy (egress): the app's calls through Squid, and each refusal with its likely cause.*
+
+- **CONNECTs over time:** every call the app behind the egress proxy makes
+  through Squid: tunnelled, 407, 403, or intercepted with no tunnel.
+- **Refusals and back-channel failures by likely cause:** Squid's
+  refusals and the app's failed calls to the IdP, each side in its own
+  column. The causes are proxy credentials (407), policy (403), TLS
+  interception the app doesn't trust, and the proxy bypassed by
+  `NO_PROXY`. Only the app shows the bypass, because Squid never sees the
+  call.
+
+![API (bearer tokens)](docs/screenshots/api.png)
+*API (bearer tokens): calls by result, and each rejection with its clients, audiences and token lifetime.*
+
+- **Calls over time by result:** accepted, or refused by reason (wrong
+  audience, expired, no token, not a JWT, ...). `cors_origin_mismatch` is
+  a call the API accepted, from a page whose origin its
+  `Access-Control-Allow-Origin` doesn't match, so the browser blocked the
+  answer. It counts as a failure in *When did it start?* (runbook 19).
+- **Rejections by reason:** status, count, the clients (`azp`) the tokens
+  were issued to, the audiences (`aud`) they carry, and the lifetime of
+  the expired ones.
+
+**Tool reports** is the second dashboard:
 - token-inspector verdicts, likely causes and failed checks, with runbook
   links.
 - rate-limit-probe reports: 429s seen, verdict, likely cause and problems
   found.
 
-**Alerts** (Activity > Triggered Alerts; no actions are configured)
+### Alerts
+
+In Activity > Triggered Alerts. No actions are configured.
 
 | Alert | Fires when | Runbook |
 |---|---|---|
@@ -145,15 +150,21 @@ clash with a Splunk you already run.
 | rate-limit-probe found a problem | a report in the last hour has a FAIL | (the report's own next step) |
 
 The samples set off the LDAP and SAML alerts at the next five-minute run.
-The RADIUS, proxy 502/504 and egress alerts look back only five minutes, so they
-can miss them by the time they run. The capture is also too short for the
-SSO spike, and has a single 429, below the rate-limit alert's threshold. On Splunk
-Free there is no alerting: the same searches still run as reports. The API's
-rejections, the proxy's maintenance 503, refused client certificates and
-CORS mismatches have no alert: they show in the dashboard. The 502/504
-alert counts only the error log's reasons, never those.
+The others may stay quiet:
+- the RADIUS, proxy 502/504 and egress alerts look back only five
+  minutes, so they can miss the samples by the time they run;
+- the capture is too short for the SSO spike;
+- its single 429 is below the rate-limit alert's threshold.
 
-**Scenario coverage:** every identity-lab scenario, and where it shows.
+On Splunk Free there is no alerting, but the same searches still run as
+reports. The API's rejections, the proxy's maintenance 503, refused client
+certificates and CORS mismatches have no alert. They show in the dashboard
+only. The 502/504 alert counts only the reasons in the error log, never
+those.
+
+### Scenario coverage
+
+Every identity-lab scenario, and where it shows.
 
 | Runbook | Scenario | Shows in |
 |---|---|---|
