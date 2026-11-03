@@ -179,9 +179,9 @@ Every identity-lab scenario, and where it shows.
 | 11 to 13 | Egress proxy: credentials, policy, TLS interception | Forward proxy row, When did it start?, egress alert |
 | 14 | Egress proxy bypassed (`NO_PROXY`) | Forward proxy row, When did it start? (`oidc-rp-egress`) |
 | 15 | Redirect loop behind the reverse proxy | When did it start? (`oidc-rp-edge`), redirect-loop alert |
-| 16 | API 401: wrong audience, expired token | API row, When did it start? (`api`) |
+| 16 | API 401: wrong audience (16a `api-bearer-audience`), expired token (16b `api-bearer-expired`) | API row, When did it start? (`api`) |
 | 17 | Reverse proxy 503: maintenance mode left on | Reverse proxy row, When did it start? (`proxy`) |
-| 18 | Mutual TLS: no client certificate, or an expired one | Reverse proxy row and its client certificates, When did it start? (`proxy`, the certificate as affected) |
+| 18 | Mutual TLS: no client certificate (18a `client-cert-missing`), or an expired one (18b `client-cert-expired`) | Reverse proxy row and its client certificates, When did it start? (`proxy`, the certificate as affected) |
 | 19 | CORS: the API answers 200, the browser blocks it | API row (`cors_origin_mismatch`), When did it start? (`api`) |
 
 ## How it works
