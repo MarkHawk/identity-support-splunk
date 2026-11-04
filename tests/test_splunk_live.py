@@ -37,7 +37,7 @@ pytestmark = pytest.mark.skipif(not all(os.environ.get(n) for n in NEEDED),
 
 # Events the fixtures should produce once indexed: the healthz line is dropped.
 # The proxy's lines are all typed access or error at index time.
-EXPECTED = {"idlab:keycloak": 6, "idlab:sp": 46, "idlab:api": 24, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
+EXPECTED = {"idlab:keycloak": 13, "idlab:keycloak:admin": 4, "idlab:sp": 46, "idlab:api": 24, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
             "idlab:nginx:access": 12, "idlab:nginx:error": 10, "idlab:squid:access": 7, "idlab:squid:cache": 5,
             "token_inspector:report": 1, "rate_limit_probe:report": 1}
 
@@ -109,6 +109,37 @@ def test_keycloak_login_error_is_cim_authentication(host):
     assert (row["action"], row["app"], row["user"], row["src"], row["dest"]) == (
         "failure", "oidc-rp", "dave", "192.0.2.10", "keycloak")
     assert row["signature"] == "kc_user_not_found" and row["runbook"] == "04-ldap-bind-failure"
+
+
+def test_mfa_code_failures_are_their_own_cause(host):
+    rows = search(f"`support_index` host={host} eventtype=idlab_keycloak_mfa_code_failure tag=authentication "
+                  "| stats count values(action) as action values(user) as user values(runbook) as runbook by signature kc_userId")
+    assert [(r["signature"], r["kc_userId"], r["count"], r["action"], r["runbook"], r.get("user")) for r in rows] == [
+        ("kc_otp_invalid", "3b278c31-e716-46f6-88c2-efb9bfe4132a", "5", "failure", "20-totp-clock-drift", None)]
+
+
+def test_a_wrong_password_for_an_mfa_user_stays_a_wrong_password(host):
+    """Check (a), with Splunk's own calculated fields."""
+    row = one(host, 'sourcetype=idlab:keycloak kc_error=invalid_user_credentials kc_username=grace')
+    assert (row["signature"], row["user"], row["runbook"]) == ("kc_invalid_user_credentials", "grace", "04-ldap-bind-failure")
+
+
+def test_lockout_cause_and_user(host):
+    row = one(host, "eventtype=idlab_keycloak_lockout")
+    assert (row["signature"], row["user"], row["action"], row["runbook"]) == (
+        "kc_user_temporarily_disabled", "grace", "failure", "22-mfa-lockout")
+
+
+def test_admin_events_are_cim_change(host):
+    rows = search(f"`support_index` host={host} tag=change eventtype=idlab_keycloak_admin_event "
+                  "| eval t=strftime(_time, \"%H:%M:%S\") | table t action object_category signature runbook src unlocked_user_id")
+    got = [(r["t"], r["action"], r["object_category"], r.get("signature"), r.get("runbook"), r["src"],
+            r.get("unlocked_user_id")) for r in rows]
+    assert sorted(got) == [
+        ("18:52:26", "deleted", "user_login_failure", None, None, "192.0.2.10", "3b278c31-e716-46f6-88c2-efb9bfe4132a"),
+        ("18:52:33", "modified", "realm", "kc_admin_realm_update", "21-otp-policy-changed", "192.0.2.10", None),
+        ("18:52:34", "modified", "user", None, None, "192.0.2.10", None),
+        ("18:53:06", "modified", "realm", "kc_admin_realm_update", "21-otp-policy-changed", "192.0.2.10", None)]
 
 
 def test_redirect_uri_cause(host):
@@ -234,6 +265,7 @@ def test_failures_macro(host):
     rows = search(f"`support_failures` host={host} | stats count by signature")
     assert {r["signature"] for r in rows} == {
         "kc_invalid_redirect_uri", "ldap_bind_49", "kc_user_not_found", "kc_invalid_user_credentials",
+        "kc_otp_invalid", "kc_user_temporarily_disabled",
         "saml_idp_cert_expired", "saml_clock_skew", "oidc-rp:token_validation_failed",
         "radius_reject_bad_password", "radius_bad_shared_secret", "radius_unknown_client", "nas_no_reply",
         "oidc-rp:token_exchange_failed", "kc_invalid_destination", "proxy_upstream_closed", "proxy_upstream_timeout",

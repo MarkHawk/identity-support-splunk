@@ -4,6 +4,7 @@ the fixtures in tests/fixtures/lab (and samples/, once captured)."""
 import collections
 import csv
 import datetime as dt
+import json
 import re
 
 import pytest
@@ -323,7 +324,7 @@ def test_causes_link_identity_lab_runbooks():
     for row in causes():
         if row["signature"] == "egress_app_proxy_unreachable":
             continue  # no runbook covers it; see the next test
-        assert row["cause"] and re.fullmatch(r"(?:0[1-9]|1[0-9])-[a-z0-9-]+", row["runbook"]), row
+        assert row["cause"] and re.fullmatch(r"(?:0[1-9]|1[0-9]|2[0-3])-[a-z0-9-]+", row["runbook"]), row
         assert row["runbook_url"] == (
             f"https://github.com/MarkHawk/identity-lab/blob/main/runbooks/{row['runbook']}.md")
 
@@ -444,7 +445,10 @@ def test_eventtypes_and_tags_line_up():
     assert {s.removeprefix("eventtype=") for s in tags.sections() if tags[s].get("web") == "enabled"} == {
         "idlab_proxy_access", "idlab_egress_access"}
     assert tags["eventtype=idlab_egress_access"]["proxy"] == "enabled"
-    assert auth == {"idlab_keycloak_login", "idlab_sp_login", "idlab_api_auth", "idlab_radius_auth", "idlab_ldap_bind_failure"}
+    assert auth == {"idlab_keycloak_login", "idlab_keycloak_mfa_code_failure", "idlab_keycloak_lockout", "idlab_sp_login",
+                    "idlab_api_auth", "idlab_radius_auth", "idlab_ldap_bind_failure"}
+    assert {s.removeprefix("eventtype=") for s in tags.sections() if tags[s].get("change") == "enabled"} == {
+        "idlab_keycloak_admin_event"}
 
 
 def test_report_sourcetypes_are_json():
@@ -711,3 +715,58 @@ def test_a_redirect_loop_is_a_burst_not_one_redirect():
     assert "_time - loop_prev > 2" in macro and "where redirects >= 5" in macro
     # the same grouping as the app's own app field for the RP copies
     assert 'replace(source, "^.*(-proxied|-egress|-edge)$", "\\1")' in macro
+
+
+# --- MFA: Keycloak (real lines from identity-lab, moved into the fixture window) ---
+
+def kc_fields(contains_all):
+    matching = [e for e in events("keycloak") if all(c in e for c in contains_all)]
+    return [extract(props["idlab:keycloak"], transforms, e) for e in matching]
+
+
+def test_a_code_failure_names_the_credential_and_not_the_user():
+    rows = kc_fields(['error="invalid_user_credentials"', "selected_credential_id"])
+    assert len(rows) == 5
+    for f in rows:
+        assert f["kc_selected_credential_id"] == "masked-credential-1"
+        assert f["kc_userId"] == "3b278c31-e716-46f6-88c2-efb9bfe4132a" and "kc_username" not in f
+
+
+def test_a_wrong_password_for_an_mfa_user_names_the_user_and_no_credential():
+    """Check (a): grace's wrong password, from the lab: userId and username,
+    no selected_credential_id, so kc_otp_invalid can't match it."""
+    [f] = kc_fields(['error="invalid_user_credentials"', 'username="grace"'])
+    assert f["kc_userId"] == "3b278c31-e716-46f6-88c2-efb9bfe4132a" and f["kc_username"] == "grace"
+    assert "kc_selected_credential_id" not in f
+
+
+def test_the_lockout_names_both_the_user_and_their_id():
+    [f] = kc_fields(['error="user_temporarily_disabled"'])
+    assert (f["kc_userId"], f["kc_username"]) == ("3b278c31-e716-46f6-88c2-efb9bfe4132a", "grace")
+
+
+def test_the_code_failure_rule_needs_a_credential_and_no_username():
+    rule = props["idlab:keycloak"]["EVAL-signature"]
+    assert ('kc_error=="invalid_user_credentials" AND isnotnull(kc_selected_credential_id) AND '
+            '(isnull(kc_username) OR kc_username=="null"), "kc_otp_invalid"') in rule
+    # ...and comes before the catch-all kc_<error>
+    assert rule.index('"kc_otp_invalid"') < rule.index('"kc_" . kc_error')
+
+
+def test_admin_events_are_json_with_their_own_time():
+    s = props["idlab:keycloak:admin"]
+    assert s["KV_MODE"] == "json" and "TIME_PREFIX" not in s
+    assert hec_send.EVENT_FILES == {"keycloak-admin": "idlab:keycloak:admin"}
+    events_ = [json.loads(line) for line in (FIXTURES / "events/keycloak-admin.jsonl").read_text().splitlines()]
+    assert [(e["operationType"], e["resourceType"]) for e in events_] == [
+        ("DELETE", "USER_LOGIN_FAILURE"), ("UPDATE", "REALM"), ("ACTION", "USER"), ("UPDATE", "REALM")]
+
+
+@pytest.mark.parametrize("signature, runbook", [
+    ("kc_otp_invalid", "20-totp-clock-drift"),
+    ("kc_admin_realm_update", "21-otp-policy-changed"),
+    ("kc_user_temporarily_disabled", "22-mfa-lockout"),
+])
+def test_mfa_causes_link_their_runbooks(signature, runbook):
+    row = {r["signature"]: r for r in causes()}[signature]
+    assert row["runbook"] == runbook
