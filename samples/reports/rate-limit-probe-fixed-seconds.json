@@ -2,7 +2,7 @@
   "tool": "rate-limit-probe",
   "version": "0.1.0",
   "target": {
-    "url": "http://127.0.0.1:43213/s/fixed-seconds",
+    "url": "http://127.0.0.1:43515/s/fixed-seconds",
     "local": true,
     "method": "GET"
   },
@@ -15,7 +15,7 @@
     "demo window shortened to 2 s"
   ],
   "sent": 13,
-  "duration": 3.005,
+  "duration": 3.009,
   "stop": null,
   "timeline": [
     {
@@ -50,7 +50,7 @@
       "type": "request",
       "n": 3,
       "phase": "discover",
-      "at": 0.2,
+      "at": 0.201,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -64,7 +64,7 @@
       "type": "request",
       "n": 4,
       "phase": "discover",
-      "at": 0.3,
+      "at": 0.301,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -92,7 +92,7 @@
       "type": "request",
       "n": 6,
       "phase": "discover",
-      "at": 0.501,
+      "at": 0.502,
       "status": 429,
       "rate_headers": [
         [
@@ -109,7 +109,7 @@
     },
     {
       "type": "wait",
-      "at": 0.502,
+      "at": 0.503,
       "seconds": 1.0,
       "source": "early",
       "purpose": "early"
@@ -118,7 +118,7 @@
       "type": "request",
       "n": 7,
       "phase": "early",
-      "at": 1.502,
+      "at": 1.503,
       "status": 429,
       "rate_headers": [
         [
@@ -135,7 +135,7 @@
     },
     {
       "type": "wait",
-      "at": 1.504,
+      "at": 1.506,
       "seconds": 1.0,
       "source": "Retry-After",
       "purpose": "honour"
@@ -144,7 +144,7 @@
       "type": "request",
       "n": 8,
       "phase": "honour",
-      "at": 2.504,
+      "at": 2.506,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -158,7 +158,7 @@
       "type": "request",
       "n": 9,
       "phase": "refill",
-      "at": 2.604,
+      "at": 2.606,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -172,7 +172,7 @@
       "type": "request",
       "n": 10,
       "phase": "refill",
-      "at": 2.704,
+      "at": 2.707,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -186,7 +186,7 @@
       "type": "request",
       "n": 11,
       "phase": "refill",
-      "at": 2.804,
+      "at": 2.807,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -200,7 +200,7 @@
       "type": "request",
       "n": 12,
       "phase": "refill",
-      "at": 2.904,
+      "at": 2.907,
       "status": 200,
       "rate_headers": [],
       "retry_after": null,
@@ -214,7 +214,7 @@
       "type": "request",
       "n": 13,
       "phase": "refill",
-      "at": 3.004,
+      "at": 3.007,
       "status": 429,
       "rate_headers": [
         [
@@ -238,7 +238,7 @@
       "summary": "Request 6, 0.5 s in: 5 requests were accepted first.",
       "details": {
         "request": 6,
-        "at": 0.501,
+        "at": 0.502,
         "burst": 5
       }
     },
@@ -251,7 +251,7 @@
         "burst": 5,
         "policy_limit": null,
         "policy_window": null,
-        "window": 2.501,
+        "window": 2.502,
         "window_nice": 2,
         "window_source": "Retry-After",
         "refill_accepted": 5,
@@ -286,8 +286,8 @@
       "title": "Early retry",
       "summary": "A request sent 1 s early was refused, and did not extend the wait.",
       "details": {
-        "delay": 1.002,
-        "expected": 0.998,
+        "delay": 1.001,
+        "expected": 0.999,
         "new_hint": 1.0,
         "penalised": false
       }
@@ -299,7 +299,7 @@
       "summary": "A client that waits as told gets back in: accepted 2 s after the first 429, at the first try.",
       "details": {
         "recovered": true,
-        "after": 2.003,
+        "after": 2.005,
         "attempts": 1
       }
     },

@@ -1,1 +1,3 @@
-2026-10-22T18:48:17.063180264Z nas: stored the RADIUS shared secret
+2026-11-04T13:13:01.446823840Z 2026-11-04T13:13:01Z nas: Access-Challenge from 127.0.0.1:11812 for heidi discarded: no Message-Authenticator
+2026-11-04T13:20:47.092475675Z 2026-11-04T13:20:47Z nas: Access-Challenge from radius:1812 for heidi discarded: challenge-response not enabled (treated as Access-Reject)
+2026-11-04T13:21:00.760011606Z 2026-11-04T13:21:00Z nas: Access-Challenge from radius:1812 for heidi discarded: challenge-response not enabled (treated as Access-Reject)

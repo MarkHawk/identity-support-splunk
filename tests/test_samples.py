@@ -69,12 +69,27 @@ def test_every_runbook_scenario_is_in_the_samples():
             for text, scenario in EGRESS_APP_ERRORS.items():
                 if text in f["error"]:
                     seen[scenario] += 1
+        # MFA: a wrong code names the credential and not the user (20, 22)
+        if f.get("kc_error") == "invalid_user_credentials" and "kc_selected_credential_id" in f and "kc_username" not in f:
+            seen["20 wrong code (Keycloak)"] += 1
+        if f.get("kc_error") == "user_temporarily_disabled":
+            seen["22 lockout"] += 1
+        if "Auth: Challenge sent: [" in event:
+            seen["23 RADIUS challenge"] += 1
+        if f.get("nas_discard_reason") == "challenge-response not enabled":
+            seen["23 NAS without challenge-response"] += 1
+    for line in (SAMPLES / "events/keycloak-admin.jsonl").read_text().splitlines():
+        e = json.loads(line)
+        if (e["operationType"], e["resourceType"]) == ("UPDATE", "REALM"):
+            seen["21 realm update (admin event)"] += 1
     # 14 (NO_PROXY) leaves nothing in Squid's log: the app tries Keycloak
     # directly and cannot resolve it.
     assert set(seen) == {"01 signing certificate", "02 clock skew", "03 redirect URI", "04 LDAP 49",
                          "05 RADIUS no reply", "RADIUS Access-Reject", *PROXY_REASONS.values(),
                          "09 proxy forwarded headers", "11 proxy auth (Squid)", "12 proxy policy (Squid)",
-                         "13 TLS interception (Squid)", *EGRESS_APP_ERRORS.values()}, seen
+                         "13 TLS interception (Squid)", *EGRESS_APP_ERRORS.values(),
+                         "20 wrong code (Keycloak)", "21 realm update (admin event)", "22 lockout",
+                         "23 RADIUS challenge", "23 NAS without challenge-response"}, seen
 
 
 EGRESS_APP_ERRORS = {
@@ -116,3 +131,13 @@ def test_reports_are_tool_reports_with_a_capture_time(path):
 def test_replay_plan_covers_the_samples():
     logs, reports, events = hec_send.replay_plan(SAMPLES)
     assert logs == LOGS and reports == REPORTS and events == EVENTS
+
+
+def test_admin_events_are_sanitised_and_timed():
+    events = [json.loads(line) for line in (SAMPLES / "events/keycloak-admin.jsonl").read_text().splitlines()]
+    meta = json.loads((SAMPLES / "capture.json").read_text())
+    assert len(events) == meta["admin_events"]
+    since, until = (hec_send.parse_time(meta[k]).timestamp() * 1000 for k in ("since", "until"))
+    assert all(since <= e["time"] <= until for e in events)
+    for e in events:
+        assert "masked-credential-" in json.dumps(e) or "credential" not in json.dumps(e)
