@@ -217,3 +217,105 @@ def test_check_names_kinds_never_values(tmp_path, capsys, monkeypatch):
     assert sanitise.main(["--check", str(tmp_path / "a.log")]) == 1
     err = capsys.readouterr().err
     assert "private IPv4 address" in err and OTHER not in err
+
+
+# --- MFA (TOTP) values ------------------------------------------------------
+# A made-up base32 secret, a code and a credential ID, built at run time so
+# the hygiene test never sees one here.
+SECRET = "JBSWY3DP" + "EHPK3PXP" + "GEZDGNBV" + "GY3TQOJQ"
+GROUPED = " ".join(SECRET[i:i + 4] for i in range(0, len(SECRET), 4))
+CODE = "4829" + "17"
+CRED = "ac6172d6-e437" + "-4c5e-a315-fc1514efa376"
+
+
+def test_otpauth_uri_and_its_secret_are_masked():
+    s = sanitise.Sanitiser()
+    uri = "otpauth" + "://totp/idlab:grace?secret=" + SECRET + "&issuer=idlab&algorithm=SHA1&digits=6"
+    assert s.text(f"enrol {uri} then {uri}") == "enrol masked-otpauth-1 then masked-otpauth-1"
+
+
+def test_keycloak_form_fields_are_masked():
+    s = sanitise.Sanitiser()
+    out = s.text(f"otp={CODE}&login=Sign+In totp={CODE}&totpSecret={SECRET}&totpSecretEncoded=x&userLabel=phone")
+    assert out == ("otp=masked-otp-1&login=Sign+In totp=masked-totp-1&totpSecret=masked-totpSecret-1"
+                   "&totpSecretEncoded=masked-totpSecretEncoded-1&userLabel=phone")
+
+
+@pytest.mark.parametrize("text", ['"otp_code": "{c}"', "one-time code: {c}", "totp_code={c}", "OTP = {c}",
+                                  "verification_code:{c}"])
+def test_a_code_next_to_an_otp_name_is_masked(text):
+    out = sanitise.Sanitiser().text(text.format(c=CODE))
+    assert CODE not in out and "masked-otp-code-1" in out
+
+
+@pytest.mark.parametrize("text", ["GRACE_TOTP_SECRET={s}", "secret: {s}", '"setup key": "{s}"', "{g}",
+                                  "Unable to scan? Enter this key: {g}"])
+def test_secrets_and_setup_keys_are_masked(text):
+    out = sanitise.Sanitiser().text(text.format(s=SECRET, g=GROUPED))
+    assert SECRET not in out.replace(" ", "") and "masked-totp-secret-1" in out
+
+
+def test_known_secrets_are_masked_in_any_form():
+    s = sanitise.Sanitiser(secrets=[sanitise.secret_pattern(SECRET)])
+    out = s.text(f"a {SECRET.lower()} b {GROUPED.lower()} c {SECRET}==")
+    assert out == "a masked-totp-secret-1 b masked-totp-secret-1 c masked-totp-secret-1"
+
+
+def test_credential_ids_are_masked_consistently():
+    s = sanitise.Sanitiser()
+    line = f'userId="3b278c31-e716-46f6-88c2-efb9bfe4132a", selected_credential_id="{CRED}", x'
+    assert s.text(line) == ('userId="3b278c31-e716-46f6-88c2-efb9bfe4132a", '
+                            'selected_credential_id="masked-credential-1", x')
+    assert s.json_value({"credentialId": CRED.upper(), "c": f"credential_id={CRED}"}) == {
+        "credentialId": "masked-credential-1", "c": "credential_id=masked-credential-1"}
+
+
+def test_mfa_values_in_json_are_masked_by_key():
+    s = sanitise.Sanitiser()
+    assert s.json_value({"secret": "short", "otp": CODE, "totpSecretQrCode": "iVBOR"}) == {
+        "secret": "masked-totp-secret-1", "otp": "masked-otp-1", "totpSecretQrCode": "masked-totpSecretQrCode-1"}
+
+
+@pytest.mark.parametrize("text", [
+    "response_type=code&code_challenge_method=S256",           # OAuth, not a one-time code
+    "listening on port 818000 for otp",                        # digits not after the name
+    'realmId="297ce092-771a-45cb-8a38-dd0084647146"',          # a UUID that is not a credential
+    "THIS WILL NOT WORK EVER",                                 # capitals, no base32 digit
+    "otpPolicyAlgorithm=HmacSHA1 otpPolicyDigits=6",           # policy names, not codes
+    "Auth: Challenge sent: [heidi] (from client nas port 0)",
+    "secret=masked-secret-1 otp=masked-otp-1 selected_credential_id=masked-credential-2",
+])
+def test_near_misses_are_left_alone_and_pass_the_check(text):
+    assert sanitise.Sanitiser().text(text) == text
+    assert sanitise.find_problems(text) == []
+
+
+@pytest.mark.parametrize("text, kind", [
+    ("otpauth" + "://totp/x?secret=" + SECRET, "TOTP secret"),
+    ("HEIDI_TOTP_SECRET=" + SECRET, "TOTP secret"),
+    ("otp=" + CODE + "&login=Sign+In", "one-time code"),
+    ('"totp_code": "' + CODE + '"', "one-time code"),
+    ("key " + GROUPED, "Keycloak setup key"),
+    ("totpSecretEncoded=" + GROUPED.replace(" ", "+"), "Keycloak setup key"),
+    ('selected_credential_id="' + CRED + '"', "credential ID"),
+])
+def test_check_finds_each_mfa_value_left_over(tmp_path, text, kind):
+    (tmp_path / "a.log").write_text(text + "\n")
+    assert (str(tmp_path / "a.log"), kind) in sanitise.check_paths([tmp_path], personal=[])
+
+
+def test_check_finds_a_known_secret_the_patterns_miss(tmp_path):
+    (tmp_path / "a.log").write_text(f"x {SECRET.lower()} y\n")
+    assert sanitise.check_paths([tmp_path], personal=[]) == []
+    assert sanitise.check_paths([tmp_path], personal=[], secrets=[SECRET]) == [(str(tmp_path / "a.log"), "TOTP secret")]
+
+
+def test_main_masks_known_secrets_and_never_prints_them(tmp_path, capsys, monkeypatch):
+    monkeypatch.setattr(sanitise, "PERSONAL_FILE", tmp_path / "absent")
+    raw = tmp_path / "raw"
+    raw.mkdir()
+    (raw / "a.log").write_text(f"x {SECRET.lower()} y\n")
+    assert sanitise.main(["--in", str(raw), "--out", str(tmp_path / "out")], secrets=[SECRET]) == 0
+    assert (tmp_path / "out/a.log").read_text() == "x masked-totp-secret-1 y\n"
+    out = capsys.readouterr()
+    assert SECRET not in out.out + out.err and SECRET.lower() not in out.out + out.err

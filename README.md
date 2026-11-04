@@ -364,6 +364,18 @@ writes a sanitised copy to `samples/`.
   `refresh_token` and `id_token_hint` values become `masked-<name>-N`,
   and anything shaped like a JWT (`eyJ...eyJ...`) `masked-jwt-N`. The
   final check fails on any left.
+- MFA values are masked too:
+  - TOTP secrets: `otpauth://` URIs, a secret after a name like
+    `secret` or `GRACE_TOTP_SECRET`, and Keycloak's setup key in groups
+    of four;
+  - one-time codes in Keycloak's `otp` and `totp` fields, or next to a
+    name such as `otp_code`;
+  - credential IDs, as `masked-credential-N`, so one user's code failures
+    still share one.
+
+  The capture also passes the lab's own TOTP secrets, from its `.env`,
+  held in memory only. They are masked in any case or grouping. The final
+  check fails on any MFA value left.
 - Base64, deflated SAML requests and URL-encoded text are decoded before
   the final check.
 - A private key anywhere stops the run.

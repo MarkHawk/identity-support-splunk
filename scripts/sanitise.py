@@ -28,7 +28,14 @@ request to its callback. Tokens are credentials until they expire:
 access_token, id_token, refresh_token and id_token_hint values (in a query,
 a fragment, a form body or as a JSON key) become masked-<name>-N, and
 anything shaped like a JWT (eyJ....eyJ...., signed or not) masked-jwt-N.
-A private key anywhere
+MFA values are masked the same way: otpauth:// URIs, Keycloak's OTP form
+fields (otp, totp, totpSecret...), a 6 to 8 digit code next to a name that
+says it is one, base32 secrets after a secret-like name or in Keycloak's
+grouped setup-key form, and credential IDs (masked-credential-N, so a
+user's code failures still share one). A caller can also pass the lab's
+known TOTP secrets (capture_lab.py reads them from the lab's .env, in
+memory only): they are masked in any case or grouping, and the check fails
+on any left. A private key anywhere
 stops the run. Noise is trimmed: health-check requests, and directory
 connections that only made an anonymous bind (the lab's health check).
 The output is checked again before the run reports success.
@@ -90,6 +97,40 @@ UNMASKED_TOKEN = re.compile(r"(?<![\w-])(?:" + "|".join(TOKEN_PARAMS) + r")=(?!"
 # signature, empty for an unsigned token.
 JWT = re.compile(r"(?<![A-Za-z0-9_-])eyJ[A-Za-z0-9_-]+\.eyJ[A-Za-z0-9_-]+(?:\.[A-Za-z0-9_-]*)?")
 
+# MFA (TOTP) values. An otpauth:// URI carries the secret itself.
+OTPAUTH_URI = re.compile(r"otpauth(?:-migration)?://[a-z]+[/?][^\s\"'<>]*")
+# Keycloak's login and setup forms: otp (the code at login), totp (the code
+# at setup), and totpSecret, totpSecretEncoded and totpSecretQrCode (the
+# secret, the setup key as shown, and its QR code), in a query, a form body
+# or key=value text.
+MFA_FORM_PARAMS = ("otp", "totp", "totpSecret", "totpSecretEncoded", "totpSecretQrCode")
+MFA_FORM_VALUE = re.compile(r"(?<![\w-])(" + "|".join(MFA_FORM_PARAMS) + r")=([^&\s\"'#]+)")
+# What the checker counts as unmasked: a code of 6 to 8 digits in otp or
+# totp, and 16 or more base32, base64 or URL-encoded characters in the rest.
+UNMASKED_MFA_CODE = re.compile(r"(?<![\w-])t?otp=\d{6,8}(?!\d)")
+UNMASKED_MFA_SECRET = re.compile(r"(?<![\w-])totpSecret(?:Encoded|QrCode)?=[A-Za-z0-9+/%=]{16,}")
+# A one-time code (6 to 8 digits) next to a name that says it is one:
+# otp=<digits>, "totp_code": "<digits>", one-time code: <digits>.
+OTP_CODE_NAME = r"(?i:\b(?:t?otp|one[ _-]?time[ _-]?code|t?otp[_-]?code|mfa[_-]?code|verification[_-]?code))"
+OTP_CODE = re.compile(r"(" + OTP_CODE_NAME + r"[\"']?\s*[:=]\s*[\"']?)(\d{6,8})(?!\d)")
+# A base32 secret after a name that says it is one: secret=..., setup key:
+# ..., GRACE_TOTP_SECRET=... (16 or more base32 characters, either case).
+SECRET_NAME = r"(?i:\b(?:[a-z_]*totp_?secret|secret|setup[ _-]?key))"
+BASE32_SECRET = re.compile(r"(" + SECRET_NAME + r"[\"']?\s*[:=]\s*[\"']?)([A-Za-z2-7]{16,}=*)(?![A-Za-z0-9])")
+# Keycloak's setup page shows the secret as groups of four base32 characters
+# (ABCD EFGH 2JKL ...). Four or more groups, at least one digit among them,
+# so ordinary capitals ("THIS WILL NOT WORK") don't count.
+SETUP_KEY = re.compile(r"(?<![A-Za-z0-9])(?=[A-Z2-7 ]*[2-7])[A-Z2-7]{4}(?: [A-Z2-7]{4}){3,}(?: [A-Z2-7]{1,3})?(?![A-Za-z0-9])")
+# Keycloak's credential IDs (the authenticator the user picked, in a code
+# failure's selected_credential_id), masked the same value the same way.
+CREDENTIAL_ID = re.compile(r"(?i:\b(selected_credential_id|credential_?id))([\"']?\s*[:=]\s*[\"']?)"
+                           r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")
+
+# The same values under their own JSON keys, whatever their shape: key ->
+# the name they are masked under.
+JSON_MFA_KEYS = {**{k: k for k in MFA_FORM_PARAMS}, "secret": "totp-secret", "credentialId": "credential",
+                 "credential_id": "credential", "selected_credential_id": "credential"}
+
 _B64_BLOB = re.compile(r"[A-Za-z0-9+/_-]{40,}={0,2}")
 
 HOME_REPLACEMENT = "~"
@@ -122,8 +163,17 @@ def load_personal_patterns(path=PERSONAL_FILE):
     return patterns
 
 
-def find_problems(text, personal=()):
-    """Names of the pattern kinds found; never the matched values themselves."""
+def secret_pattern(secret):
+    """A base32 TOTP secret as it can appear: either case, with or without
+    its = padding, run together or in Keycloak's groups of four."""
+    chars = secret.replace(" ", "").rstrip("=")
+    groups = [re.escape(chars[i:i + 4]) for i in range(0, len(chars), 4)]
+    return re.compile(r"(?i)(?<![A-Za-z0-9])" + " ?".join(groups) + r"(?:=*)(?![A-Za-z0-9])")
+
+
+def find_problems(text, personal=(), secrets=()):
+    """Names of the pattern kinds found; never the matched values themselves.
+    secrets are patterns for known TOTP secrets (secret_pattern)."""
     found = []
     if RFC1918.search(text):
         found.append("private IPv4 address")
@@ -139,6 +189,15 @@ def find_problems(text, personal=()):
         found.append("OAuth token parameter")
     if JWT.search(text):
         found.append("JWT")
+    if (OTPAUTH_URI.search(text) or any(not m.group(2).startswith(MASKED) for m in BASE32_SECRET.finditer(text))
+            or any(p.search(text) for p in secrets)):
+        found.append("TOTP secret")
+    if UNMASKED_MFA_CODE.search(text) or OTP_CODE.search(text):
+        found.append("one-time code")
+    if SETUP_KEY.search(text) or UNMASKED_MFA_SECRET.search(text):
+        found.append("Keycloak setup key")
+    if CREDENTIAL_ID.search(text):
+        found.append("credential ID")
     if any(p.search(text) for p in personal):
         found.append("personal pattern from .personal-patterns")
     return found
@@ -186,8 +245,9 @@ def decoded_views(text):
 class Sanitiser:
     """Rewrites text consistently across every file of one capture."""
 
-    def __init__(self, personal=()):
+    def __init__(self, personal=(), secrets=()):
         self.personal = list(personal)
+        self.secrets = list(secrets)
         self.addresses = {}
         self.emails = {}
         self.one_time = {}
@@ -235,6 +295,7 @@ class Sanitiser:
         text = ONE_TIME_VALUE.sub(self._one_time, text)
         text = TOKEN_VALUE.sub(self._token, text)
         text = JWT.sub(lambda m: self._masked("jwt", m.group(0)), text)
+        text = self.mfa(text)
         if self.personal:
             # Keep github.com/<account> as it is; mask personal strings elsewhere.
             pieces, last = [], 0
@@ -243,6 +304,17 @@ class Sanitiser:
                 last = m.end()
             text = "".join(pieces + [self._personal(text[last:])])
         return text
+
+    def mfa(self, text):
+        """Mask TOTP secrets, setup keys, one-time codes and credential IDs."""
+        for p in self.secrets:
+            text = p.sub(lambda m: self._masked("totp-secret", m.group(0).replace(" ", "").upper().rstrip("=")), text)
+        text = OTPAUTH_URI.sub(lambda m: self._masked("otpauth", m.group(0)), text)
+        text = MFA_FORM_VALUE.sub(self._one_time, text)
+        text = OTP_CODE.sub(lambda m: m.group(1) + self._masked("otp-code", m.group(2)), text)
+        text = BASE32_SECRET.sub(lambda m: m.group(1) + self._masked("totp-secret", m.group(2).upper().rstrip("=")), text)
+        text = SETUP_KEY.sub(lambda m: self._masked("totp-secret", m.group(0).replace(" ", "")), text)
+        return CREDENTIAL_ID.sub(lambda m: m.group(1) + m.group(2) + self._masked("credential", m.group(3).lower()), text)
 
     def _personal(self, text):
         for p in self.personal:
@@ -263,6 +335,9 @@ class Sanitiser:
         """A token under its own key ({"access_token": "..."}) is masked whatever its shape."""
         if key in TOKEN_PARAMS and isinstance(value, str) and value not in ("", LAB_MASKED) and not value.startswith(MASKED):
             return self._masked(key, value)
+        if key in JSON_MFA_KEYS and isinstance(value, str) and value not in ("", LAB_MASKED) and not value.startswith(MASKED):
+            name = JSON_MFA_KEYS[key]
+            return self._masked(name, value.lower() if name == "credential" else value)
         return self.json_value(value)
 
 
@@ -277,11 +352,12 @@ def trim_log(name, lines):
     return lines
 
 
-def sanitise_tree(src, dest, personal=None):
+def sanitise_tree(src, dest, personal=None, secrets=()):
     """Write a sanitised copy of every file under src into dest (replaced).
-    Returns the number of files written."""
+    secrets: known TOTP secrets (plain base32 strings), masked wherever they
+    appear. Returns the number of files written."""
     src, dest = pathlib.Path(src), pathlib.Path(dest)
-    s = Sanitiser(load_personal_patterns() if personal is None else personal)
+    s = Sanitiser(load_personal_patterns() if personal is None else personal, [secret_pattern(x) for x in secrets])
     outputs = {}
     for f in _files(src):
         rel = f.relative_to(src)
@@ -309,21 +385,26 @@ def _files(root):
     return sorted(p for p in root.rglob("*") if p.is_file() and "__pycache__" not in p.parts)
 
 
-def check_paths(paths, personal=None):
-    """Return a list of (file, problem kind) for everything under paths."""
+def check_paths(paths, personal=None, secrets=()):
+    """Return a list of (file, problem kind) for everything under paths.
+    secrets: known TOTP secrets, which must appear nowhere."""
     personal = load_personal_patterns() if personal is None else personal
+    secrets = [secret_pattern(x) for x in secrets]
     problems = []
     for root in paths:
         for f in _files(root):
             text = f.read_bytes().decode("utf-8", errors="replace")
             kinds = set()
             for view in decoded_views(text):
-                kinds.update(find_problems(view, personal))
+                kinds.update(find_problems(view, personal, secrets))
             problems += [(str(f), k) for k in sorted(kinds)]
     return problems
 
 
-def main(argv=None):
+def main(argv=None, secrets=()):
+    """The command line. secrets (known TOTP secrets) come only from a
+    caller such as capture_lab.py, never from argv, so they are never on a
+    command line."""
     parser = argparse.ArgumentParser(description="Make lab captures safe to commit, and check that they are.")
     parser.add_argument("--check", nargs="+", metavar="PATH", help="files or directories to scan")
     parser.add_argument("--in", dest="src", metavar="DIR", help="raw capture to sanitise")
@@ -333,7 +414,7 @@ def main(argv=None):
         if not (args.src and args.out) or args.check:
             parser.error("use --in and --out together, or --check on its own")
         try:
-            count = sanitise_tree(args.src, args.out)
+            count = sanitise_tree(args.src, args.out, secrets=secrets)
         except UnsafeContent as exc:
             print(f"sanitise: {exc}", file=sys.stderr)
             return 1
@@ -341,7 +422,7 @@ def main(argv=None):
         args.check = [args.out]
     elif not args.check:
         parser.error("give --check PATH..., or --in DIR --out DIR")
-    problems = check_paths(args.check)
+    problems = check_paths(args.check, secrets=secrets)
     for path, kind in problems:
         print(f"sanitise: {path}: contains a {kind}", file=sys.stderr)
     if problems:
