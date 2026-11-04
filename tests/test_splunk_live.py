@@ -539,12 +539,13 @@ def overview_query(host, name):
         s = sources[n]
         return full(s["options"]["extend"]) + " " + s["options"]["query"] if s["type"] == "ds.chain" else s["options"]["query"]
     q = full(name)
-    q = q.replace("(`support_failures`)", f"(`support_failures` host={host})", 1)
     q = q.replace("[search `support_redirect_loops`]", f"[search `support_redirect_loops` | search host={host}]", 1)
-    q = q.replace("(`support_index` sourcetype=idlab:slapd", f"(`support_index` host={host} sourcetype=idlab:slapd", 1)
-    if f"host={host}" not in q:
-        q = q.replace("`support_index`", f"`support_index` host={host}", 1)
-    return q
+    # The app's macros that read the index, spelt out so each reads this host only.
+    lockouts = macro("support_lockout_rules(2)", host).replace("$failure_factor$", "5").replace("$quick_login_ms$", "1000")
+    for name_ in ("support_failures", "support_radius_mfa_events", "support_kc_user_ids"):
+        q = q.replace(f"`{name_}`", macro(name_, host))
+    q = q.replace("`support_lockouts`", lockouts)
+    return re.sub(r"`support_index`(?! host=)", f"`support_index` host={host}", q)
 
 
 def test_overview_names_who_is_affected(host):
@@ -653,3 +654,32 @@ def test_overview_api_panels(host):
     assert all(r["_runbook_url"].endswith("/16-api-bearer-401.md") for r in rows)
     series = {k for r in search(overview_query(host, "ds_api_results")) for k in r if not k.startswith("_")}
     assert series == {"accepted", "no_token", "not_jwt", "not_bearer", "wrong_audience", "expired", "cors_origin_mismatch"}
+
+
+def test_overview_mfa_row(host):
+    by_cause = {r["cause"].split(":")[0].split(" (")[0]: r for r in search(overview_query(host, "ds_by_cause"))}
+    realm = [r for c, r in by_cause.items() if c.startswith("Realm settings changed")][0]
+    assert (realm["count"], realm["affected"], realm["runbook"]) == ("2", "not in log: new starters, at authenticator setup",
+                                                                     "21-otp-policy-changed")
+    totals = search(overview_query(host, "ds_totals"))[0]
+    failures = search(overview_query(host, "ds_failures") + " | where isnull(is_change) | stats sum(counted) as n")[0]["n"]
+    assert totals["count"] == failures
+    users = {r["user"]: r for r in search(overview_query(host, "ds_mfa_users"))}
+    assert users["grace"]["named"] == ["from user ID", "in log"] and "wrong code (Keycloak)" in users["grace"]["failures"]
+    assert users["heidi"]["nas"] == "nas" and users["heidi"]["named"] == "in log"
+    [nas] = search(overview_query(host, "ds_mfa_nas"))
+    assert (nas["nas"], nas["challenges"], nas["wrong codes"], nas["unknown State"], nas["no reply to the challenge"],
+            nas["of which the NAS said why"]) == ("nas", "9", "3", "1", "5", "3")
+    lockouts = search(overview_query(host, "ds_lockouts"))
+    assert [r["rule"].split(":")[0] for r in lockouts] == ["not clear from the logs", "max failures"]
+    assert lockouts[1]["cleared by an admin"] == "2026-10-19 18:52:26" or lockouts[1]["cleared by an admin"].endswith(":52:26")
+    unanswered = search(overview_query(host, "ds_radius_unanswered"))
+    assert [r["the NAS said"] for r in unanswered] == ["nothing logged", "challenge-response not enabled",
+                                                       "challenge-response not enabled", "nothing logged", "no Message-Authenticator"]
+    admin = search(overview_query(host, "ds_admin_events"))
+    assert [r["change"] for r in admin] == ["update realm", "action user", "update realm", "delete user_login_failure"]
+    assert admin[-1]["_runbook_url"].endswith("22-mfa-lockout.md")
+    series = {k for r in search(overview_query(host, "ds_mfa_over_time")) for k in r if not k.startswith("_")}
+    assert series == {"wrong code (Keycloak)", "wrong code (RADIUS)", "locked out", "realm settings changed",
+                      "challenge not answered", "NAS: no challenge-response", "NAS: no Message-Authenticator",
+                      "unknown State (RADIUS)"}

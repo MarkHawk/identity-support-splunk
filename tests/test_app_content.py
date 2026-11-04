@@ -18,6 +18,21 @@ def definition(view):
     return root, json.loads(root.findtext("definition"))
 
 
+def reads_the_index(search):
+    """True when a search starts with `support_index`, or with one of the
+    app's macros whose definition does (followed down)."""
+    search = search.lstrip("(")
+    if search.startswith("`support_index`"):
+        return True
+    if not search.startswith("`"):
+        return False
+    call = search.split("`")[1]
+    name, _, args = call.partition("(")
+    macros = read_conf("macros.conf")
+    key = f"{name}({len(args.split(','))})" if args else name
+    return key in macros and reads_the_index(macros[key]["definition"])
+
+
 @pytest.mark.parametrize("view", VIEWS, ids=lambda p: p.stem)
 def test_dashboard_studio_definition_is_consistent(view):
     root, d = definition(view)
@@ -35,7 +50,7 @@ def test_dashboard_studio_definition_is_consistent(view):
         else:
             assert source["type"] == "ds.search"
             # every base search reads the app's index through its macros
-            assert source["options"]["query"].lstrip("(").startswith(("`support_index`", "`support_failures`")), name
+            assert reads_the_index(source["options"]["query"]), name
     placed = [item["item"] for item in d["layout"]["structure"]]
     assert sorted(placed) == sorted(vizzes)
     assert d["layout"]["globalInputs"] == list(d["inputs"])
