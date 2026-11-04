@@ -319,3 +319,14 @@ def test_main_masks_known_secrets_and_never_prints_them(tmp_path, capsys, monkey
     assert (tmp_path / "out/a.log").read_text() == "x masked-totp-secret-1 y\n"
     out = capsys.readouterr()
     assert SECRET not in out.out + out.err and SECRET.lower() not in out.out + out.err
+
+
+def test_credential_ids_in_an_admin_event_are_masked_like_the_log_ones():
+    s = sanitise.Sanitiser()
+    log = s.text(f'selected_credential_id="{CRED}"')
+    event = s.json_value({"resourcePath": f"users/c9114ad6-9829-441f-b7d3-4b5a93e8d9b4/credentials/{CRED}",
+                          "details": {"credential_type": "otp", "credential_id": CRED}})
+    assert log == 'selected_credential_id="masked-credential-1"'
+    assert event == {"resourcePath": "users/c9114ad6-9829-441f-b7d3-4b5a93e8d9b4/credentials/masked-credential-1",
+                     "details": {"credential_type": "otp", "credential_id": "masked-credential-1"}}
+    assert sanitise.find_problems(f"users/x/credentials/{CRED}") == ["credential ID"]

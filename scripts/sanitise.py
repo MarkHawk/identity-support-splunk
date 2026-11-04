@@ -126,6 +126,9 @@ SETUP_KEY = re.compile(r"(?<![A-Za-z0-9])(?=[A-Z2-7 ]*[2-7])[A-Z2-7]{4}(?: [A-Z2
 CREDENTIAL_ID = re.compile(r"(?i:\b(selected_credential_id|credential_?id))([\"']?\s*[:=]\s*[\"']?)"
                            r"([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})")
 
+# ... and in an Admin REST API path (an admin event's resourcePath):
+# users/<user id>/credentials/<credential id>.
+CREDENTIAL_PATH = re.compile(r"(?<![\w-])(credentials/)([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})", re.I)
 # The same values under their own JSON keys, whatever their shape: key ->
 # the name they are masked under.
 JSON_MFA_KEYS = {**{k: k for k in MFA_FORM_PARAMS}, "secret": "totp-secret", "credentialId": "credential",
@@ -196,7 +199,7 @@ def find_problems(text, personal=(), secrets=()):
         found.append("one-time code")
     if SETUP_KEY.search(text) or UNMASKED_MFA_SECRET.search(text):
         found.append("Keycloak setup key")
-    if CREDENTIAL_ID.search(text):
+    if CREDENTIAL_ID.search(text) or CREDENTIAL_PATH.search(text):
         found.append("credential ID")
     if any(p.search(text) for p in personal):
         found.append("personal pattern from .personal-patterns")
@@ -314,7 +317,8 @@ class Sanitiser:
         text = OTP_CODE.sub(lambda m: m.group(1) + self._masked("otp-code", m.group(2)), text)
         text = BASE32_SECRET.sub(lambda m: m.group(1) + self._masked("totp-secret", m.group(2).upper().rstrip("=")), text)
         text = SETUP_KEY.sub(lambda m: self._masked("totp-secret", m.group(0).replace(" ", "")), text)
-        return CREDENTIAL_ID.sub(lambda m: m.group(1) + m.group(2) + self._masked("credential", m.group(3).lower()), text)
+        text = CREDENTIAL_ID.sub(lambda m: m.group(1) + m.group(2) + self._masked("credential", m.group(3).lower()), text)
+        return CREDENTIAL_PATH.sub(lambda m: m.group(1) + self._masked("credential", m.group(2).lower()), text)
 
     def _personal(self, text):
         for p in self.personal:
@@ -364,6 +368,9 @@ def sanitise_tree(src, dest, personal=None, secrets=()):
         raw = f.read_text(encoding="utf-8", errors="replace")
         if f.suffix == ".json":
             out = json.dumps(s.json_value(json.loads(raw)), indent=2, ensure_ascii=False) + "\n"
+        elif f.suffix == ".jsonl":
+            out = "".join(json.dumps(s.json_value(json.loads(line)), ensure_ascii=False) + "\n"
+                          for line in raw.splitlines() if line.strip())
         else:
             lines = trim_log(f.stem, raw.splitlines())
             if not lines:
