@@ -489,3 +489,50 @@ def test_only_the_directory_is_filtered():
     args = hec_send.build_parser().parse_args(["replay", "x"])
     srch_like = ["2026-10-19T18:27:07.000000000Z 2026-10-19 18:27:07,000 INFO  [x] (t) conn=1 op=1 SRCH base=x"]
     assert hec_send.prepare(srch_like, "idlab:keycloak", args) == (srch_like, "")
+
+
+ADMIN_EVENTS = [
+    {"id": "e1", "time": 1793742513452, "realmId": "r1", "operationType": "UPDATE", "resourceType": "REALM",
+     "authDetails": {"realmId": "r0", "clientId": "c0", "ipAddress": "192.0.2.10"}},
+    {"id": "e2", "time": 1793742546595, "realmId": "r1", "operationType": "UPDATE", "resourceType": "REALM",
+     "authDetails": {"realmId": "r0", "clientId": "c0", "ipAddress": "192.0.2.10"}},
+]
+
+
+def write_events(folder, events=ADMIN_EVENTS, name="keycloak-admin"):
+    (folder / "events").mkdir(parents=True, exist_ok=True)
+    (folder / "events" / f"{name}.jsonl").write_text("".join(json.dumps(e) + "\n" for e in events))
+
+
+def test_replay_sends_each_admin_event_at_its_own_time(fake_hec, tmp_path, capfd):
+    hec = fake_hec()
+    write_events(tmp_path / "s")
+    code, text = send(["replay", str(tmp_path / "s")], env(f"http://127.0.0.1:{hec.port}"), tmp_path, capfd)
+    assert code == 0 and "sent 2 events from keycloak-admin.jsonl as idlab:keycloak:admin" in text
+    sent = [json.loads(r["body"]) for r in hec.requests]
+    assert [r["path"] for r in hec.requests] == ["/services/collector/event"] * 2
+    assert [(e["time"], e["sourcetype"], e["source"], e["event"]["id"]) for e in sent] == [
+        (1793742513.452, "idlab:keycloak:admin", "api:keycloak-admin", "e1"),
+        (1793742546.595, "idlab:keycloak:admin", "api:keycloak-admin", "e2")]
+
+
+def test_replay_shift_to_now_moves_admin_events_with_the_logs(fake_hec, tmp_path, capfd):
+    hec = fake_hec()
+    write_samples(tmp_path / "s")
+    write_events(tmp_path / "s")
+    before = dt.datetime.now(dt.UTC)
+    send(["replay", "--shift-to-now", str(tmp_path / "s")], env(f"http://127.0.0.1:{hec.port}"), tmp_path, capfd)
+    times = [json.loads(r["body"])["time"] for r in hec.requests if r["path"].endswith("/event")]
+    # The admin events are the newest items, so the last lands a minute ago,
+    # and they stay 33.143 s apart.
+    assert abs(times[-1] - (before - dt.timedelta(minutes=1)).timestamp()) < 5
+    assert abs(times[-1] - times[-2] - 33.143) < 0.001
+
+
+def test_replay_rejects_unknown_event_files_and_bad_lines(tmp_path, capfd):
+    write_events(tmp_path / "a", name="other")
+    code, text = send(["--dry-run", "replay", str(tmp_path / "a")], {}, tmp_path, capfd)
+    assert code == 1 and "no sourcetype for other.jsonl" in text
+    write_events(tmp_path / "b", events=[{"id": "no time"}])
+    code, text = send(["--dry-run", "replay", str(tmp_path / "b")], {}, tmp_path, capfd)
+    assert code == 1 and "keycloak-admin.jsonl:1: not a JSON object with a time" in text

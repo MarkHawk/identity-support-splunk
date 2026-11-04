@@ -17,6 +17,12 @@ It collects, into captures/raw/ (gitignored, unsanitised):
 
     logs/<service>.log     `docker logs --timestamps` of each lab container
                            for the run, both streams in time order
+    events/keycloak-admin.jsonl
+                           the realm's admin events (a realm or user changed)
+                           in the window, from Keycloak's Admin REST API:
+                           they never reach Keycloak's log. Read-only (see
+                           scripts/keycloak_admin.py), with the admin
+                           credentials from the lab's .env, held in memory
     reports/*.json         token-inspector --json on its own lab samples, and
                            rate-limit-probe demo --json (local test server
                            only), each with a .meta.json giving the run's
@@ -24,7 +30,9 @@ It collects, into captures/raw/ (gitignored, unsanitised):
     capture.json           the window, project and tool versions
 
 then writes the sanitised copy to samples/ (replaced) with
-scripts/sanitise.py, and checks it. Review `git diff samples/` before
+scripts/sanitise.py, and checks it. The lab's TOTP secrets (*_TOTP_SECRET in
+its .env) are passed to the sanitiser in memory: masked wherever they
+appear, and the check fails on any left. Review `git diff samples/` before
 committing.
 
 The lab's test.log (identity-lab/test-results/) is never read: it records
@@ -43,6 +51,7 @@ sys.path.insert(0, str(ROOT / "sender"))
 sys.path.insert(0, str(ROOT / "scripts"))
 
 import hec_send  # noqa: E402
+import keycloak_admin  # noqa: E402
 import sanitise  # noqa: E402
 
 HOME = pathlib.Path.home()
@@ -101,6 +110,43 @@ def collect_logs(project, since, until, raw, runner=None):
         if lines:
             (raw / "logs" / f"{service}.log").write_text("\n".join(lines) + "\n", encoding="utf-8")
     return counts
+
+
+def lab_env(lab):
+    """The lab's .env settings; a missing file is an error naming what to do."""
+    path = lab / ".env"
+    if not path.exists():
+        raise hec_send.SenderError(f"no .env in {lab}: pass --lab with your identity-lab checkout, "
+                                   "or --no-admin-events")
+    return hec_send.read_env_file(path)
+
+
+def totp_secrets(env):
+    """The lab's TOTP secrets (GRACE_TOTP_SECRET=...), for the sanitiser only."""
+    return [v for k, v in env.items() if k.endswith("_TOTP_SECRET") and v]
+
+
+def lab_admin(lab, env):
+    """A read-only client for the lab's Keycloak: 127.0.0.1 on its port,
+    checked against the lab CA under LAB_HOST, as identity-lab's kc_curl does."""
+    missing = [k for k in ("LAB_HOST", "KC_PORT", "KC_ADMIN_USER", "KC_ADMIN_PASSWORD") if not env.get(k)]
+    if missing:
+        raise hec_send.SenderError(f"{lab / '.env'} has no {', '.join(missing)}")
+    return keycloak_admin.ReadOnlyAdmin("127.0.0.1", env["KC_PORT"], env["KC_ADMIN_USER"], env["KC_ADMIN_PASSWORD"],
+                                        cafile=str(lab / "certs" / "ca.crt"), tls_server_name=env["LAB_HOST"])
+
+
+def collect_admin_events(client, realm, since, until, raw):
+    """Write events/keycloak-admin.jsonl (when there are any); return how many."""
+    try:
+        events = client.admin_events(realm, since, until)
+    except keycloak_admin.AdminError as exc:
+        raise hec_send.SenderError(f"Keycloak admin events: {exc}") from None
+    if events:
+        (raw / "events").mkdir(parents=True, exist_ok=True)
+        (raw / "events" / "keycloak-admin.jsonl").write_text("".join(json.dumps(e) + "\n" for e in events),
+                                                            encoding="utf-8")
+    return len(events)
 
 
 def write_report(raw, name, stdout, when):
@@ -164,13 +210,16 @@ def build_parser():
                              + " that has samples")
     parser.add_argument("--rate-limit-probe", type=pathlib.Path, default=DEFAULT_RATE_LIMIT_PROBE,
                         help="rate-limit-probe checkout (its venv)")
-    parser.add_argument("--no-tools", action="store_true", help="collect the lab's logs only")
+    parser.add_argument("--no-tools", action="store_true", help="no token-inspector or rate-limit-probe reports")
+    parser.add_argument("--no-admin-events", action="store_true", help="don't fetch Keycloak's admin events")
+    parser.add_argument("--realm", default="idlab", help="the realm whose admin events to fetch (default: idlab)")
     parser.add_argument("--raw", type=pathlib.Path, default=ROOT / "captures" / "raw", help=argparse.SUPPRESS)
     parser.add_argument("--out", type=pathlib.Path, default=ROOT / "samples", help=argparse.SUPPRESS)
     return parser
 
 
-def main(argv=None, out=sys.stdout, ask=input, runner=None):
+def main(argv=None, out=sys.stdout, ask=input, runner=None, admin=None):
+    """admin(lab, env) makes the read-only Keycloak client (default lab_admin)."""
     args = build_parser().parse_args(argv)
     if args.until and not args.since:
         print("capture_lab: --until needs --since", file=sys.stderr)
@@ -192,8 +241,13 @@ def main(argv=None, out=sys.stdout, ask=input, runner=None):
         for f in sorted(raw.rglob("*"), reverse=True):
             f.unlink() if f.is_file() else f.rmdir()
     raw.mkdir(parents=True, exist_ok=True)
+    secrets, admin_events = [], None
     try:
         counts = collect_logs(args.project, since, until, raw, runner)
+        if not args.no_admin_events:
+            env = lab_env(args.lab)
+            secrets = totp_secrets(env)
+            admin_events = collect_admin_events((admin or lab_admin)(args.lab, env), args.realm, since, until, raw)
         reports = []
         if not args.no_tools:
             roots = [args.token_inspector] if args.token_inspector else DEFAULT_TOKEN_INSPECTORS
@@ -205,13 +259,16 @@ def main(argv=None, out=sys.stdout, ask=input, runner=None):
     (raw / "capture.json").write_text(json.dumps({
         "since": iso(since), "until": iso(until), "project": args.project,
         "lines": counts, "reports": reports,
+        **({"admin_events": admin_events} if admin_events is not None else {}),
     }, indent=2) + "\n", encoding="utf-8")
 
     for service, n in counts.items():
         print(f"collected {n} lines from {service}", file=out)
+    if admin_events is not None:
+        print(f"collected {admin_events} Keycloak admin events", file=out)
     print(f"collected {len(reports)} tool reports", file=out)
     print(f"sanitising {raw.relative_to(ROOT) if raw.is_relative_to(ROOT) else raw} into {args.out}", file=out)
-    return sanitise.main(["--in", str(raw), "--out", str(args.out)])
+    return sanitise.main(["--in", str(raw), "--out", str(args.out)], secrets=secrets)
 
 
 if __name__ == "__main__":

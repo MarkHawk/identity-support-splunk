@@ -3,11 +3,13 @@
 
     hec_send.py docker [--project identity-lab] [--since 15m] [--until TIME]
     hec_send.py report FILE...           token-inspector / rate-limit-probe --json output
-    hec_send.py replay DIR [--shift-to-now]   a samples/ folder: logs/*.log and reports/*.json
+    hec_send.py replay DIR [--shift-to-now]   a samples/ folder: logs/*.log, reports/*.json
+                                         and events/*.jsonl (Keycloak admin events)
 
 Container logs go to the raw endpoint (/services/collector/raw), so the app's
 props.conf breaks lines and reads timestamps exactly as it would for a
-monitored file. Reports go to the event endpoint with an explicit time.
+monitored file. Reports go to the event endpoint with an explicit time, and
+so does each line of an events file, at its own time.
 
 The directory's routine search lines (each SRCH request and its successful
 SEARCH RESULT) are dropped by default and counted in the output; binds,
@@ -72,6 +74,11 @@ SERVICES = {
     "ldap": "idlab:slapd",
 }
 TOOLS = {"token-inspector": "token_inspector:report", "rate-limit-probe": "rate_limit_probe:report"}
+# Event files in a samples folder (events/<name>.jsonl): one JSON object per
+# line, each with its own time in epoch milliseconds, as Keycloak's Admin
+# REST API returns admin events. Keycloak's log has none of them: the realm's
+# jboss-logging listener logs admin events at DEBUG.
+EVENT_FILES = {"keycloak-admin": "idlab:keycloak:admin"}
 # The IdP's routine directory lookups: a search request (SRCH lines) and its
 # successful result. Binds, failed results and connections are always kept.
 ROUTINE_LDAP_SEARCH = re.compile(r" conn=\d+ op=\d+ (?:SRCH |SEARCH RESULT .*\berr=0\b)")
@@ -411,30 +418,51 @@ def cmd_report(args, hec, out):
 
 
 def replay_plan(folder):
-    """[(kind, path)] for a samples folder: logs/<service>.log and reports/*.json."""
+    """(logs, reports, events) for a samples folder: logs/<service>.log,
+    reports/*.json and events/<name>.jsonl."""
     folder = pathlib.Path(folder)
     logs = sorted((folder / "logs").glob("*.log"))
     reports = sorted(p for p in (folder / "reports").glob("*.json") if not p.name.endswith(".meta.json"))
-    if not logs and not reports:
-        raise SenderError(f"{folder}: no logs/*.log or reports/*.json to replay")
+    events = sorted((folder / "events").glob("*.jsonl"))
+    if not logs and not reports and not events:
+        raise SenderError(f"{folder}: no logs/*.log, reports/*.json or events/*.jsonl to replay")
     unknown = [p.name for p in logs if p.stem not in SERVICES]
     if unknown:
         raise SenderError(f"{folder}/logs: no sourcetype for {', '.join(unknown)} (known: {', '.join(SERVICES)})")
-    return logs, reports
+    unknown = [p.name for p in events if p.stem not in EVENT_FILES]
+    if unknown:
+        raise SenderError(f"{folder}/events: no sourcetype for {', '.join(unknown)} (known: {', '.join(EVENT_FILES)})")
+    return logs, reports, events
 
 
-def latest_time(logs, reports):
+def load_events(path):
+    """The JSON objects in an events file, each with its time as a datetime."""
+    out = []
+    for n, line in enumerate(pathlib.Path(path).read_text(encoding="utf-8").splitlines(), 1):
+        if not line.strip():
+            continue
+        try:
+            event = json.loads(line)
+            when = dt.datetime.fromtimestamp(int(event["time"]) / 1000, dt.UTC)
+        except (ValueError, KeyError, TypeError):
+            raise SenderError(f"{path}:{n}: not a JSON object with a time in epoch milliseconds") from None
+        out.append((event, when))
+    return out
+
+
+def latest_time(logs, reports, events=()):
     times = [t for p in logs for line in p.read_text(encoding="utf-8").splitlines() if (t := docker_ts(line))]
     times += [report_time(load_report(p), p) for p in reports]
+    times += [when for p in events for _, when in load_events(p)]
     return max(times)
 
 
 def cmd_replay(args, hec, out):
-    logs, reports = replay_plan(args.folder)
+    logs, reports, event_files = replay_plan(args.folder)
     delta = dt.timedelta(0)
     if args.shift_to_now:
         # The newest sample lands a minute ago, so "last 15 minutes" panels have data.
-        delta = dt.datetime.now(dt.UTC) - dt.timedelta(minutes=1) - latest_time(logs, reports)
+        delta = dt.datetime.now(dt.UTC) - dt.timedelta(minutes=1) - latest_time(logs, reports, event_files)
     for path in logs:
         sourcetype = SERVICES[path.stem]
         lines = [shift_line(line, delta) for line in path.read_text(encoding="utf-8").splitlines() if line]
@@ -450,6 +478,14 @@ def cmd_replay(args, hec, out):
         if not args.dry_run:
             hec.send_event(report, when.timestamp(), sourcetype, f"report:{path.name}", args.host)
         print(f"{'would send' if args.dry_run else 'sent'} {path.name} as {sourcetype}", file=out)
+    for path in event_files:
+        sourcetype = EVENT_FILES[path.stem]
+        events = load_events(path)
+        if not args.dry_run:
+            for event, when in events:
+                hec.send_event(event, (when + delta).timestamp(), sourcetype, f"api:{path.stem}", args.host)
+        print(f"{'would send' if args.dry_run else 'sent'} {len(events)} events from {path.name} as {sourcetype}",
+              file=out)
 
 
 def build_parser():

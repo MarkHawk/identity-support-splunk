@@ -72,6 +72,28 @@ class FakeSystem:
         raise AssertionError(f"unexpected command {cmd}")
 
 
+# A made-up admin password and TOTP secret, built at run time.
+ADMIN_PW = "not-" + "the-admin-password"
+TOTP_SECRET = "JBSWY3DP" + "EHPK3PXP"
+ADMIN_EVENT = {"id": "e1", "time": 1792434600000, "realmId": "r1", "operationType": "UPDATE", "resourceType": "REALM",
+               "authDetails": {"realmId": "r0", "clientId": "c0", "ipAddress": LAB_IP}}
+
+
+class FakeAdmin:
+    """Stands in for capture_lab.lab_admin: records what it was given."""
+
+    def __init__(self, events=(ADMIN_EVENT,)):
+        self.events, self.calls = list(events), []
+
+    def __call__(self, lab, env):
+        self.env = env
+        return self
+
+    def admin_events(self, realm, since, until):
+        self.calls.append((realm, since, until))
+        return self.events
+
+
 @pytest.fixture
 def setup(tmp_path, monkeypatch):
     monkeypatch.setattr(capture.sanitise, "PERSONAL_FILE", tmp_path / "absent")
@@ -80,10 +102,16 @@ def setup(tmp_path, monkeypatch):
     (ti / "samples/lab/baseline/saml-response.xml").write_text("<x/>")
     (ti / "samples/lab/baseline/saml-response.xml.meta.json").write_text(
         json.dumps({"args": ["--metadata", "{dir}/idp-metadata.xml", "--now", "2026-10-17T11:29:17Z"]}))
+    lab = tmp_path / "identity-lab"
+    lab.mkdir()
+    (lab / ".env").write_text(f"LAB_HOST=idlab.home\nKC_PORT=8180\nKC_ADMIN_USER=admin\nKC_ADMIN_PASSWORD={ADMIN_PW}\n"
+                              f"GRACE_TOTP_SECRET={TOTP_SECRET}\nHEIDI_TOTP_SECRET=\n")
+    fake = FakeAdmin()
+    monkeypatch.setattr(capture, "lab_admin", fake)
     return {
         "argv": ["--token-inspector", str(ti), "--rate-limit-probe", str(tmp_path / "rlp"),
-                 "--raw", str(tmp_path / "raw"), "--out", str(tmp_path / "samples")],
-        "tmp": tmp_path, "ti": ti,
+                 "--raw", str(tmp_path / "raw"), "--out", str(tmp_path / "samples"), "--lab", str(lab)],
+        "tmp": tmp_path, "ti": ti, "lab": lab, "admin": fake,
     }
 
 
@@ -236,3 +264,62 @@ def test_no_lab_running_is_a_clear_error(setup, capsys):
         return subprocess.CompletedProcess(cmd, 0, "", "")
     assert capture.main(setup["argv"] + ["--since", "2026-10-19T18:00:00Z"], out=io.StringIO(), runner=nothing) == 1
     assert "no running containers" in capsys.readouterr().err
+
+
+def test_admin_events_are_fetched_for_the_window_and_sanitised(setup):
+    assert capture.main(setup["argv"] + ["--since", "2026-10-19T18:00:00Z", "--until", "2026-10-19T19:00:00Z",
+                                         "--no-tools"], out=io.StringIO(), runner=FakeSystem()) == 0
+    realm, since, until = setup["admin"].calls[0]
+    assert (realm, capture.iso(since), capture.iso(until)) == ("idlab", "2026-10-19T18:00:00Z", "2026-10-19T19:00:00Z")
+    lines = (setup["tmp"] / "samples/events/keycloak-admin.jsonl").read_text().splitlines()
+    assert [json.loads(line) for line in lines] == [{**ADMIN_EVENT, "authDetails": {**ADMIN_EVENT["authDetails"],
+                                                                                    "ipAddress": "192.0.2.10"}}]
+    assert json.loads((setup["tmp"] / "samples/capture.json").read_text())["admin_events"] == 1
+
+
+def test_the_admin_password_is_never_written(setup):
+    capture.main(setup["argv"] + ["--since", "2026-10-19T18:00:00Z", "--no-tools"], out=io.StringIO(), runner=FakeSystem())
+    for f in [*(setup["tmp"] / "raw").rglob("*"), *(setup["tmp"] / "samples").rglob("*")]:
+        assert not f.is_file() or ADMIN_PW not in f.read_text()
+
+
+def test_lab_totp_secrets_are_masked_in_the_samples(setup):
+    log = KEYCLOAK_LOG.replace('username="dave"', f'username="dave", note="{TOTP_SECRET.lower()}"')
+    system = FakeSystem()
+
+    def runner(cmd, cwd=None):
+        if cmd[:2] == ["docker", "logs"] and cmd[-1] == "identity-lab-keycloak-1":
+            return subprocess.CompletedProcess(cmd, 0, log, "")
+        return system(cmd, cwd)
+
+    assert capture.main(setup["argv"] + ["--since", "2026-10-19T18:00:00Z", "--no-tools"],
+                        out=io.StringIO(), runner=runner) == 0
+    text = (setup["tmp"] / "samples/logs/keycloak.log").read_text()
+    assert TOTP_SECRET.lower() not in text and 'note="masked-totp-secret-1"' in text
+
+
+def test_no_admin_events_skips_the_api_and_the_lab_env(setup):
+    (setup["lab"] / ".env").unlink()
+    assert capture.main(setup["argv"] + ["--since", "2026-10-19T18:00:00Z", "--no-tools", "--no-admin-events"],
+                        out=io.StringIO(), runner=FakeSystem()) == 0
+    assert setup["admin"].calls == [] and not (setup["tmp"] / "samples/events").exists()
+
+
+def test_a_lab_without_env_is_a_clear_error(setup, capsys):
+    (setup["lab"] / ".env").unlink()
+    assert capture.main(setup["argv"] + ["--since", "2026-10-19T18:00:00Z", "--no-tools"],
+                        out=io.StringIO(), runner=FakeSystem()) == 1
+    assert "no .env in" in capsys.readouterr().err
+
+
+def test_lab_admin_is_the_read_only_client_on_loopback(tmp_path):
+    env = {"LAB_HOST": "idlab.home", "KC_PORT": "8180", "KC_ADMIN_USER": "admin", "KC_ADMIN_PASSWORD": ADMIN_PW}
+    client = capture.lab_admin(tmp_path, env)
+    assert isinstance(client, capture.keycloak_admin.ReadOnlyAdmin)
+    assert (client.host, client.port, client.tls_server_name) == ("127.0.0.1", 8180, "idlab.home")
+    assert ADMIN_PW not in repr(client)
+
+
+def test_lab_admin_needs_the_settings(tmp_path):
+    with pytest.raises(capture.hec_send.SenderError, match="has no KC_ADMIN_PASSWORD"):
+        capture.lab_admin(tmp_path, {"LAB_HOST": "h", "KC_PORT": "1", "KC_ADMIN_USER": "admin"})

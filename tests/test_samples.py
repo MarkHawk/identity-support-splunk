@@ -15,6 +15,7 @@ props, transforms = read_conf("props.conf"), read_conf("transforms.conf")
 SAMPLES = ROOT / "samples"
 LOGS = sorted((SAMPLES / "logs").glob("*.log"))
 REPORTS = sorted(p for p in (SAMPLES / "reports").glob("*.json") if not p.name.endswith(".meta.json"))
+EVENTS = sorted((SAMPLES / "events").glob("*.jsonl"))
 
 
 def sample_events():
@@ -113,5 +114,5 @@ def test_reports_are_tool_reports_with_a_capture_time(path):
 
 
 def test_replay_plan_covers_the_samples():
-    logs, reports = hec_send.replay_plan(SAMPLES)
-    assert logs == LOGS and reports == REPORTS
+    logs, reports, events = hec_send.replay_plan(SAMPLES)
+    assert logs == LOGS and reports == REPORTS and events == EVENTS
