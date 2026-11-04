@@ -35,7 +35,10 @@ grouped setup-key form, and credential IDs (masked-credential-N, so a
 user's code failures still share one). A caller can also pass the lab's
 known TOTP secrets (capture_lab.py reads them from the lab's .env, in
 memory only): they are masked in any case or grouping, and the check fails
-on any left. A private key anywhere
+on any left. The host's network names are replaced too: a Tailscale
+MagicDNS name (*.ts.net) becomes tailnet.example, and a DNS search domain
+from the host's resolv.conf (as Squid logs it) search.example. A private
+key anywhere
 stops the run. Noise is trimmed: health-check requests, and directory
 connections that only made an anonymous bind (the lab's health check).
 The output is checked again before the run reports success.
@@ -134,6 +137,15 @@ CREDENTIAL_PATH = re.compile(r"(?<![\w-])(credentials/)([0-9a-f]{8}-[0-9a-f]{4}-
 JSON_MFA_KEYS = {**{k: k for k in MFA_FORM_PARAMS}, "secret": "totp-secret", "credentialId": "credential",
                  "credential_id": "credential", "selected_credential_id": "credential"}
 
+# The host's network, as containers see it: a Tailscale MagicDNS name
+# (<tailnet>.ts.net), and the DNS search domain Squid reads from the
+# resolv.conf Docker copies in from the host. Both name the machine's
+# network, not the lab.
+TAILNET = re.compile(r"(?i)(?<![A-Za-z0-9.-])(?:[a-z0-9-]+\.)+ts\.net\b")
+TAILNET_REPLACEMENT = "tailnet.example"
+RESOLV_DOMAIN = re.compile(r"(Adding domain )(\S+)( from /etc/resolv\.conf)")
+RESOLV_REPLACEMENT = "search.example"
+
 _B64_BLOB = re.compile(r"[A-Za-z0-9+/_-]{40,}={0,2}")
 
 HOME_REPLACEMENT = "~"
@@ -201,6 +213,9 @@ def find_problems(text, personal=(), secrets=()):
         found.append("Keycloak setup key")
     if CREDENTIAL_ID.search(text) or CREDENTIAL_PATH.search(text):
         found.append("credential ID")
+    if TAILNET.search(text) or any(m.group(2) not in (".", RESOLV_REPLACEMENT, TAILNET_REPLACEMENT)
+                                   for m in RESOLV_DOMAIN.finditer(text)):
+        found.append("host network name")
     if any(p.search(text) for p in personal):
         found.append("personal pattern from .personal-patterns")
     return found
@@ -299,6 +314,9 @@ class Sanitiser:
         text = TOKEN_VALUE.sub(self._token, text)
         text = JWT.sub(lambda m: self._masked("jwt", m.group(0)), text)
         text = self.mfa(text)
+        text = TAILNET.sub(TAILNET_REPLACEMENT, text)
+        text = RESOLV_DOMAIN.sub(lambda m: m.group(0) if m.group(2) in (".", TAILNET_REPLACEMENT)
+                                 else m.group(1) + RESOLV_REPLACEMENT + m.group(3), text)
         if self.personal:
             # Keep github.com/<account> as it is; mask personal strings elsewhere.
             pieces, last = [], 0

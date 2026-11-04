@@ -330,3 +330,23 @@ def test_credential_ids_in_an_admin_event_are_masked_like_the_log_ones():
     assert event == {"resourcePath": "users/c9114ad6-9829-441f-b7d3-4b5a93e8d9b4/credentials/masked-credential-1",
                      "details": {"credential_type": "otp", "credential_id": "masked-credential-1"}}
     assert sanitise.find_problems(f"users/x/credentials/{CRED}") == ["credential ID"]
+
+
+# A made-up tailnet and search domain, built at run time.
+TAILNET_NAME = "tail12345" + ".ts" + ".net"
+
+
+def test_host_network_names_are_replaced():
+    s = sanitise.Sanitiser()
+    line = "2026/11/04 13:11:05| Adding domain " + TAILNET_NAME + " from /etc/" + "resolv.conf"
+    assert s.text(line) == "2026/11/04 13:11:05| Adding domain tailnet.example from /etc/resolv.conf"
+    other = "Adding domain " + "corp" + ".internal from /etc/resolv.conf"
+    assert s.text(other) == "Adding domain search.example from /etc/resolv.conf"
+    assert s.text("Adding domain . from /etc/resolv.conf") == "Adding domain . from /etc/resolv.conf"
+    assert s.text(f"devbox.{TAILNET_NAME} said hi") == "tailnet.example said hi"
+
+
+@pytest.mark.parametrize("text", [f"x {TAILNET_NAME} y", "Adding domain " + "corp" + ".internal from /etc/resolv.conf"])
+def test_check_finds_host_network_names(tmp_path, text):
+    (tmp_path / "a.log").write_text(text + "\n")
+    assert sanitise.check_paths([tmp_path], personal=[]) == [(str(tmp_path / "a.log"), "host network name")]
