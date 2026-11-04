@@ -1,5 +1,46 @@
 # Changelog
 
+## 0.6.0 (2026-11-04)
+
+Adds identity-lab's MFA scenarios: TOTP clock drift (runbook 20), a
+changed OTP policy (21), a lockout after wrong codes (22), and a NAS that
+can't do RADIUS challenge-response (23).
+
+- **Causes:** a wrong one-time code at Keycloak is its own cause
+  (`kc_otp_invalid`, runbook 20), no longer a wrong password (04). It
+  needs Keycloak's `selected_credential_id` and no username; a wrong
+  password for an MFA user names the user and no credential, so it
+  stays a wrong password. A lockout links runbook 22.
+- **RADIUS MFA:** the server's `Challenge sent` and `Invalid user` lines
+  and the NAS's discarded challenges are parsed. A new macro reads each
+  with the lines around it: a wrong code after a challenge (runbook 20,
+  no longer 05), a `State` the server never issued, and a challenge the
+  NAS never answered, named after what the NAS said (runbook 23). A wrong
+  password always carries the directory's reason, so it is never taken
+  for a code.
+- **Who is affected:** a wrong code at Keycloak names only the user's ID.
+  The overview names the user from another event with that ID: the
+  lockout line, or a login at the OIDC app.
+- **Lockouts by rule:** inferred from the failures before each lockout
+  (Keycloak never logs the rule): quick login, max failures, or not clear
+  from the logs. With the first refusal, the admin's unlock and the next
+  login.
+- **Admin events:** a new sourcetype, `idlab:keycloak:admin` (CIM Change).
+  The capture fetches them read-only from Keycloak's Admin REST API, since
+  they never reach its log, and the sender replays them at their own
+  time. A realm update is the only trace of runbook 21: a row in "When did
+  it start?", left out of the failure counts.
+- **Dashboard:** an MFA row: failures over time by likely cause, by user,
+  by NAS, lockouts by rule, RADIUS challenges with no reply, and Keycloak
+  admin changes.
+- **Alerts:** account locked out (22), and RADIUS MFA challenge with no
+  reply (23).
+- **Sanitiser:** masks TOTP secrets, setup keys, one-time codes and
+  credential IDs, and the lab's own TOTP secrets in any form. The final
+  check fails on any left.
+- **Samples:** re-captured from a full identity-lab run, with scenarios
+  20 to 23 and the realm's admin events.
+
 ## 0.5.1 (2026-10-23)
 
 Polish.

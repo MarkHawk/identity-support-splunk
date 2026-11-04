@@ -66,6 +66,8 @@ clash with a Splunk you already run.
     the app both log it.
   - The expired-token row names the tokens' lifetime (`exp - iat`) and
     says when it is very short.
+  - A change to the realm's settings is a row too (runbook 21), though it
+    is not a failure. It is left out of the tiles and the main chart.
   - *affected* is one of four things: a number of end users, where the
     logs name them; a service account, such as
     `service account (keycloak-svc)`; a client certificate on a
@@ -127,6 +129,29 @@ clash with a Splunk you already run.
   were issued to, the audiences (`aud`) they carry, and the lifetime of
   the expired ones.
 
+![MFA](docs/screenshots/mfa.png)
+*MFA: failures by likely cause, by user and by NAS, lockouts by rule, RADIUS challenges with no reply, and Keycloak's admin changes.*
+
+- **Failures over time by likely cause:** wrong one-time codes at Keycloak
+  and at the RADIUS server, lockouts, RADIUS challenges the NAS never
+  answered, and changes to the realm's settings.
+- **Failures by user:** each user, with their apps and NASes, and where
+  their name came from. Keycloak logs a wrong code with the user's ID
+  only (see [How it works](#how-it-works)).
+- **RADIUS MFA by NAS:** the challenges the server sent each NAS, wrong
+  codes, unknown `State`, and challenges with no reply, with how many of
+  those the NAS explained.
+- **Lockouts by rule:** each lockout, the failures before it, the shortest
+  gap between two, and the rule that most likely fired. Also the first
+  refusal, and when an admin cleared it or the user next logged in.
+  Keycloak never logs the rule, so it is inferred.
+- **RADIUS challenges with no reply:** each one, and what the NAS said, if
+  anything. Many real NASes log nothing about it.
+- **Keycloak admin changes:** admin events for the realm, its users and
+  lockouts, newest first. With details off, an event says what kind of
+  thing changed, never what changed in it. So a realm update is a lead
+  for runbook 21, not proof.
+
 **Tool reports** is the second dashboard:
 - token-inspector verdicts, likely causes and failed checks, with runbook
   links.
@@ -146,15 +171,23 @@ In Activity > Triggered Alerts. No actions are configured.
 | Reverse proxy 502/504 spike | the proxy answers 502 or 504 at least 3 times in 5 minutes; lists the reasons from its error log | 06, 07, 10 |
 | Reverse proxy rate limiting logins | the proxy's rate limit refuses at least 3 requests (429) in 5 minutes | 08 |
 | Egress proxy refusing the IdP | the egress proxy refuses the app's calls to the IdP (407, 403, or TLS interception) in the last 5 minutes, from Squid's logs or the app's | 11, 12, 13 |
+| Account locked out | a lockout first refused in the last 15 minutes, with the rule that most likely fired and whether an admin has cleared it; one alert per user | 22 |
+| RADIUS MFA challenge with no reply | the NAS never answered a challenge for a one-time code, in the last 10 minutes, once the challenge is a minute old | 23 |
 | App stuck in a redirect loop | an app redirects the same path to itself 5 or more times, each within 2 seconds of the last, in the last 10 minutes; one loop is enough | 15 |
 | rate-limit-probe found a problem | a report in the last hour has a FAIL | (the report's own next step) |
 
-The samples set off the LDAP and SAML alerts at the next five-minute run.
-The others may stay quiet:
-- the RADIUS, proxy 502/504 and egress alerts look back only five
-  minutes, so they can miss the samples by the time they run;
-- the capture is too short for the SSO spike;
+In a test on 2026-11-04, the first five-minute run, three minutes after
+the samples loaded, set off seven alerts: account locked out, RADIUS MFA
+challenge with no reply, LDAP, SAML, egress, redirect loop and the SSO
+spike. The rest stayed quiet:
+- the RADIUS-not-responding and proxy 502/504 alerts look back only five
+  minutes, and their scenarios come early in the capture;
 - its single 429 is below the rate-limit alert's threshold.
+
+The egress and redirect-loop alerts also look back only 5 and 10
+minutes, so they can miss the samples if the first run comes later. The
+lockout and RADIUS MFA alerts look back 15 and 10 minutes, and their
+scenarios come late in the capture.
 
 On Splunk Free there is no alerting, but the same searches still run as
 reports. The API's rejections, the proxy's maintenance 503, refused client
@@ -183,6 +216,10 @@ Every identity-lab scenario, and where it shows.
 | 17 | Reverse proxy 503: maintenance mode left on | Reverse proxy row, When did it start? (`proxy`) |
 | 18 | Mutual TLS: no client certificate (18a `client-cert-missing`), or an expired one (18b `client-cert-expired`) | Reverse proxy row and its client certificates, When did it start? (`proxy`, the certificate as affected) |
 | 19 | CORS: the API answers 200, the browser blocks it | API row (`cors_origin_mismatch`), When did it start? (`api`) |
+| 20 | TOTP clock drift: every code the user types fails | MFA row, When did it start? (`oidc-rp`, the user named through their ID) |
+| 21 | OTP policy changed: new starters can't set up an authenticator | MFA row (Keycloak admin changes), When did it start? (the realm change; affected not in log). Keycloak logs nothing for the refused code |
+| 22 | MFA lockout after wrong codes | MFA row (lockouts by rule), When did it start? (`oidc-rp`), lockout alert |
+| 23 | RADIUS MFA: the NAS doesn't do challenge-response | MFA row (by NAS, challenges with no reply), When did it start? (`radius`), RADIUS MFA alert |
 
 ## How it works
 
@@ -193,7 +230,9 @@ The app reads the logs from every part of identity-lab:
 - the Squid egress proxy behind one of them;
 - the API that checks the OIDC app's access tokens;
 - the RADIUS server and NAS;
-- the LDAP directory.
+- the LDAP directory;
+- Keycloak's admin events, from its Admin REST API. They never reach its
+  log: the `jboss-logging` listener logs them at DEBUG.
 
 It also reads the JSON reports from
 [token-inspector](https://github.com/MarkHawk/token-inspector) and
@@ -209,15 +248,16 @@ starts, so a Java stack trace or a Python traceback stays whole.
 
 | Sourcetype | From | Key fields |
 |---|---|---|
-| `idlab:keycloak` | identity provider | `kc_type`, `kc_error`, `kc_clientId`, `kc_username`, `ldap_result_code` (from stack traces) |
+| `idlab:keycloak` | identity provider | `kc_type`, `kc_error`, `kc_clientId`, `kc_username`, `kc_userId`, `kc_selected_credential_id` (a wrong one-time code), `ldap_result_code` (from stack traces) |
+| `idlab:keycloak:admin` | Keycloak's admin events (JSON, one per change) | `operationType`, `resourceType`, `resourcePath`; CIM Change `action`, `object_category`, `object_path`, `src`; `unlocked_user_id` when an admin cleared a lockout |
 | `idlab:sp` | SAML SP and OIDC RP, and their copies behind the proxies | `event`, `reason`, `error`, `name_id` / `email`; `app` ends in `-proxied`, `-egress` or `-edge` for the copies; `path`, `scheme`, `x_forwarded_proto` on a forced HTTPS redirect; health checks dropped at index time |
 | `idlab:api` | API (resource server) | `reason` (wrong_audience, expired, no_token, ...), `status` (401, or 400 for a malformed header), `sub`, `azp`, `aud`, `iss`, `exp`, `iat`, `token_lifetime` (`exp - iat`, seconds); `origin` (a browser page's Origin) and `cors_allow_origin` (the header the API sent) on an accepted call; a claim the token lacks is no field; never the token |
 | `idlab:nginx:access` | reverse proxy access log | `status`, `request`, `src`, `site`, `upstream`, `upstream_status`, `request_time`, `upstream_time`, `upstream_response_time` (seconds, from the last upstream tried); on the mutual-TLS route `client_dn`, `client_not_after`, `ssl_client_verify` (SUCCESS, NONE or FAILED:<reason>) and `ssl_client_verify_reason`; `app` is `proxy` and `route` the host and port for a 503 without an upstream or a refused certificate |
 | `idlab:nginx:error` | reverse proxy error log | `log_level`, `nginx_reason` (the reason text), `src`, `request`, `upstream`, `site`, `limit_zone`, `ssl_verify_error` and `ssl_client_verify_reason` (a refused client certificate, at info level); `app` is `proxy` and `route` the host and port for a refusal |
 | `idlab:squid:access` | egress proxy access log (Squid's native format) | `result_code`, `status`, `action` (allowed, blocked), `http_method`, `url`, `dest_host`, `dest_port`, `src`, `user`, `hierarchy_code`, `duration` |
 | `idlab:squid:cache` | egress proxy cache.log | `log_level`, `squid_message`, `squid_error_detail`, `tls_lib_err` and `tls_error` (OpenSSL's code and text: `A000418` is `tlsv1 alert unknown ca`) |
-| `idlab:radius` | RADIUS server | `radius_result`, `radius_outcome` (Access-Accept, Access-Reject, no reply), `user`, `nas_client` |
-| `idlab:nas` | NAS client output | `nas_result`, `radius_outcome`, `attempts` |
+| `idlab:radius` | RADIUS server | `radius_result`, `radius_outcome` (Access-Accept, Access-Reject, Access-Challenge, no reply), `radius_reason`, `radius_invalid_user`, `radius_request_id`, `user`, `nas_client` |
+| `idlab:nas` | NAS client output | `nas_result`, `radius_outcome` (also challenge discarded), `nas_discard_reason`, `attempts` |
 | `idlab:slapd` | LDAP directory | `conn`, `op`, `bind_dn`, `err` (a bind is two lines, joined on `conn` and `op`) |
 | `token_inspector:report` | token-inspector `--json` | `verdict`, `likely_cause`, `runbook_url` |
 | `rate_limit_probe:report` | rate-limit-probe `--json` | `verdict`, `likely_cause`, `target_url`, `status_429` |
@@ -227,7 +267,8 @@ starts, so a Java stack trace or a Python traceback stays whole.
   `authentication`. So do the directory's failed binds, and the API's
   accepted and refused tokens (`app` is `api`, `user` the token's `sub`). The proxies'
   access logs map to the Web data model, tagged `web` (and `proxy` for
-  Squid's).
+  Squid's). Keycloak's admin events map to the Change data model, tagged
+  `change`.
 - **The proxy's two logs** arrive in one stream from the container, as
   `idlab:nginx`. Each line is typed `idlab:nginx:access` or
   `idlab:nginx:error` at index time, so the typing does not depend on
@@ -254,6 +295,48 @@ starts, so a Java stack trace or a Python traceback stays whole.
   compares them; the browser's refusal itself is never in a server log.
   A preflight the browser refuses (an `OPTIONS` with no `GET` after it)
   is not detected.
+- **A wrong one-time code at Keycloak** is `invalid_user_credentials`,
+  like a wrong password. But at the code step Keycloak names the
+  authenticator the user picked (`selected_credential_id`) and not the
+  user. A wrong password names the user and no authenticator, even for a
+  user with MFA. So `kc_otp_invalid` needs both: a credential, and no
+  username.
+- **Who is affected by a wrong code:** that line has the user's Keycloak
+  ID only. The `` `support_kc_user_from_id` `` macro finds the name on
+  another event with the same ID in the same search:
+  - Keycloak's own, when one names both (a lockout does);
+  - otherwise the OIDC app's login, whose `sub` is the Keycloak ID (the
+    name is then its email).
+
+  It can't when nothing else in the time range names that ID: the user
+  has had no lockout and no login at an OIDC app that logs one, or only
+  uses SAML apps (the SP logs no Keycloak ID). Widening the time range
+  helps. The panel says whether each name came from the log or from the
+  ID.
+- **RADIUS MFA:** FreeRADIUS logs nothing when it sends an
+  Access-Challenge, so identity-lab adds a `Challenge sent` line. The
+  `` `support_radius_mfa` `` macro reads each line with the ones around
+  it, per server, NAS and user:
+  - `Login incorrect` with no reason, within 60 seconds of a challenge
+    (the server's `State` lasts a minute), is a wrong, expired or reused
+    code (runbook 20). A wrong password names the directory's reason, so
+    it is never taken for a code, and starts a new attempt.
+  - `Invalid user`, then `Login incorrect` with the same request number,
+    is a `State` the server never issued (runbook 23).
+  - A challenge with no second request within 60 seconds is a failure
+    (runbook 23). It is named after the NAS's discard line if there is
+    one, and that line is not counted again.
+- **Lockouts:** Keycloak logs a lockout only when the locked user tries
+  again, and never says which rule locked them. The
+  `` `support_lockouts` `` macro infers it from the failures since the
+  user's last login (at the OIDC app) or an admin's unlock. Two failures
+  under `quickLoginCheckMilliSeconds` apart mean quick login. Otherwise
+  `failureFactor` failures mean max failures. Otherwise it says not clear
+  from the logs. It uses identity-lab's values (5, and 1000 ms); set your
+  realm's in `local/macros.conf`. A login at an app that logs nothing is
+  invisible, so the count can be too high. Two logins at the same moment
+  can be logged in the wrong order: the lab once logged a lockout before
+  the failure that caused it.
 - **Counting once:** the `` `support_count_once_per_login` `` macro marks
   a Squid refusal that the egress app also logged (same cause, within 2
   seconds) so the overview's counts don't double it.
@@ -312,6 +395,12 @@ python3 sender/hec_send.py replay samples --shift-to-now
 - **Where things go:** container logs go to HEC's raw endpoint, so the app's
   `props.conf` breaks lines and reads times exactly as it would for a file.
   Reports go to the event endpoint with their own time.
+- **Admin events:** `replay` also sends `events/keycloak-admin.jsonl`,
+  one admin event per line, each at its own time. On a real Keycloak,
+  fetch them through the Admin REST API with a dedicated account that can
+  only read them (the `realm-management` role `view-events`, nothing
+  else), not an admin account. The capture uses the lab's admin account
+  only because the lab has no other.
 - **Checking first:** `--dry-run` reads and counts without sending.
 - **Directory noise:** the directory's routine search lines are dropped by
   default. That means each `SRCH` request and its successful
@@ -349,6 +438,14 @@ tells you to run identity-lab's own end-to-end test (which breaks and fixes
 every scenario), and waits for you. It then collects the lab's logs for
 that window and the tools' reports into `captures/raw/` (gitignored), and
 writes a sanitised copy to `samples/`.
+
+It also fetches the realm's admin events for the window, into
+`events/keycloak-admin.jsonl`, with the admin password from the lab's
+`.env`. The password and the admin token stay in memory: they are never
+written or printed. `scripts/keycloak_admin.py` can only read. It sends
+`GET` under `/admin/realms/`, plus the one `POST` that gets the admin
+token, and refuses anything else before it connects. `--no-admin-events`
+skips it.
 
 `scripts/sanitise.py` does the sanitising:
 - Each private address becomes its own documentation address, the same in

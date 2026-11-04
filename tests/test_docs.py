@@ -39,9 +39,12 @@ def test_clone_url_uses_the_repository_name():
 
 
 def test_screenshots_exist_and_come_before_try_it():
-    shots = ["overview.png", "when-did-it-start.png", "who-is-affected.png", "proxy.png", "egress-proxy.png", "api.png"]
+    shots = ["overview.png", "when-did-it-start.png", "who-is-affected.png", "proxy.png", "egress-proxy.png", "api.png",
+             "mfa.png"]
     for name in shots:
         assert (ROOT / "docs/screenshots" / name).is_file(), name
         assert f"](docs/screenshots/{name})" in README, name
+    for name in re.findall(r"\]\(docs/screenshots/([^)]+)\)", README):
+        assert (ROOT / "docs/screenshots" / name).is_file(), name
     assert README.index("docs/screenshots/") < README.index("## Try it in 5 minutes")
     assert "Splunk user's time zone" in README and "times are UTC" not in README
