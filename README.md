@@ -11,7 +11,7 @@ without the lab. [How it works](#how-it-works) lists the logs and reports
 it reads.
 
 ![Support overview](docs/screenshots/overview.png)
-*Support overview: failures, users affected, and failures over time by likely cause.*
+*Support overview: failures, users affected, failures over time by likely cause, and the first causes in When did it start?, MFA among them.*
 
 The screenshots show real identity-lab data, in the Splunk user's time zone
 (UK time here).
