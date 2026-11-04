@@ -133,7 +133,7 @@ def test_sp_clock_skew_fields():
 
 def test_sp_login_ok_user_fields():
     assert fields("saml-sp", "saml_login_ok")["name_id"] == "alice@idlab.example"
-    assert fields("oidc-rp", "oidc_login_ok")["email"] == "dave@idlab.example"
+    assert fields("oidc-rp", "event=oidc_login_ok sub=5b0c-dave")["email"] == "dave@idlab.example"
 
 
 def test_sp_access_line():
@@ -725,7 +725,7 @@ def kc_fields(contains_all):
 
 
 def test_a_code_failure_names_the_credential_and_not_the_user():
-    rows = kc_fields(['error="invalid_user_credentials"', "selected_credential_id"])
+    rows = kc_fields(['error="invalid_user_credentials"', "selected_credential_id", "T18:52:"])
     assert len(rows) == 5
     for f in rows:
         assert f["kc_selected_credential_id"] == "masked-credential-1"
@@ -741,7 +741,7 @@ def test_a_wrong_password_for_an_mfa_user_names_the_user_and_no_credential():
 
 
 def test_the_lockout_names_both_the_user_and_their_id():
-    [f] = kc_fields(['error="user_temporarily_disabled"'])
+    [f] = kc_fields(['error="user_temporarily_disabled"', "T18:52:21"])
     assert (f["kc_userId"], f["kc_username"]) == ("3b278c31-e716-46f6-88c2-efb9bfe4132a", "grace")
 
 

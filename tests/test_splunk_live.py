@@ -37,7 +37,7 @@ pytestmark = pytest.mark.skipif(not all(os.environ.get(n) for n in NEEDED),
 
 # Events the fixtures should produce once indexed: the healthz line is dropped.
 # The proxy's lines are all typed access or error at index time.
-EXPECTED = {"idlab:keycloak": 13, "idlab:keycloak:admin": 4, "idlab:sp": 46, "idlab:api": 24, "idlab:radius": 23, "idlab:nas": 7, "idlab:slapd": 6,
+EXPECTED = {"idlab:keycloak": 15, "idlab:keycloak:admin": 4, "idlab:sp": 47, "idlab:api": 24, "idlab:radius": 23, "idlab:nas": 7, "idlab:slapd": 6,
             "idlab:nginx:access": 12, "idlab:nginx:error": 10, "idlab:squid:access": 7, "idlab:squid:cache": 5,
             "token_inspector:report": 1, "rate_limit_probe:report": 1}
 
@@ -115,7 +115,7 @@ def test_mfa_code_failures_are_their_own_cause(host):
     rows = search(f"`support_index` host={host} eventtype=idlab_keycloak_mfa_code_failure tag=authentication "
                   "| stats count values(action) as action values(user) as user values(runbook) as runbook by signature kc_userId")
     assert [(r["signature"], r["kc_userId"], r["count"], r["action"], r["runbook"], r.get("user")) for r in rows] == [
-        ("kc_otp_invalid", "3b278c31-e716-46f6-88c2-efb9bfe4132a", "5", "failure", "20-totp-clock-drift", None)]
+        ("kc_otp_invalid", "3b278c31-e716-46f6-88c2-efb9bfe4132a", "6", "failure", "20-totp-clock-drift", None)]
 
 
 def test_a_wrong_password_for_an_mfa_user_stays_a_wrong_password(host):
@@ -125,7 +125,7 @@ def test_a_wrong_password_for_an_mfa_user_stays_a_wrong_password(host):
 
 
 def test_lockout_cause_and_user(host):
-    row = one(host, "eventtype=idlab_keycloak_lockout")
+    row = one(host, 'eventtype=idlab_keycloak_lockout "2026-10-19 18:52:21"')
     assert (row["signature"], row["user"], row["action"], row["runbook"]) == (
         "kc_user_temporarily_disabled", "grace", "failure", "22-mfa-lockout")
 
@@ -166,7 +166,7 @@ def test_sp_login_ok_user(host):
     rows = search(f"`support_index` host={host} tag=authentication action=success sourcetype=idlab:sp | sort user app | table app user")
     assert [(r["app"], r["user"]) for r in rows] == [
         ("oidc-rp-edge", "alice@idlab.example"), ("saml-sp", "alice@idlab.example"),
-        ("saml-sp-proxied", "alice@idlab.example"), ("oidc-rp", "dave@idlab.example")]
+        ("saml-sp-proxied", "alice@idlab.example"), ("oidc-rp", "dave@idlab.example"), ("oidc-rp", "grace@idlab.example")]
 
 
 def test_proxied_app_failure_names_the_proxied_copy(host):
@@ -287,6 +287,47 @@ def test_radius_mfa_macro_leaves_other_events_alone(host):
     before = {r["signature"]: r["count"] for r in rows if "after" not in r}
     after = {r["signature"]: r["count"] for r in rows if "after" in r}
     assert before == after and before
+
+
+def macro(name, host):
+    """A macro's definition from the app, limited to this run's host."""
+    import configparser
+    conf = configparser.RawConfigParser(delimiters=("=",), comment_prefixes=("#",), interpolation=None, strict=False)
+    conf.optionxform = str
+    conf.read_string(re.sub(r"\\\n", " ", (ROOT / "identity_support/default/macros.conf").read_text()))
+    return conf[name]["definition"].replace("`support_index`", f"`support_index` host={host}")
+
+
+def test_code_failures_are_named_through_the_user_id(host):
+    rows = search(f"((`support_failures` host={host} sourcetype=idlab:keycloak) OR (`support_kc_user_ids` host={host})) "
+                  "| `support_kc_user_from_id` | where isnull(kcid_join_only) "
+                  "| fillnull value=- user user_from_id | stats count by signature user user_from_id")
+    got = {(r["signature"], r["user"], r["user_from_id"]): r["count"] for r in rows if r["signature"].startswith("kc_")}
+    assert got[("kc_otp_invalid", "grace", "1")] == "6"
+    assert got[("kc_user_temporarily_disabled", "grace", "-")] == "2"
+    assert got[("kc_invalid_user_credentials", "grace", "-")] == "1"
+    assert not any(k[0] == "kc_otp_invalid" and k[1] == "-" for k in got)
+
+
+def test_lockouts_by_rule(host):
+    body = macro("support_lockout_rules(2)", host).replace("$failure_factor$", "5").replace("$quick_login_ms$", "1000")
+    rows = search(body + ' | eval t=strftime(_time, "%H:%M:%S"), first=strftime(first_refused, "%H:%M:%S"), '
+                  'cleared=strftime(cleared_at, "%H:%M:%S"), ok=strftime(ok_again, "%H:%M:%S") '
+                  "| table t user failures shortest_gap rule first refused cleared ok runbook")
+    assert [(r["t"], r["user"], r["failures"], r.get("shortest_gap"), r["rule"].split(":")[0], r["first"],
+             r.get("cleared"), r.get("ok"), r["runbook"]) for r in rows] == [
+        # the lab's lockout: five wrong codes 3.5 s apart, cleared by the admin, then a login
+        ("18:52:18", "grace", "5", "3.5", "max failures", "18:52:21", "18:52:26", "18:52:32", "22-mfa-lockout"),
+        # two logins at once: Keycloak logged the lockout before the failure that caused it
+        ("18:59:43", "grace", "1", None, "not clear from the logs", "18:59:43", None, None, "22-mfa-lockout")]
+
+
+def test_quick_login_rule_is_named_when_two_failures_are_under_a_second_apart(host):
+    """The lab's lockout, judged with a threshold above its 3.5 s gaps: as if
+    two failures had been under quickLoginCheckMilliSeconds apart."""
+    body = macro("support_lockout_rules(2)", host).replace("$failure_factor$", "5").replace("$quick_login_ms$", "4000")
+    rows = search(body + " | table user rule")
+    assert rows[0]["rule"] == "quick login: two failed logins 3.5 s apart (under 4 s)"
 
 
 def test_ldap_result_49_is_an_authentication_failure(host):
@@ -523,8 +564,8 @@ def test_overview_names_who_is_affected(host):
 
 def test_overview_chart_buckets_follow_the_data(host):
     rows = search(overview_query(host, "ds_over_time"))
-    # the fixtures' failures span 18:05-18:58, so 1-minute buckets, filled continuously
-    assert len(rows) == 54
+    # the fixtures' failures span 18:05-18:59, so 1-minute buckets, filled continuously
+    assert len(rows) == 55
     assert not any("gap" in key for r in rows for key in r)
 
 
