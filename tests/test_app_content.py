@@ -71,7 +71,7 @@ def test_saved_searches_use_the_macros_and_name_a_runbook():
     assert saved.sections()
     for name in saved.sections():
         s = saved[name]
-        assert s["search"].startswith(("`support_index`", "`support_redirect_loops`")), name
+        assert s["search"].startswith("`support_redirect_loops`") or reads_the_index(s["search"]), name
         assert s["enableSched"] == "1" and s["alert.track"] == "1", name
         assert "action." not in " ".join(s), f"{name}: no alert actions are shipped"
         if name != "rate-limit-probe found a problem":
@@ -251,3 +251,16 @@ def test_redirect_loop_alert():
     assert read_conf("macros.conf")["support_redirect_loops"]["definition"].startswith("`support_index`")
     assert "15-redirect-loop.md" in s["description"]
     assert (s["alert.suppress.fields"], s["alert.digest_mode"]) == ("host,app", "0")
+
+
+@pytest.mark.parametrize("name, runbook, lookback", [
+    ("Account locked out", "22-mfa-lockout", "-15m@m"),
+    ("RADIUS MFA challenge with no reply", "23-radius-challenge-unsupported", "-10m@m"),
+])
+def test_mfa_alerts(name, runbook, lookback):
+    s = read_conf("savedsearches.conf")[name]
+    assert set(re.findall(r"/runbooks/([0-9]{2}-[a-z-]+)\.md", s["description"])) == {runbook}
+    assert f'relative_time(now(), "{lookback}")' in s["search"]
+    # the search reads further back than it reports, for the lines before
+    assert int(s["dispatch.earliest_time"].strip("-m@")) > int(lookback.strip("-m@"))
+    assert s["cron_schedule"] == "*/5 * * * *"

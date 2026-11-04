@@ -683,3 +683,37 @@ def test_overview_mfa_row(host):
     assert series == {"wrong code (Keycloak)", "wrong code (RADIUS)", "locked out", "realm settings changed",
                       "challenge not answered", "NAS: no challenge-response", "NAS: no Message-Authenticator",
                       "unknown State (RADIUS)"}
+
+
+FIXTURES_END = "1792436400"  # 2026-10-19T19:00:00Z, just after the last fixture event
+
+
+def mfa_alert_query(host, name):
+    spl = read_saved(name)
+    lockouts = macro("support_lockout_rules(2)", host).replace("$failure_factor$", "5").replace("$quick_login_ms$", "1000")
+    spl = spl.replace("`support_lockouts`", lockouts).replace("`support_radius_mfa_events`", macro("support_radius_mfa_events", host))
+    return spl.replace("now()", FIXTURES_END)
+
+
+def read_saved(name):
+    from splunk_conf import read_conf
+    return read_conf("savedsearches.conf")[name]["search"]
+
+
+def test_lockout_alert(host):
+    rows = search(mfa_alert_query(host, "Account locked out") + " | sort first_refused")
+    # both lockouts were first refused in the 15 minutes before 19:00 (from 18:45)
+    assert [(r["user"], r["rule"].split(":")[0], r.get("cleared_at"), r["runbook_url"].rsplit("/", 1)[1]) for r in rows] == [
+        ("grace", "max failures", "2026-10-19 18:52:26", "22-mfa-lockout.md"),
+        ("grace", "not clear from the logs", None, "22-mfa-lockout.md")]
+    # an hour later, nothing
+    assert search(mfa_alert_query(host, "Account locked out").replace(FIXTURES_END, str(int(FIXTURES_END) + 3600))) == []
+
+
+def test_radius_challenge_alert(host):
+    rows = {r["signature"]: r for r in search(mfa_alert_query(host, "RADIUS MFA challenge with no reply"))}
+    # the challenges from 18:50 on: all five
+    assert {k: (v["challenges"], v["user"], v["nas"]) for k, v in rows.items()} == {
+        "nas_challenge_unsupported": ("2", "heidi", "nas"), "nas_challenge_no_message_authenticator": ("1", "heidi", "nas"),
+        "radius_challenge_unanswered": ("2", "heidi", "nas")}
+    assert all(r["runbook_url"].endswith("23-radius-challenge-unsupported.md") for r in rows.values())
