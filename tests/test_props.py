@@ -142,7 +142,7 @@ def test_sp_access_line():
 
 
 def test_radius_reject_never_extracts_a_password():
-    f = fields("radius", "Login incorrect")
+    f = fields("radius", "Login incorrect (ldap: Bind credentials incorrect: Invalid credentials): [dave]")
     assert (f["radius_result"], f["user"], f["nas_client"]) == ("incorrect", "dave", "nas")
     assert f["radius_reason"] == "ldap: Bind credentials incorrect: Invalid credentials"
     line = "2026-10-19T18:40:10.000000000Z Mon Oct 19 18:40:10 2026 : Auth: (3) Login incorrect: [dave/s3cret] (from client nas port 0)"
@@ -163,7 +163,7 @@ def test_radius_unknown_client():
 
 def test_nas_lines():
     assert fields("nas", "no reply")["attempts"] == "3"
-    assert fields("nas", "Access-Reject")["nas_result"] == "Access-Reject"
+    assert fields("nas", "nas: Access-Reject")["nas_result"] == "Access-Reject"
 
 
 def test_proxy_access_fields():
@@ -770,3 +770,65 @@ def test_admin_events_are_json_with_their_own_time():
 def test_mfa_causes_link_their_runbooks(signature, runbook):
     row = {r["signature"]: r for r in causes()}[signature]
     assert row["runbook"] == runbook
+
+
+# --- MFA: RADIUS and the NAS (real lab lines, moved into the fixture window) ---
+
+def radius_fields(contains):
+    return [extract(props["idlab:radius"], transforms, e) for e in events("radius") if contains in e]
+
+
+def test_a_challenge_names_the_user_and_the_nas_and_no_request_number():
+    rows = radius_fields("Challenge sent: [heidi]")
+    assert len(rows) == 9
+    for f in rows:
+        assert (f["user"], f["nas_client"], f["nas_port"]) == ("heidi", "nas", "0")
+        assert "radius_result" not in f and "radius_request_id" not in f
+
+
+def test_invalid_user_has_the_request_number_of_its_reject():
+    [inv] = radius_fields("Invalid user: [heidi]")
+    assert (inv["radius_invalid_user"], inv["radius_request_id"], inv["user"]) == ("Invalid user", "36", "heidi")
+    [rej] = radius_fields("(36) Login incorrect")
+    assert rej["radius_request_id"] == "36" and "radius_reason" not in rej
+
+
+def test_a_wrong_code_has_no_reason_and_a_wrong_password_names_the_directory():
+    """Check (b): heidi's wrong password 11 s after an unanswered challenge
+    carries the directory's reason; a wrong code (Login incorrect after a
+    challenge) has none. support_radius_mfa tells them apart by that."""
+    [code] = radius_fields("(10396) Login incorrect")
+    [password] = radius_fields("(10403) Login incorrect")
+    assert "radius_reason" not in code
+    assert password["radius_reason"] == "ldap: Bind credentials incorrect: Invalid credentials"
+    macro = read_conf("macros.conf")["support_radius_mfa"]["definition"]
+    assert '(radius_result=="incorrect" AND isnull(radius_reason))), "answer"' in macro
+    assert 'radius_result=="incorrect", "first"' in macro
+
+
+@pytest.mark.parametrize("contains, reason, server", [
+    ("discarded: challenge-response not enabled", "challenge-response not enabled", "radius:1812"),
+    ("discarded: no Message-Authenticator", "no Message-Authenticator", "127.0.0.1:11812"),
+])
+def test_nas_discarded_challenges(contains, reason, server):
+    rows = [extract(props["idlab:nas"], transforms, e) for e in events("nas") if contains in e]
+    assert rows and all((f["nas_discard_reason"], f["user"], f["radius_server"]) == (reason, "heidi", server)
+                        for f in rows)
+
+
+@pytest.mark.parametrize("signature, runbook", [
+    ("radius_reject_wrong_code", "20-totp-clock-drift"),
+    ("radius_reject_unknown_state", "23-radius-challenge-unsupported"),
+    ("radius_challenge_unanswered", "23-radius-challenge-unsupported"),
+    ("nas_challenge_unsupported", "23-radius-challenge-unsupported"),
+    ("nas_challenge_no_message_authenticator", "23-radius-challenge-unsupported"),
+])
+def test_radius_mfa_causes_link_their_runbooks(signature, runbook):
+    assert {r["signature"]: r for r in causes()}[signature]["runbook"] == runbook
+
+
+def test_radius_mfa_macro_names_only_signatures_with_a_cause():
+    macro = read_conf("macros.conf")["support_radius_mfa"]["definition"]
+    named = set(re.findall(r'"((?:radius|nas)_[a-z_]+)"', macro))
+    assert named == {"radius_reject_unknown_state", "radius_reject_wrong_code", "radius_challenge_unanswered"}
+    assert named <= {r["signature"] for r in causes()}

@@ -2,3 +2,6 @@
 2026-10-19T18:45:06.000000000Z nas: no reply from radius:1812 after 3 attempts (6s): RADIUS server not responding
 2026-10-19T18:46:00.000000000Z nas: Access-Request for dave to radius:1812
 2026-10-19T18:46:00.100000000Z nas: Access-Reject
+2026-10-19T18:55:31.672492120Z 2026-10-19T18:55:31Z nas: Access-Challenge from 127.0.0.1:11812 for heidi discarded: no Message-Authenticator
+2026-10-19T18:57:12.611895380Z 2026-10-19T18:57:12Z nas: Access-Challenge from radius:1812 for heidi discarded: challenge-response not enabled (treated as Access-Reject)
+2026-10-19T18:57:30.682697548Z 2026-10-19T18:57:30Z nas: Access-Challenge from radius:1812 for heidi discarded: challenge-response not enabled (treated as Access-Reject)

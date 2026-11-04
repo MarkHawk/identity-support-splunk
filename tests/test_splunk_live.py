@@ -37,7 +37,7 @@ pytestmark = pytest.mark.skipif(not all(os.environ.get(n) for n in NEEDED),
 
 # Events the fixtures should produce once indexed: the healthz line is dropped.
 # The proxy's lines are all typed access or error at index time.
-EXPECTED = {"idlab:keycloak": 13, "idlab:keycloak:admin": 4, "idlab:sp": 46, "idlab:api": 24, "idlab:radius": 7, "idlab:nas": 4, "idlab:slapd": 6,
+EXPECTED = {"idlab:keycloak": 13, "idlab:keycloak:admin": 4, "idlab:sp": 46, "idlab:api": 24, "idlab:radius": 23, "idlab:nas": 7, "idlab:slapd": 6,
             "idlab:nginx:access": 12, "idlab:nginx:error": 10, "idlab:squid:access": 7, "idlab:squid:cache": 5,
             "token_inspector:report": 1, "rate_limit_probe:report": 1}
 
@@ -239,8 +239,9 @@ def test_radius_reject_versus_no_reply(host):
     rows = search(f"`support_index` host={host} (sourcetype=idlab:radius OR sourcetype=idlab:nas) "
                   "| stats count by sourcetype radius_outcome")
     got = {(r["sourcetype"], r["radius_outcome"]): r["count"] for r in rows}
-    assert got == {("idlab:radius", "Access-Accept"): "1", ("idlab:radius", "Access-Reject"): "1",
-                   ("idlab:radius", "no reply"): "4", ("idlab:nas", "no reply"): "1", ("idlab:nas", "Access-Reject"): "1"}
+    assert got == {("idlab:radius", "Access-Accept"): "2", ("idlab:radius", "Access-Reject"): "6",
+                   ("idlab:radius", "Access-Challenge"): "9", ("idlab:radius", "no reply"): "4",
+                   ("idlab:nas", "no reply"): "1", ("idlab:nas", "Access-Reject"): "1", ("idlab:nas", "challenge discarded"): "3"}
 
 
 def test_radius_dropped_packets_point_at_the_shared_secret(host):
@@ -256,6 +257,38 @@ def test_every_radius_failure_has_an_app(host):
     assert {(r["sourcetype"], r["app"]) for r in rows} == {("idlab:radius", "radius"), ("idlab:nas", "radius")}
 
 
+def test_radius_mfa_lines_are_read_with_the_lines_around_them(host):
+    """Real lab lines: a wrong code, a forged State, challenges the NAS
+    discarded or never answered, and (check b) a fresh wrong password 11 s
+    after an unanswered challenge, which stays a wrong password."""
+    rows = search(f"(`support_failures` OR `support_radius_mfa_events`) host={host} "
+                  "(sourcetype=idlab:radius OR sourcetype=idlab:nas) user=heidi | `support_radius_mfa` "
+                  '| eval t=strftime(_time, "%H:%M:%S") | table t sourcetype signature rmfa_uncounted')
+    assert [(r["t"], r["sourcetype"].removeprefix("idlab:"), r["signature"], r.get("rmfa_uncounted")) for r in rows] == [
+        ("18:54:35", "radius", "radius_reject_wrong_code", None),
+        ("18:54:37", "radius", "radius_reject_wrong_code", None),
+        ("18:55:00", "radius", "radius_reject_unknown_state", None),
+        ("18:55:31", "radius", "nas_challenge_no_message_authenticator", None),
+        ("18:55:31", "nas", "nas_challenge_no_message_authenticator", "1"),
+        ("18:56:01", "radius", "radius_challenge_unanswered", None),
+        ("18:57:12", "radius", "nas_challenge_unsupported", None),
+        ("18:57:12", "nas", "nas_challenge_unsupported", "1"),
+        ("18:57:30", "radius", "nas_challenge_unsupported", None),
+        ("18:57:30", "nas", "nas_challenge_unsupported", "1"),
+        ("18:58:15", "radius", "radius_reject_wrong_code", None),
+        ("18:58:31", "radius", "radius_challenge_unanswered", None),
+        ("18:58:42", "radius", "radius_reject_bad_password", None)]
+
+
+def test_radius_mfa_macro_leaves_other_events_alone(host):
+    rows = search(f"`support_failures` host={host} (sourcetype=idlab:keycloak OR user=dave) | stats count by signature "
+                  "| append [search `support_failures` host=HOST (sourcetype=idlab:keycloak OR user=dave) "
+                  "| `support_radius_mfa` | stats count by signature | eval after=1]".replace("HOST", host))
+    before = {r["signature"]: r["count"] for r in rows if "after" not in r}
+    after = {r["signature"]: r["count"] for r in rows if "after" in r}
+    assert before == after and before
+
+
 def test_ldap_result_49_is_an_authentication_failure(host):
     rows = search(f"`support_index` host={host} tag=authentication sourcetype=idlab:slapd | table action err signature")
     assert [(r["action"], r["err"], r["signature"]) for r in rows] == [("failure", "49", "ldap_bind_49")] * 2
@@ -268,6 +301,7 @@ def test_failures_macro(host):
         "kc_otp_invalid", "kc_user_temporarily_disabled",
         "saml_idp_cert_expired", "saml_clock_skew", "oidc-rp:token_validation_failed",
         "radius_reject_bad_password", "radius_bad_shared_secret", "radius_unknown_client", "nas_no_reply",
+        "radius_reject", "nas_challenge_unsupported", "nas_challenge_no_message_authenticator",
         "oidc-rp:token_exchange_failed", "kc_invalid_destination", "proxy_upstream_closed", "proxy_upstream_timeout",
         "proxy_rate_limited", "proxy_header_too_large", "oidc-rp:access_denied",
         "egress_proxy_auth_required", "egress_proxy_policy_block", "egress_proxy_tls_untrusted",
@@ -489,8 +523,8 @@ def test_overview_names_who_is_affected(host):
 
 def test_overview_chart_buckets_follow_the_data(host):
     rows = search(overview_query(host, "ds_over_time"))
-    # the fixtures span 18:05-18:55, so 1-minute buckets, filled continuously
-    assert len(rows) == 51
+    # the fixtures' failures span 18:05-18:58, so 1-minute buckets, filled continuously
+    assert len(rows) == 54
     assert not any("gap" in key for r in rows for key in r)
 
 
