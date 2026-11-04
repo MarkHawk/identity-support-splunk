@@ -225,6 +225,11 @@ def test_token_inspector_found_in_either_usual_place(setup, monkeypatch, capsys)
     assert all(str(d / "samples" / "lab") in err for d in defaults)
 
 
+def test_default_lab_is_beside_this_repo():
+    assert capture.DEFAULT_LAB == capture.ROOT.parent / "identity-lab"
+    assert capture.build_parser().parse_args([]).lab == capture.DEFAULT_LAB
+
+
 def test_default_token_inspector_paths_are_only_the_two_usual_ones():
     home = capture.HOME
     assert capture.DEFAULT_TOKEN_INSPECTORS == (home / "token-inspector", home / "projects" / "token-inspector")

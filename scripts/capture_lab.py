@@ -55,7 +55,8 @@ import keycloak_admin  # noqa: E402
 import sanitise  # noqa: E402
 
 HOME = pathlib.Path.home()
-DEFAULT_LAB = HOME / "identity-lab"
+# identity-lab checked out beside this repo, e.g. ~/projects/identity-lab.
+DEFAULT_LAB = ROOT.parent / "identity-lab"
 # Where a token-inspector checkout usually is; the first with samples wins.
 DEFAULT_TOKEN_INSPECTORS = (HOME / "token-inspector", HOME / "projects" / "token-inspector")
 DEFAULT_RATE_LIMIT_PROBE = HOME / "projects" / "rate-limit-probe"
@@ -200,7 +201,8 @@ def rate_limit_probe_reports(root, raw, when, runner=None):
 
 def build_parser():
     parser = argparse.ArgumentParser(description="Capture sample data from an identity-lab test run, then sanitise it.")
-    parser.add_argument("--lab", type=pathlib.Path, default=DEFAULT_LAB, help="identity-lab checkout")
+    parser.add_argument("--lab", type=pathlib.Path, default=DEFAULT_LAB,
+                        help="identity-lab checkout (default: identity-lab beside this repo)")
     parser.add_argument("--project", default="identity-lab", help="its compose project name")
     parser.add_argument("--since", type=parse_time, help="start of a run already done (ISO 8601 with zone)")
     parser.add_argument("--until", type=parse_time, help="end of that run (default: now)")
