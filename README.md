@@ -76,7 +76,7 @@ clash with a Splunk you already run.
     SAML response the SP rejects, for example).
 
 ![Who is affected?](docs/screenshots/who-is-affected.png)
-*Who is affected? End users, service accounts and client certificates, with RADIUS and LDAP below.*
+*Who is affected? Each end user, service account and client certificate the logs name, with their apps, first and last failures, count and causes.*
 
 - **Who is affected?** Each end user, service account and client
   certificate, with their apps and causes. A failed bind as `uid=...` is
